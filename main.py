@@ -20,15 +20,19 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         # 实例化UI类
         self.serial_port = None
-        self.parameters_dict = {}
-        self.run_params_dict = {}
+        self.setups_dict_custom = {}
+        self.setups_dict_quick_mode = {'Run Mode': None,
+                                       'Syringe Info': '',
+                                       'Flow Parameter': None}
         self.ui_main = Ui_MainWindow()
         self.ui_main.setupUi(self)
 
         # QtCore.QResource.registerResource("Resource_StepsDefine_image.rcc")
 
-        # 实例化串口检测线程
+        """串口的检测、写入和读取线程"""
         self.check_serial_thread = functions.CheckSerialThread(self)
+        self.send_data_to_port = functions.SendDataToPort(self.check_serial_thread, self)
+        self.read_data_from_port = functions.ReadDataFromPort(self.check_serial_thread, self.ui_main, self)
 
         # 更改主题
         self.ui_main.actionLight.triggered.connect(lambda: functions.switch_theme_light(self.ui_main))
@@ -54,68 +58,84 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_child_port_setup.dictReady.connect(
             lambda: functions.receive_dict(self.check_serial_thread, self.ui_child_port_setup.port_param_dict))
 
-        # 设置 Radio Button Group
+        """Radio Button Group部分"""
         self.buttons = {
-            self.ui_main.radioButton_1: {'object_name': 'irun_button', 'value': 'irun'},
-            self.ui_main.radioButton_2: {'object_name': 'wrun_button', 'value': 'wrun'},
-            self.ui_main.radioButton_3: {'object_name': 'irun_wrun_button', 'value': 'irun\nwrun'},
-            self.ui_main.radioButton_4: {'object_name': 'wrun_irun_button', 'value': 'wrun\nirun'},
-            self.ui_main.radioButton_5: {'object_name': 'user_def_button', 'value': None}
+            self.ui_main.radioButton_1: {'object_name': 'irun_button', 'value': 'INF'},
+            self.ui_main.radioButton_2: {'object_name': 'wrun_button', 'value': 'WD'},
+            self.ui_main.radioButton_3: {'object_name': 'irun_wrun_button', 'value': 'INF/ WD'},
+            self.ui_main.radioButton_4: {'object_name': 'wrun_irun_button', 'value': 'WD/ INF'},
+            self.ui_main.radioButton_5: {'object_name': 'user_def_button', 'value': 'Custom method'}
         }
         for button, values in self.buttons.items():
             button.setObjectName(values['object_name'])
             button.setProperty('value', values['value'])
             tab_var = self.ui_main.flow_param_tab
             button.clicked.connect(
-                lambda checked, btn=button, tab=tab_var: functions.on_button_clicked(btn, tab, self.run_params_dict))
+                lambda checked, btn=button, tab=tab_var: functions.on_button_clicked(btn, tab, self.ui_main, self.setups_dict_quick_mode))
 
-        # 初始化 ComboBox Syringe selection
-        functions.init_combox_syrSize(self.ui_main)
+        """ComboBox Syringe selection部分"""
+        functions.init_combox_syrSize(self.ui_main, self.setups_dict_quick_mode)
         self.ui_main.comboBox_syrManu.addItems(functions.Get_syringe_dict().keys())
 
         # Syringe选择框和用户自定义Syringe输入框的逻辑关系
-        self.ui_main.syr_param_enter.textChanged.connect(lambda: functions.update_combox_syr_enabled(self.ui_main))
+        self.ui_main.syr_param_enter.textChanged.connect(lambda: functions.update_combox_syr_enabled(self.ui_main, self.setups_dict_quick_mode))
 
         """自定义Method部分"""
         # 连接用户自定义userDefined_Add按钮和槽函数:Add
         self.ui_main.userDefined_Add.clicked.connect(
             lambda: functions.show_user_defined_dialog(self.ui_child_steps_dialog))
         self.ui_child_steps_dialog.selected_items.connect(lambda item_text, item_icon, parameters_dict=None, list_widget=self.ui_main.
-                                                                 listWidget_userDefined_method: functions.add_to_list(item_text, item_icon, self.parameters_dict, list_widget))
+                                                                 listWidget_userDefined_method: functions.add_to_list(item_text, item_icon, self.setups_dict_custom, list_widget))
 
         # 连接用户自定义userDefined_Del按钮和槽函数:Del
         self.ui_main.userDefined_Del.disconnect()
         self.ui_main.userDefined_Del.clicked.connect(
-            lambda: functions.delete_selected_item(self.ui_main.listWidget_userDefined_method, self.parameters_dict,
+            lambda: functions.delete_selected_item(self.ui_main.listWidget_userDefined_method, self.setups_dict_custom,
                                                    del_btn=self.ui_main.userDefined_Del))
 
         # 指定steps参数和OK按钮
-        # self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(lambda item_selected: functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method, self.parameters_dict, item=item_selected))
-        self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(lambda item_selected: functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method, self.ui_child_step_guide, self.parameters_dict, item=item_selected))
+        # self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(lambda item_selected: functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method, self.setups_dict_custom, item=item_selected))
+        self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(lambda item_selected: functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method, self.ui_child_step_guide, self.setups_dict_custom, item=item_selected))
 
         # 自定义方法：OK按钮 --> 返回steps配置字典
-        self.ui_main.userDefined_OK.clicked.connect(lambda: functions.print_parameters_dict(self.parameters_dict))
-        self.parameters_dict = {}
+        self.ui_main.userDefined_OK.clicked.connect(lambda: functions.print_setups_dict_custom(self.setups_dict_custom))
+        self.setups_dict_custom = {}
 
         # 自定义方法Export功能
         self.ui_main.userDefined_Export.clicked.connect(
-            lambda: functions.export_user_defined_methods(self.parameters_dict))
+            lambda: functions.export_user_defined_methods(self.setups_dict_custom))
 
         # 自定义方法Import功能
         self.ui_main.userDefined_Import.clicked.connect(
             lambda: functions.import_user_defined_methods(self.ui_main.listWidget_userDefined_method,
-                                                          self.parameters_dict))
+                                                          self.setups_dict_custom))
 
+        """串口操作部分"""
         # 设置串口配置Dialog
         self.ui_main.port_button.clicked.connect(lambda: functions.show_port_setup_dialog(self.ui_child_port_setup))
 
         # 获取快速模式的参数并运行Run_button_quick
-        self.ui_main.Run_button_quick.clicked.connect(self.Quick_mode_param_run)
+        self.ui_main.Run_button_quick.clicked.connect(lambda: functions.Quick_mode_param_run(self.ui_main, self.setups_dict_quick_mode))
 
-        """串口操作部分"""
+        """Msc.项"""
+        # 设定或者显示当前泵的地址
+
         # 显示catalog
-        self.ui_main.catalog_display_button.clicked.connect(self.check_serial_thread.ser_command_catalog)
+        self.ui_main.catalog_display_button.clicked.connect(self.send_data_to_port.ser_command_catalog)
 
+        # 校准tilt sensor
+        self.ui_main.tilt_sensor_cali_button.clicked.connect(self.send_data_to_port.ser_command_tilt)
+
+        # 背景光强度dim
+        self.ui_main.bgLight_Slider.valueChanged.connect(lambda: self.send_data_to_port.ser_bgl_label_show(self.ui_main))
+        self.ui_main.bgLight_Slider.sliderReleased.connect(lambda: self.send_data_to_port.ser_bgl_level(self.ui_main))
+
+        # 压力上限
+        self.ui_main.forceLimit_Slider.sliderReleased.connect(lambda: self.send_data_to_port.ser_force_limit(self.ui_main))
+        self.ui_main.forceLimit_Slider.valueChanged.connect(lambda: self.send_data_to_port.ser_force_label_show(self.ui_main))
+
+        """运行部分"""
+        self.ui_main.Run_button_quick.clicked.connect(lambda: self.send_data_to_port.ser_quick_mode_command_set(self.ui_main, self.setups_dict_quick_mode))
     # def delete_selected_item(self):
     #     selected_items = self.ui_main.listWidget_userDefined_method.selectedItems()
     #     if len(selected_items) > 0:
@@ -135,13 +155,13 @@ class MainWindow(QtWidgets.QMainWindow):
     #
     # def update_parameters_dict(self, key_to_remove=None):
     #     if key_to_remove:
-    #         self.parameters_dict.pop(key_to_remove, None)
+    #         self.setups_dict_custom.pop(key_to_remove, None)
     #     else:
     #         for i in range(self.ui_main.listWidget_userDefined_method.count()):
     #             item = self.ui_main.listWidget_userDefined_method.item(i)
     #             key = item.text().split(".")[1].strip()
-    #             if key not in self.parameters_dict:
-    #                 self.parameters_dict[key] = ''
+    #             if key not in self.setups_dict_custom:
+    #                 self.setups_dict_custom[key] = ''
 
     # def edit_item_parameter(self, item):
     #     # print('edit_item_parameter called')
@@ -149,27 +169,27 @@ class MainWindow(QtWidgets.QMainWindow):
     #     # 获取当前item对应的key
     #     item_text = item.text().split(".")[1].strip()
     #     # 如果当前key已经存在，加上一个后缀"_数字"
-    #     if item_text in self.parameters_dict.keys():
+    #     if item_text in self.setups_dict_custom.keys():
     #         suffix = 1
-    #         while f"{item_text}_{suffix}" in self.parameters_dict.keys():
+    #         while f"{item_text}_{suffix}" in self.setups_dict_custom.keys():
     #             suffix += 1
     #         item_text = f"{item_text}_{suffix}"
     #     # 设置默认值为item的参数
-    #     default_value = self.parameters_dict.get(item.text().split(".")[1].strip(), "")
+    #     default_value = self.setups_dict_custom.get(item.text().split(".")[1].strip(), "")
     #     text, ok = QtWidgets.QInputDialog.getText(self, 'Edit Item', 'Enter parameter for item:', text=default_value)
     #     if ok:
     #         # print(f"Parameter for item {current_row + 1} is: {text}")
     #         # 将item的text部分和参数分别作为字典的键和值进行打印和返回
     #         item_parameter = text.strip()
-    #         self.parameters_dict[item_text] = item_parameter
+    #         self.setups_dict_custom[item_text] = item_parameter
     #         # print(f"Key: {item_text}, Value: {item_parameter}")
 
     # def print_parameters_dict(self):
-    #     print(self.parameters_dict)
+    #     print(self.setups_dict_custom)
 
     # def import_user_defined_methods(self):
     #     # 打开目录选择文件
-    #     self.parameters_dict = {}
+    #     self.setups_dict_custom = {}
     #     file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Import User Defined Methods", "UserDefinedMethods",
     #                                                          "JSON files (*.json)")
     #     if file_path:
@@ -182,10 +202,10 @@ class MainWindow(QtWidgets.QMainWindow):
     #                     # 判断是否有重复的键，如果有加上一个后缀
     #                     new_key = key
     #                     suffix = 1
-    #                     while new_key in self.parameters_dict.keys():
+    #                     while new_key in self.setups_dict_custom.keys():
     #                         new_key = f"{key}_{suffix}"
     #                         suffix += 1
-    #                     self.parameters_dict[new_key] = value
+    #                     self.setups_dict_custom[new_key] = value
     #                 # 更新listWidget中的显示
     #                 self.update_list_widget()
     #             else:
@@ -197,7 +217,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #     self.ui_main.listWidget_userDefined_method.model().removeRows(0,
     #                                                              self.ui_main.listWidget_userDefined_method.model().rowCount())
     #     # 添加每一个键值对到listWidget中
-    #     for i, (key, value) in enumerate(self.parameters_dict.items()):
+    #     for i, (key, value) in enumerate(self.setups_dict_custom.items()):
     #         # 根据key选择icon
     #         icon_path = os.path.join("image", functions.icon_dict.get("const.png"))
     #         for icon_name, key_str in functions.icon_dict.items():
@@ -239,8 +259,13 @@ class MainWindow(QtWidgets.QMainWindow):
     #     else:
     #         QtWidgets.QMessageBox.warning(self, "错误", "无效的串口参数")
 
-    def Quick_mode_param_run(self):
-        print(self.run_params_dict)
+    # def Quick_mode_param_run(self):
+    #     if self.setups_dict_quick_mode['Run Mode'] is None:
+    #         QtWidgets.QMessageBox.information(self, 'Input Error.', 'Please specify a run mode for Quick Mode!')
+    #     elif self.setups_dict_quick_mode['Flow Parameter'] is None:
+    #         QtWidgets.QMessageBox.information(self, 'Input Error.', 'Please enter valid parameters for the selected run mode!')
+    #     else:
+    #         print(self.setups_dict_quick_mode)
 
 
 class StepsDialogChildWindow(QtWidgets.QDialog, Ui_Dialog):
@@ -312,7 +337,7 @@ class PortSetupChildWindow(QtWidgets.QDialog, Ui_Dialog_PortSetup):
             if (self.ComboBox_baudrate.currentText() != '' and int(self.ComboBox_baudrate.currentText()) < 9600) \
                     or self.ComboBox_baudrate.currentText() == '' or self.ComboBox_baudrate.currentText() == 'Custom':
                 self.port_param_dict['baudrate'] = int(9600)
-                QtWidgets.QMessageBox.information(self, 'Invalid baud rate', 'Default baud rate set as 9600.')
+                QtWidgets.QMessageBox.information(self, 'Invalid baud rate', 'Default baud rate set to 9600.')
             else:
                 self.port_param_dict['baudrate'] = int(self.ComboBox_baudrate.currentText())
 
@@ -340,7 +365,7 @@ class PortSetupChildWindow(QtWidgets.QDialog, Ui_Dialog_PortSetup):
             self.port_param_dict['timeout'] = int(self.line_timeout.text())
         else:
             self.port_param_dict['timeout'] = int(1)
-            QtWidgets.QMessageBox.information(self, 'No timeout specified', 'Default timeout set as 1s.')
+            QtWidgets.QMessageBox.information(self, 'No timeout specified', 'Default timeout set to 1s.')
 
         # print(self.port_param_dict)
         # self.parent().check_serial_thread.set_port_param_dict(self.port_param_dict)

@@ -1,0 +1,3 @@
+[TYPECHECK]
+# Disable the "Expected type" message for function arguments
+ignored-argument-types=dict

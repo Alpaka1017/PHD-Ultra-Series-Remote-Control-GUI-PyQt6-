@@ -86,219 +86,219 @@
 			"code": "air",
 			"description": "Air-Tite, HSW Norm-Ject",
 			"size": {
-				"1": "air, 1 ml, 4.69 mm",
-				"2": "air, 2.5 ml, 9.65 mm",
-				"3": "air, 5 ml, 12.45 mm",
-				"4": "air, 10 ml, 15.9 mm",
-				"5": "air, 20 ml, 20.05 mm",
-				"6": "air, 30 ml, 22.9 mm",
-				"7": "air, 50 ml, 29.2 mm"
+				"1": ["air, 1 ml, 4.69 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["air, 2.5 ml, 9.65 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["air, 5 ml, 12.45 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["air, 10 ml, 15.9 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["air, 20 ml, 20.05 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["air, 30 ml, 22.9 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["air, 50 ml, 29.2 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_2": {
 			"code": "bdg",
 			"description": "Becton Dickinson, Glass (all types)",
 			"size": {
-				"1": "bdg, 0.5 ml, 4.64 mm",
-				"2": "bdg, 1 ml, 4.64 mm",
-				"3": "bdg, 2.5 ml, 8.66 mm",
-				"4": "bdg, 5 ml, 11.86 mm",
-				"5": "bdg, 10 ml, 14.34 mm",
-				"6": "bdg, 20 ml, 19.13 mm",
-				"7": "bdg, 30 ml, 22.7 mm",
-				"8": "bdg, 50 ml, 28.6 mm",
-				"9": "bdg, 100 ml, 34.9 mm"
+				"1": ["bdg, 0.5 ml, 4.64 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["bdg, 1 ml, 4.64 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["bdg, 2.5 ml, 8.66 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["bdg, 5 ml, 11.86 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["bdg, 10 ml, 14.34 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["bdg, 20 ml, 19.13 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["bdg, 30 ml, 22.7 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["bdg, 50 ml, 28.6 mm", "-7 ml/min", "+7 ml/min"],
+				"9": ["bdg, 100 ml, 34.9 mm",  "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_3": {
 			"code": "bdp",
 			"description": "Becton Dickinson, Plasti-pak",
 			"size": {
-				"1": "bdp, 1 ml, 4.699 mm",
-				"2": "bdp, 3 ml, 8.585 mm",
-				"3": "bdp, 5 ml, 11.989 mm",
-				"4": "bdp, 10 ml, 14.427 mm",
-				"5": "bdp, 20 ml, 19.05 mm",
-				"6": "bdp, 30 ml, 21.59 mm",
-				"7": "bdp, 50 ml, 26.594 mm",
-				"8": "bdp, 60 ml, 26.594 mm"
+				"1": ["bdp, 1 ml, 4.699 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["bdp, 3 ml, 8.585 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["bdp, 5 ml, 11.989 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["bdp, 10 ml, 14.427 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["bdp, 20 ml, 19.05 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["bdp, 30 ml, 21.59 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["bdp, 50 ml, 26.594 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["bdp, 60 ml, 26.594 mm",  "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_4": {
 			"code": "cad",
 			"description": "Cadence Science, Micro-Mate Glass",
 			"size": {
-				"1": "cad, 0.25 ml, 3.47 mm",
-				"2": "cad, 0.5 ml, 3.62 mm",
-				"3": "cad, 1 ml, 4.82 mm",
-				"4": "cad, 2 ml, 8.91 mm",
-				"5": "cad, 3 ml, 8.91 mm",
-				"6": "cad, 5 ml, 11.71 mm",
-				"7": "cad, 10 ml, 14.65 mm",
-				"8": "cad, 20 ml, 19.56 mm",
-				"9": "cad, 30 ml, 22.7 mm",
-				"10": "cad, 50 ml, 28.02 mm",
-				"11": "cad, 100 ml, 35.7 mm"
+				"1": ["cad, 0.25 ml, 3.47 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["cad, 0.5 ml, 3.62 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["cad, 1 ml, 4.82 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["cad, 2 ml, 8.91 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["cad, 3 ml, 8.91 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["cad, 5 ml, 11.71 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["cad, 10 ml, 14.65 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["cad, 20 ml, 19.56 mm", "-7 ml/min", "+7 ml/min"],
+				"9": ["cad, 30 ml, 22.7 mm", "-7 ml/min", "+7 ml/min"],
+				"10": ["cad, 50 ml, 28.02 mm", "-7 ml/min", "+7 ml/min"],
+				"11": ["cad, 100 ml, 35.7 mm",  "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_5": {
 			"code": "has",
 			"description": "Harvard Stainless Steel",
 			"size": {
-				"1": "has, 2.5 ml, 4.851 mm",
-				"2": "has, 8 ml, 9.525 mm",
-				"3": "has, 20 ml, 19.13 mm",
-				"4": "has, 50 ml, 28.6 mm",
-				"5": "has, 100 ml, 34.9 mm"
+				"1": ["has, 2.5 ml, 4.851 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["has, 8 ml, 9.525 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["has, 20 ml, 19.13 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["has, 50 ml, 28.6 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["has, 100 ml, 34.9 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_6": {
 			"code": "hm1",
 			"description": "Hamilton 700, Glass",
 			"size": {
-				"1": "hm1, 5ul, 0.343 mm",
-				"2": "hm1, 10 ul, 0.485 mm"
+				"1": ["hm1, 5ul, 0.343 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["hm1, 10 ul, 0.485 mm",  "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_7": {
 			"code": "hm2",
 			"description": "Hamilton 1000, Glass",
 			"size": {
-				"1": "hm2, 0.5 ul, 0.103 mm",
-				"2": "hm2, 1 ul, 0.1475 mm",
-				"3": "hm2, 2 ul, 0.206 mm",
-				"4": "hm2, 25 ul, 0.729 mm",
-				"5": "hm2, 50 ul, 1.03 mm",
-				"6": "hm2, 100 ul, 1.457 mm",
-				"7": "hm2, 250 ul, 2.304 mm",
-				"8": "hm2, 500 ul, 3.256 mm",
-				"9": "hm2, 1 ml, 4.608 mm",
-				"10": "hm2, 1.25 ml, 5.151 mm",
-				"11": "hm2, 2.5 ml, 7.285 mm",
-				"12": "hm2, 5 ml, 10.03 mm",
-				"13": "hm2, 10 ml, 14.567 mm",
-				"14": "hm2, 25 ml, 23.033 mm",
-				"15": "hm2, 50 ml, 32.573 mm",
-				"16": "hm2, 100 ml, 32.573 mm"
+				"1": ["hm2, 0.5 ul, 0.103 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["hm2, 1 ul, 0.1475 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["hm2, 2 ul, 0.206 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["hm2, 25 ul, 0.729 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["hm2, 50 ul, 1.03 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["hm2, 100 ul, 1.457 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["hm2, 250 ul, 2.304 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["hm2, 500 ul, 3.256 mm", "-7 ml/min", "+7 ml/min"],
+				"9": ["hm2, 1 ml, 4.608 mm", "-7 ml/min", "+7 ml/min"],
+				"10":[ "hm2, 1.25 ml, 5.151 mm", "-7 ml/min", "+7 ml/min"],
+				"11": ["hm2, 2.5 ml, 7.285 mm", "-7 ml/min", "+7 ml/min"],
+				"12": ["hm2, 5 ml, 10.03 mm", "-7 ml/min", "+7 ml/min"],
+				"13": ["hm2, 10 ml, 14.567 mm", "-7 ml/min", "+7 ml/min"],
+				"14": ["hm2, 25 ml, 23.033 mm", "-7 ml/min", "+7 ml/min"],
+				"15": ["hm2, 50 ml, 32.573 mm", "-7 ml/min", "+7 ml/min"],
+				"16": ["hm2, 100 ml, 32.573 mm",  "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_8": {
 			"code": "hm3",
 			"description": "Hamilton 1700, Glass",
 			"size": {
-				"1": "hm3, 10 ul, 0.461 mm"
+				"1": ["hm3, 10 ul, 0.461 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_9": {
 			"code": "hm4",
 			"description": "Hamilton 7000, Glass",
 			"size": {
-				"1": "hm4, 5 ul, 0.3302 mm"
+				"1": ["hm4, 5 ul, 0.3302 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_10": {
 			"code": "hos",
 			"description": "Hoshi",
 			"size": {
-				"1": "hos, 1 ml, 6.50 mm",
-				"2": "hos, 2 ml, 9.10 mm",
-				"3": "hos, 3 ml, 10.00 mm",
-				"5": "hos, 5 ml, 12.60 mm",
-				"6": "hos, 10 ml, 15.10 mm",
-				"7": "hos, 20 ml, 20.45 mm",
-				"8": "hos, 30 ml, 22.50 mm",
-				"9": "hos, 50 ml, 25.60 mm",
-				"10": "hos, 100 ml, 34.00 mm"
+				"1": ["hos, 1 ml, 6.50 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["hos, 2 ml, 9.10 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["hos, 3 ml, 10.00 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["hos, 5 ml, 12.60 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["hos, 10 ml, 15.10 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["hos, 20 ml, 20.45 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["hos, 30 ml, 22.50 mm", "-7 ml/min", "+7 ml/min"],
+				"9": ["hos, 50 ml, 25.60 mm", "-7 ml/min", "+7 ml/min"],
+				"10": ["hos, 100 ml, 34.00 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_11": {
 			"code": "ils",
 			"description": "ILS, Glass",
 			"size": {
-				"1": "ils, 250 ul, 2.303 mm",
-				"2": "ils, 500 ul, 3.260 mm",
-				"3": "ils, 1 ml, 4.606 mm",
-				"4": "ils, 2.5 ml, 7.280 mm",
-				"5": "ils, 5 ml, 10.300 mm",
-				"6": "ils, 10 ml, 14.567 mm",
-				"7": "ils, 25 ml, 23.032 mm",
-				"8": "ils, 50 ml, 32.573 mm",
-				"9": "ils, 100 ml, 32.573 mm"
+				"1": ["ils, 250 ul, 2.303 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["ils, 500 ul, 3.260 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["ils, 1 ml, 4.606 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["ils, 2.5 ml, 7.280 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["ils, 5 ml, 10.300 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["ils, 10 ml, 14.567 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["ils, 25 ml, 23.032 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["ils, 50 ml, 32.573 mm", "-7 ml/min", "+7 ml/min"],
+				"9": ["ils, 100 ml, 32.573 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_12": {
 			"code": "nip",
 			"description": "Nipro",
 			"size": {
-				"1": "nip, 1 ml long, 6.6 mm",
-				"2": "nip, 1 ml short, 4.7 mm",
-				"3": "nip, 2.5 ml, 9.5 mm",
-				"4": "nip, 5 ml, 13.0 mm",
-				"5": "nip, 10 ml, 15.8 mm",
-				"6": "nip, 20 ml, 20.1 mm",
-				"7": "nip, 30 ml, 23.2 mm",
-				"8": "nip, 50 ml, 29.1 mm"
+				"1": ["nip, 1 ml long, 6.6 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["nip, 1 ml short, 4.7 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["nip, 2.5 ml, 9.5 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["nip, 5 ml, 13.0 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["nip, 10 ml, 15.8 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["nip, 20 ml, 20.1 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["nip, 30 ml, 23.2 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["nip, 50 ml, 29.1 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_13": {
 			"code": "sge",
 			"description": "SGE (Scientific Glass Engineering)",
 			"size": {
-				"1": "sge, 5 ul, 0.343 mm",
-				"2": "sge, 10 ml, 0.485 mm",
-				"3": "sge, 25 ul, 0.728 mm",
-				"4": "sge, 50 ul, 1.03 mm",
-				"5": "sge, 100 ul, 1.457 mm",
-				"6": "sge, 250 ul, 2.303 mm",
-				"7": "sge, 500 ul, 3.257 mm",
-				"8": "sge, 1 ml, 4.606 mm",
-				"9": "sge, 2.5 ml, 7.284 mm",
-				"10": "sge, 5 ml, 10.301 mm",
-				"11": "sge, 10 ml, 14.567 mm",
-				"12": "sge, 25 ml, 23 mm",
-				"13": "sge, 50 ml, 27.5 mm",
-				"14": "sge, 100 ml, 35 mm"
+				"1": ["sge, 5 ul, 0.343 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["sge, 10 ml, 0.485 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["sge, 25 ul, 0.728 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["sge, 50 ul, 1.03 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["sge, 100 ul, 1.457 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["sge, 250 ul, 2.303 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["sge, 500 ul, 3.257 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["sge, 1 ml, 4.606 mm", "-7 ml/min", "+7 ml/min"],
+				"9": ["sge, 2.5 ml, 7.284 mm", "-7 ml/min", "+7 ml/min"],
+				"10": ["sge, 5 ml, 10.301 mm", "-7 ml/min", "+7 ml/min"],
+				"11": ["sge, 10 ml, 14.567 mm", "-7 ml/min", "+7 ml/min"],
+				"12": ["sge, 25 ml, 23 mm", "-7 ml/min", "+7 ml/min"],
+				"13": ["sge, 50 ml, 27.5 mm", "-7 ml/min", "+7 ml/min"],
+				"14": ["sge, 100 ml, 35 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_14": {
 			"code": "smp",
 			"description": "Sherwood-Monoject, Plastic",
 			"size": {
-				"1": "smp, 1 ml, 4.674 mm",
-				"2": "smp, 3 ml, 8.865 mm",
-				"3": "smp, 6 ml, 12.600 mm",
-				"4": "smp, 12 ml, 15.621 mm",
-				"5": "smp, 20 ml, 20.142 mm",
-				"6": "smp, 35 ml, 23.571 mm",
-				"7": "smp, 60 ml, 26.568 mm",
-				"8": "smp, 140 ml, 37.948 mm"
+				"1": ["smp, 1 ml, 4.674 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["smp, 3 ml, 8.865 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["smp, 6 ml, 12.600 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["smp, 12 ml, 15.621 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["smp, 20 ml, 20.142 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["smp, 35 ml, 23.571 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["smp, 60 ml, 26.568 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["smp, 140 ml, 37.948 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_15": {
 			"code": "tej",
 			"description": "Terumo Japan, Plastic",
 			"size": {
-				"1": "tej, 1 ml tb, 4.70 mm",
-				"2": "tej, 1 ml vc, 6.50 mm",
-				"3": "tej, 2.5 ml, 9.00 mm",
-				"4": "tej, 5 ml, 13.00 mm",
-				"5": "tej, 10 ml, 15.80 mm",
-				"6": "tej, 20 ml, 20.20 mm",
-				"7": "tej, 30 ml, 23.2 mm",
-				"8": "tej, 60 ml, 29.2 mm"
+				"1": ["tej, 1 ml tb, 4.70 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["tej, 1 ml vc, 6.50 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["tej, 2.5 ml, 9.00 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["tej, 5 ml, 13.00 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["tej, 10 ml, 15.80 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["tej, 20 ml, 20.20 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["tej, 30 ml, 23.2 mm", "-7 ml/min", "+7 ml/min"],
+				"8": ["tej, 60 ml, 29.2 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		},
 		"model_16": {
 			"code": "top",
 			"description": "TOP",
 			"size": {
-				"1": "top, 1 ml, 6.40 mm",
-				"2": "top, 2.5 ml, 9.30 mm",
-				"3": "top, 5 ml, 13.10 mm",
-				"4": "top, 10 ml, 15.3 mm",
-				"5": "top, 20 ml, 21.0 mm",
-				"6": "top, 30 ml, 23.0 mm",
-				"7": "top, 50 ml, 29.0 mm"
+				"1": ["top, 1 ml, 6.40 mm", "-7 ml/min", "+7 ml/min"],
+				"2": ["top, 2.5 ml, 9.30 mm", "-7 ml/min", "+7 ml/min"],
+				"3": ["top, 5 ml, 13.10 mm", "-7 ml/min", "+7 ml/min"],
+				"4": ["top, 10 ml, 15.3 mm", "-7 ml/min", "+7 ml/min"],
+				"5": ["top, 20 ml, 21.0 mm", "-7 ml/min", "+7 ml/min"],
+				"6": ["top, 30 ml, 23.0 mm", "-7 ml/min", "+7 ml/min"],
+				"7": ["top, 50 ml, 29.0 mm", "-7 ml/min", "+7 ml/min"]
 			}
 		}
 	}

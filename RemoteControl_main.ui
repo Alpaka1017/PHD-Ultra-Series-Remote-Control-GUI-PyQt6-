@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>894</width>
-    <height>797</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -44,8 +44,8 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_5">
-     <item>
+    <layout class="QGridLayout" name="gridLayout_12">
+     <item row="0" column="0">
       <widget class="QGroupBox" name="GraphicsViewGroup">
        <property name="minimumSize">
         <size>
@@ -140,7 +140,7 @@
        </layout>
       </widget>
      </item>
-     <item>
+     <item row="1" column="0">
       <widget class="QGroupBox" name="ReceivedDataGroup">
        <property name="minimumSize">
         <size>
@@ -166,34 +166,30 @@
        <property name="title">
         <string>Response received from pump</string>
        </property>
-       <widget class="QTextBrowser" name="Response_from_pump">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>34</y>
-          <width>530</width>
-          <height>104</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>530</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>530</width>
-          <height>150</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QTextBrowser" name="Response_from_pump">
+          <property name="minimumSize">
+           <size>
+            <width>530</width>
+            <height>100</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>530</width>
+            <height>150</height>
+           </size>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
-     <item>
+     <item row="2" column="0">
       <widget class="QGroupBox" name="SentDataGroup">
        <property name="minimumSize">
         <size>
@@ -216,14 +212,14 @@
        <property name="title">
         <string>Data sent to the pump</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_14">
+       <layout class="QVBoxLayout" name="verticalLayout_6">
         <property name="leftMargin">
          <number>11</number>
         </property>
         <property name="rightMargin">
          <number>11</number>
         </property>
-        <item row="0" column="0">
+        <item>
          <widget class="QFrame" name="frame_5">
           <property name="minimumSize">
            <size>
@@ -233,7 +229,7 @@
           </property>
           <property name="maximumSize">
            <size>
-            <width>410</width>
+            <width>16777215</width>
             <height>16777215</height>
            </size>
           </property>
@@ -256,85 +252,24 @@
            <property name="bottomMargin">
             <number>0</number>
            </property>
-           <item row="1" column="0">
-            <widget class="QTextEdit" name="commands_sent">
+           <item row="3" column="1">
+            <widget class="QFrame" name="frame_6">
              <property name="minimumSize">
               <size>
-               <width>410</width>
+               <width>100</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>410</width>
+               <width>200</width>
                <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QFrame" name="frame_6">
-          <property name="minimumSize">
-           <size>
-            <width>100</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>200</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="sizeIncrement">
-           <size>
-            <width>0</width>
-            <height>60</height>
-           </size>
-          </property>
-          <property name="baseSize">
-           <size>
-            <width>0</width>
-            <height>60</height>
-           </size>
-          </property>
-          <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
-          </property>
-          <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_19">
-           <property name="leftMargin">
-            <number>25</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>25</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <item row="0" column="0">
-            <widget class="QPushButton" name="data_sent_send_button">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>90</height>
               </size>
              </property>
              <property name="sizeIncrement">
               <size>
                <width>0</width>
-               <height>90</height>
+               <height>60</height>
               </size>
              </property>
              <property name="baseSize">
@@ -343,8 +278,81 @@
                <height>60</height>
               </size>
              </property>
+             <property name="frameShape">
+              <enum>QFrame::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <layout class="QGridLayout" name="gridLayout_19">
+              <property name="leftMargin">
+               <number>25</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>25</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="spacing">
+               <number>0</number>
+              </property>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QPushButton" name="data_sent_send_button">
+             <property name="maximumSize">
+              <size>
+               <width>80</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="text">
               <string>Send</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLineEdit" name="lineEdit_send_toPump"/>
+           </item>
+           <item row="0" column="0" rowspan="2">
+            <widget class="QTextEdit" name="commands_sent">
+             <property name="minimumSize">
+              <size>
+               <width>530</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>530</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="mouseTracking">
+              <bool>false</bool>
+             </property>
+             <property name="acceptDrops">
+              <bool>false</bool>
+             </property>
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
@@ -354,7 +362,7 @@
        </layout>
       </widget>
      </item>
-     <item>
+     <item row="3" column="0">
       <widget class="QGroupBox" name="groupBox_5">
        <property name="title">
         <string>Optional Functions</string>
@@ -477,7 +485,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="rewind_btn">
+            <widget class="QPushButton" name="rewinde_btn">
              <property name="minimumSize">
               <size>
                <width>50</width>
@@ -582,7 +590,7 @@
             <number>11</number>
            </property>
            <item row="0" column="1">
-            <widget class="QLabel" name="label_16">
+            <widget class="QLabel" name="bgLight_Label">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -596,7 +604,7 @@
               </size>
              </property>
              <property name="text">
-              <string>BGL-Light</string>
+              <string>BG-Light: </string>
              </property>
             </widget>
            </item>
@@ -614,13 +622,25 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="value">
+              <number>80</number>
+             </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="tickPosition">
+              <enum>QSlider::NoTicks</enum>
              </property>
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLabel" name="label_17">
+            <widget class="QLabel" name="forceLimit_Label">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -634,12 +654,12 @@
               </size>
              </property>
              <property name="text">
-              <string>Force Limit</string>
+              <string>F-Limit: </string>
              </property>
             </widget>
            </item>
            <item row="3" column="1">
-            <widget class="QSlider" name="bgLight_Slider_2">
+            <widget class="QSlider" name="forceLimit_Slider">
              <property name="minimumSize">
               <size>
                <width>50</width>
@@ -652,8 +672,26 @@
                <height>16777215</height>
               </size>
              </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>100</number>
+             </property>
+             <property name="value">
+              <number>50</number>
+             </property>
+             <property name="sliderPosition">
+              <number>50</number>
+             </property>
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="invertedAppearance">
+              <bool>false</bool>
+             </property>
+             <property name="tickPosition">
+              <enum>QSlider::NoTicks</enum>
              </property>
             </widget>
            </item>
@@ -727,7 +765,7 @@
          <number>6</number>
         </property>
         <property name="bottomMargin">
-         <number>0</number>
+         <number>6</number>
         </property>
         <property name="verticalSpacing">
          <number>11</number>
@@ -1216,7 +1254,7 @@
            <enum>QTabWidget::Rounded</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="elideMode">
            <enum>Qt::ElideNone</enum>
@@ -1294,12 +1332,32 @@
                </property>
                <item>
                 <property name="text">
-                 <string>nl/min</string>
+                 <string>pl/hr</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>nl/hr</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>ul/hr</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>ml/hr</string>
                 </property>
                </item>
                <item>
                 <property name="text">
                  <string>pl/min</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>nl/min</string>
                 </property>
                </item>
                <item>
@@ -1369,12 +1427,12 @@
                </property>
                <item>
                 <property name="text">
-                 <string>nl</string>
+                 <string>pl</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>pl</string>
+                 <string>nl</string>
                 </property>
                </item>
                <item>
@@ -1389,12 +1447,12 @@
                </item>
                <item>
                 <property name="text">
-                 <string>sec</string>
+                 <string>Secs</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>min</string>
+                 <string>h:m:s</string>
                 </property>
                </item>
               </widget>
@@ -1464,6 +1522,9 @@
                  <width>180</width>
                  <height>25</height>
                 </size>
+               </property>
+               <property name="inputMethodHints">
+                <set>Qt::ImhNone</set>
                </property>
               </widget>
              </item>
@@ -1578,12 +1639,32 @@
                </property>
                <item>
                 <property name="text">
-                 <string>nl/min</string>
+                 <string>pl/hr</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>nl/hr</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>ul/hr</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>ml/hr</string>
                 </property>
                </item>
                <item>
                 <property name="text">
                  <string>pl/min</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>nl/min</string>
                 </property>
                </item>
                <item>
@@ -1598,12 +1679,12 @@
                </item>
                <item>
                 <property name="text">
-                 <string>nl/s</string>
+                 <string>pl/s</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>pl/s</string>
+                 <string>nl/s</string>
                 </property>
                </item>
                <item>
@@ -1653,12 +1734,12 @@
                </property>
                <item>
                 <property name="text">
-                 <string>nl</string>
+                 <string>pl</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>pl</string>
+                 <string>nl</string>
                 </property>
                </item>
                <item>
@@ -1673,12 +1754,12 @@
                </item>
                <item>
                 <property name="text">
-                 <string>sec</string>
+                 <string>Secs</string>
                 </property>
                </item>
                <item>
                 <property name="text">
-                 <string>min</string>
+                 <string>h:m:s</string>
                 </property>
                </item>
               </widget>
@@ -1850,6 +1931,13 @@
     <addaction name="menuQT_Material"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="actionReset"/>
+   </widget>
+   <addaction name="menuMenu"/>
    <addaction name="menuTheme"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
@@ -1975,6 +2063,11 @@
   <action name="actionYellow_L">
    <property name="text">
     <string>Yellow</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="text">
+    <string>Reset</string>
    </property>
   </action>
  </widget>
