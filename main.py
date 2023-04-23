@@ -27,12 +27,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main = Ui_MainWindow()
         self.ui_main.setupUi(self)
 
-        # QtCore.QResource.registerResource("Resource_StepsDefine_image.rcc")
+        """几个输入部分的格式验证器"""
+        self.double_validator = QtGui.QDoubleValidator()
+        self.double_validator.setBottom(0)
+        self.double_validator.setDecimals(3)
+
+        self.int_validator = QtGui.QIntValidator()
+        self.int_validator.setBottom(0)
+        self.int_validator.setTop(99)
+
+        """upper/ lower按钮图标"""
+        icon_upper = QtGui.QIcon()
+        icon_upper.addPixmap(QtGui.QPixmap("./image/upper_limit_icon.png"), QtGui.QIcon.Mode.Active, QtGui.QIcon.State.On)
+        self.ui_main.flow_upper_button_1.setIcon(icon_upper)
+        self.ui_main.flow_upper_button_1.setIconSize(QtCore.QSize(12, 20))
+        self.ui_main.flow_upper_button_2.setIcon(icon_upper)
+        self.ui_main.flow_upper_button_2.setIconSize(QtCore.QSize(12, 20))
+
+        icon_lower = QtGui.QIcon()
+        icon_lower.addPixmap(QtGui.QPixmap("./image/lower_limit_icon.png"), QtGui.QIcon.Mode.Active, QtGui.QIcon.State.On)
+        self.ui_main.flow_lower_button_1.setIcon(icon_lower)
+        self.ui_main.flow_lower_button_1.setIconSize(QtCore.QSize(12, 20))
+        self.ui_main.flow_lower_button_2.setIcon(icon_lower)
+        self.ui_main.flow_lower_button_2.setIconSize(QtCore.QSize(12, 20))
 
         """串口的检测、写入和读取线程"""
         self.check_serial_thread = functions.CheckSerialThread(self)
-        self.send_data_to_port = functions.SendDataToPort(self.check_serial_thread, self)
         self.read_data_from_port = functions.ReadDataFromPort(self.check_serial_thread, self.ui_main, self)
+        self.send_data_to_port = functions.SendDataToPort(self.ui_main, self.check_serial_thread, self.read_data_from_port, self)
 
         # 更改主题
         self.ui_main.actionLight.triggered.connect(lambda: functions.switch_theme_light(self.ui_main))
@@ -58,6 +80,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_child_port_setup.dictReady.connect(
             lambda: functions.receive_dict(self.check_serial_thread, self.ui_child_port_setup.port_param_dict))
 
+        # 配置输入验证器
+        self.ui_main.param_flowRate_1.setValidator(self.double_validator)
+        self.ui_main.param_target_1.setValidator(self.double_validator)
+        self.ui_main.param_flowRate_2.setValidator(self.double_validator)
+        self.ui_main.param_target_2.setValidator(self.double_validator)
+        self.ui_main.address_input.setValidator(self.int_validator)
+
+        # QTextBrowser光标总是定位在末尾
+        # cursor = self.ui_main.Response_from_pump.textCursor()
+        # cursor.movePosition(QtGui.QTextCursor.MoveOperation.End)
+        # self.ui_main.Response_from_pump.setTextCursor(cursor)
+        # self.ui_main.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+        # self.ui_main.Response_from_pump.ensureCursorVisible()
+
         """Radio Button Group部分"""
         self.buttons = {
             self.ui_main.radioButton_1: {'object_name': 'irun_button', 'value': 'INF'},
@@ -79,6 +115,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Syringe选择框和用户自定义Syringe输入框的逻辑关系
         self.ui_main.syr_param_enter.textChanged.connect(lambda: functions.update_combox_syr_enabled(self.ui_main, self.setups_dict_quick_mode))
+
+        """Quick Mode参数输入部分，配置一键输入最大/最小值，并限制范围"""
+        self.ui_main.flow_lower_button_1.clicked.connect(lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
+        self.ui_main.flow_lower_button_2.clicked.connect(lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
+        self.ui_main.flow_upper_button_1.clicked.connect(lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
+        self.ui_main.flow_upper_button_2.clicked.connect(lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
 
         """自定义Method部分"""
         # 连接用户自定义userDefined_Add按钮和槽函数:Add
@@ -119,7 +161,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """Msc.项"""
         # 设定或者显示当前泵的地址
-
+        self.ui_main.address_button.clicked.connect(lambda: self.send_data_to_port.get_set_address(self.ui_main))
         # 显示catalog
         self.ui_main.catalog_display_button.clicked.connect(self.send_data_to_port.ser_command_catalog)
 
@@ -133,6 +175,12 @@ class MainWindow(QtWidgets.QMainWindow):
         # 压力上限
         self.ui_main.forceLimit_Slider.sliderReleased.connect(lambda: self.send_data_to_port.ser_force_limit(self.ui_main))
         self.ui_main.forceLimit_Slider.valueChanged.connect(lambda: self.send_data_to_port.ser_force_label_show(self.ui_main))
+
+        # 其他手动输入指令
+        self.ui_main.data_sent_send_button.clicked.connect(lambda: self.send_data_to_port.send_command_manual(self.ui_main))
+        # 与回车键绑定
+        shortcut_return = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Return), self.ui_main.lineEdit_send_toPump)
+        shortcut_return.activated.connect(lambda: self.ui_main.data_sent_send_button.click())
 
         """运行部分"""
         self.ui_main.Run_button_quick.clicked.connect(lambda: self.send_data_to_port.ser_quick_mode_command_set(self.ui_main, self.setups_dict_quick_mode))

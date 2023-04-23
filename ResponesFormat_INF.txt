@@ -1,0 +1,258 @@
+指令发送逻辑：
+1. 响应以':'结尾：
+	-> 说明当前泵空闲，可以发送下一条指令
+	-> receive_status = True
+2. 响应以'>'结尾：
+	-> 说明泵当前的状态为注入INF，此时以间隔0.1s的时间向其发送irate指令（绘制当前INF的流量曲线）
+	   和crate指令，绘制the rate the motor running at
+	-> receive_status = True
+3. 响应以'<'结尾：
+	-> 说明泵当前的状态为WD，同理，发送wrate和crate
+	-> receive_status = True
+4. 响应以'*'结尾：
+	-> 说明泵当前被阻塞，停止向其发送指令
+	-> receive_status = False
+5. 响应以'T*'结尾：
+	-> 泵当前设定的target已经达到，停止向其发送指令
+	-> receive_status = False
+	
+	
+ivolume
+itime
+crate
+irate
+status
+
+
+
+### 响应：irate -> ttime -> irate -> ttime -> irun
+
+
+:
+:
+:
+:
+:
+>
+1.20516 ml
+>
+2.428 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 2428 1205162994328 I..TI.
+>
+1.83319 ml
+>
+3.684 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 3684 1833194292700 I..TI.
+>
+2.46127 ml
+>
+4.94 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 4940 2461268149268 I..TI.
+>
+3.15331 ml
+>
+6.324 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 6324 3153306974424 I..TI.
+>
+3.76938 ml
+>
+7.556 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 7556 3769379419720 I..TI.
+>
+4.46146 ml
+>
+8.94 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 8940 4461460803072 I..TI.
+>
+5.08949 ml
+>
+10.196 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 10196 5089492101444 I..TI.
+>
+5.76957 ml
+>
+11.556 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 11556 5769572073524 I..TI.
+>
+6.39765 ml
+>
+12.812 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 12812 6397645930092 I..TI.
+>
+7.08968 ml
+>
+14.196 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 14196 7089684755248 I..TI.
+>
+7.96179 ml
+>
+15.94 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 15940 7961787307680 I..TI.
+>
+8.65383 ml
+>
+17.324 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 17324 8653826132836 I..TI.
+>
+9.52593 ml
+>
+19.068 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 19068 9525928685268 I..TI.
+>
+10.398 ml
+>
+20.812 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 20812 10397988679504 I..TI.
+>
+11.2701 ml
+>
+22.556 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 22556 11270091231936 I..TI.
+>
+12.1542 ml
+>
+24.324 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 24324 12154195195640 I..TI.
+>
+12.8982 ml
+>
+25.812 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 25812 12898240136308 I..TI.
+>
+13.7703 ml
+>
+27.556 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 27556 13770342688740 I..TI.
+>
+14.5264 ml
+>
+29.068 seconds
+>
+Infusing at 30 ml/min
+>
+30 ml/min
+>
+500000000000 29068 14526389040680 I..TI.
+>
+T*
+14.9923 ml
+T*
+30 seconds
+T*
+Infusing at 30 ml/min
+T*
+30 ml/min
+T*
+500000000000 30000 14992316170488 i..TIT
+T*
+
+
+
+### 堵塞：
+<
+5.11405 ml
+*
+10.245 seconds
+*
+Withdrawing at 30 ml/min
+*
+500000000000 10245 5114048180536 w.STI.
+*
+5.11405 ml
+*
+10.245 seconds
+*
+Withdrawing at 30 ml/min
+*
+500000000000 10245 5114048180536 w.STI.
+*

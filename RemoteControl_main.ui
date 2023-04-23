@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
+ <author>Xueyong Lu</author>
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
   <property name="enabled">
@@ -9,8 +10,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>894</width>
-    <height>800</height>
+    <width>881</width>
+    <height>797</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -166,27 +167,37 @@
        <property name="title">
         <string>Response received from pump</string>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <item>
-         <widget class="QTextBrowser" name="Response_from_pump">
-          <property name="minimumSize">
-           <size>
-            <width>530</width>
-            <height>100</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>530</width>
-            <height>150</height>
-           </size>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QTextEdit" name="Response_from_pump">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>34</y>
+          <width>530</width>
+          <height>100</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>530</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>530</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="undoRedoEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        </property>
+       </widget>
       </widget>
      </item>
      <item row="2" column="0">
@@ -328,9 +339,6 @@
              </property>
             </widget>
            </item>
-           <item row="2" column="0">
-            <widget class="QLineEdit" name="lineEdit_send_toPump"/>
-           </item>
            <item row="0" column="0" rowspan="2">
             <widget class="QTextEdit" name="commands_sent">
              <property name="minimumSize">
@@ -352,6 +360,16 @@
               <bool>false</bool>
              </property>
              <property name="readOnly">
+              <bool>true</bool>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::TextBrowserInteraction</set>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QComboBox" name="lineEdit_send_toPump">
+             <property name="editable">
               <bool>true</bool>
              </property>
             </widget>
@@ -654,7 +672,7 @@
               </size>
              </property>
              <property name="text">
-              <string>F-Limit: </string>
+              <string>Force Limit: </string>
              </property>
             </widget>
            </item>
@@ -1883,7 +1901,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>894</width>
+     <width>881</width>
      <height>26</height>
     </rect>
    </property>
