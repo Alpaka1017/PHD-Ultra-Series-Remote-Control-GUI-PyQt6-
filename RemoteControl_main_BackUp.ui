@@ -2067,11 +2067,17 @@
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QGridLayout" name="gridLayout_7">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
            <property name="topMargin">
-            <number>7</number>
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
            </property>
            <property name="bottomMargin">
-            <number>7</number>
+            <number>0</number>
            </property>
            <item row="0" column="0">
             <widget class="QListWidget" name="listWidget_userDefined_method">

@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'C:/Users/Xueyong Lu/AppData/Local/Temp/RemoteControl_main_BackUpOKBHYu.ui'
+# Form implementation generated from reading ui file 'C:/Users/Xueyong Lu/AppData/Local/Temp/RemoteControl_main_BackUpLetMmn.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -351,10 +351,10 @@ class Ui_MainWindow(object):
         self.flow_upper_button_1.setMinimumSize(QtCore.QSize(0, 13))
         self.flow_upper_button_1.setMaximumSize(QtCore.QSize(30, 13))
         self.flow_upper_button_1.setText("")
-        # icon = QtGui.QIcon()
-        # icon.addPixmap(QtGui.QPixmap("./image/upper_limit_icon.png"), QtGui.QIcon.Mode.Active, QtGui.QIcon.State.On)
-        # self.flow_upper_button_1.setIcon(icon)
-        # self.flow_upper_button_1.setIconSize(QtCore.QSize(12, 20))
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(":/limit_button/upper_limit_icon.png"), QtGui.QIcon.Mode.Active, QtGui.QIcon.State.On)
+        self.flow_upper_button_1.setIcon(icon)
+        self.flow_upper_button_1.setIconSize(QtCore.QSize(12, 20))
         self.flow_upper_button_1.setAutoDefault(False)
         self.flow_upper_button_1.setFlat(False)
         self.flow_upper_button_1.setObjectName("flow_upper_button_1")
@@ -365,7 +365,7 @@ class Ui_MainWindow(object):
         self.flow_lower_button_1.setSizeIncrement(QtCore.QSize(0, 0))
         self.flow_lower_button_1.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("./image/lower_limit_icon.png"), QtGui.QIcon.Mode.Active, QtGui.QIcon.State.On)
+        icon1.addPixmap(QtGui.QPixmap(":/limit_button/lower_limit_icon.png"), QtGui.QIcon.Mode.Active, QtGui.QIcon.State.On)
         self.flow_lower_button_1.setIcon(icon1)
         self.flow_lower_button_1.setIconSize(QtCore.QSize(12, 20))
         self.flow_lower_button_1.setObjectName("flow_lower_button_1")
@@ -489,9 +489,9 @@ class Ui_MainWindow(object):
         self.flow_upper_button_2.setMinimumSize(QtCore.QSize(0, 13))
         self.flow_upper_button_2.setMaximumSize(QtCore.QSize(30, 13))
         self.flow_upper_button_2.setText("")
-        # self.flow_upper_button_2.setIcon(icon)
-        # self.flow_upper_button_2.setIconSize(QtCore.QSize(12, 20))
-        # self.flow_upper_button_2.setObjectName("flow_upper_button_2")
+        self.flow_upper_button_2.setIcon(icon)
+        self.flow_upper_button_2.setIconSize(QtCore.QSize(12, 20))
+        self.flow_upper_button_2.setObjectName("flow_upper_button_2")
         self.flow_lower_button_2 = QtWidgets.QPushButton(parent=self.frame_4)
         self.flow_lower_button_2.setGeometry(QtCore.QRect(1, 13, 21, 13))
         self.flow_lower_button_2.setMinimumSize(QtCore.QSize(0, 13))
@@ -588,7 +588,7 @@ class Ui_MainWindow(object):
         self.frame.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame.setObjectName("frame")
         self.gridLayout_7 = QtWidgets.QGridLayout(self.frame)
-        self.gridLayout_7.setContentsMargins(-1, 7, -1, 7)
+        self.gridLayout_7.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_7.setObjectName("gridLayout_7")
         self.listWidget_userDefined_method = QtWidgets.QListWidget(parent=self.frame)
         self.listWidget_userDefined_method.setMinimumSize(QtCore.QSize(0, 90))

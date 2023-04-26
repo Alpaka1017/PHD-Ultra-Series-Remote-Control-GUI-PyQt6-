@@ -27,14 +27,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main = Ui_MainWindow()
         self.ui_main.setupUi(self)
 
+        """更改主题"""
+        self.ui_main.actionLight.triggered.connect(lambda: functions.switch_theme_light(self.ui_main))
+        self.ui_main.actionDark.triggered.connect(lambda: functions.switch_theme_dark(self.ui_main))
+
         """几个输入部分的格式验证器"""
         self.double_validator = QtGui.QDoubleValidator()
         self.double_validator.setBottom(0)
-        self.double_validator.setDecimals(3)
+        self.double_validator.setDecimals(5)
 
         self.int_validator = QtGui.QIntValidator()
         self.int_validator.setBottom(0)
         self.int_validator.setTop(99)
+
+        """计时器"""
+        # FF和RW按钮
+        self.timer_fast_move = QtCore.QTimer()
+        self.timer_rewind = QtCore.QTimer()
 
         """upper/ lower按钮图标"""
         icon_upper = QtGui.QIcon()
@@ -55,10 +64,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.check_serial_thread = functions.CheckSerialThread(self)
         self.read_data_from_port = functions.ReadDataFromPort(self.check_serial_thread, self.ui_main, self)
         self.send_data_to_port = functions.SendDataToPort(self.ui_main, self.check_serial_thread, self.read_data_from_port, self)
-
-        # 更改主题
-        self.ui_main.actionLight.triggered.connect(lambda: functions.switch_theme_light(self.ui_main))
-        self.ui_main.actionDark.triggered.connect(lambda: functions.switch_theme_dark(self.ui_main))
 
         """初始化状态栏，用于串口检测"""
         self.ui_main.statusbar.showMessage('Waiting serial port to be connected.')
@@ -86,13 +91,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.param_flowRate_2.setValidator(self.double_validator)
         self.ui_main.param_target_2.setValidator(self.double_validator)
         self.ui_main.address_input.setValidator(self.int_validator)
-
-        # QTextBrowser光标总是定位在末尾
-        # cursor = self.ui_main.Response_from_pump.textCursor()
-        # cursor.movePosition(QtGui.QTextCursor.MoveOperation.End)
-        # self.ui_main.Response_from_pump.setTextCursor(cursor)
-        # self.ui_main.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-        # self.ui_main.Response_from_pump.ensureCursorVisible()
 
         """Radio Button Group部分"""
         self.buttons = {
@@ -157,7 +155,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.port_button.clicked.connect(lambda: functions.show_port_setup_dialog(self.ui_child_port_setup))
 
         # 获取快速模式的参数并运行Run_button_quick
-        self.ui_main.Run_button_quick.clicked.connect(lambda: functions.Quick_mode_param_run(self.ui_main, self.setups_dict_quick_mode))
+        # self.ui_main.Run_button_quick.clicked.connect(lambda: functions.Quick_mode_param_run(self.ui_main, self.setups_dict_quick_mode))
 
         """Msc.项"""
         # 设定或者显示当前泵的地址
@@ -176,6 +174,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.forceLimit_Slider.sliderReleased.connect(lambda: self.send_data_to_port.ser_force_limit(self.ui_main))
         self.ui_main.forceLimit_Slider.valueChanged.connect(lambda: self.send_data_to_port.ser_force_label_show(self.ui_main))
 
+        # FF和RW
+        self.timer_fast_move.timeout.connect(self.send_data_to_port.fast_forward_btn)
+        self.ui_main.fast_forward_btn.pressed.connect(lambda: functions.fast_btn_timer_start(self.timer_fast_move))
+        self.ui_main.fast_forward_btn.released.connect(lambda: functions.fast_btn_timer_stop(self.timer_fast_move))
+        self.ui_main.fast_forward_btn.released.connect(self.send_data_to_port.release_to_stop)
+
+        self.timer_rewind.timeout.connect(self.send_data_to_port.rewind_btn)
+        self.ui_main.rewinde_btn.pressed.connect(lambda: functions.rwd_btn_timer_start(self.timer_rewind))
+        self.ui_main.rewinde_btn.released.connect(lambda: functions.rwd_btn_timer_stop(self.timer_rewind))
+        self.ui_main.rewinde_btn.released.connect(self.send_data_to_port.release_to_stop)
+
         # 其他手动输入指令
         self.ui_main.data_sent_send_button.clicked.connect(lambda: self.send_data_to_port.send_command_manual(self.ui_main))
         # 与回车键绑定
@@ -183,7 +192,16 @@ class MainWindow(QtWidgets.QMainWindow):
         shortcut_return.activated.connect(lambda: self.ui_main.data_sent_send_button.click())
 
         """运行部分"""
-        self.ui_main.Run_button_quick.clicked.connect(lambda: self.send_data_to_port.ser_quick_mode_command_set(self.ui_main, self.setups_dict_quick_mode))
+        self.ui_main.Run_button_quick.clicked.connect(lambda: functions.validate_and_run(self.ui_main, self.send_data_to_port, self.setups_dict_quick_mode))
+
+        """绘图部分"""
+        self.ui_main.Reset_button.clicked.connect(lambda: functions.clear_graph_text(self.ui_main, self.send_data_to_port))
+    # def validate_and_run(self):
+    #     functions.Quick_mode_param_run(self.ui_main, self.setups_dict_quick_mode)
+    #     if self.setups_dict_quick_mode['Flow Parameter'] is not None:
+    #         self.send_data_to_port.ser_quick_mode_command_set(self.ui_main, self.setups_dict_quick_mode)
+    #     else:
+    #         pass
     # def delete_selected_item(self):
     #     selected_items = self.ui_main.listWidget_userDefined_method.selectedItems()
     #     if len(selected_items) > 0:
@@ -352,7 +370,7 @@ class PortSetupChildWindow(QtWidgets.QDialog, Ui_Dialog_PortSetup):
         self.port_param_dict = {}
         self.parity_list = ['N', 'E', 'O', 'M', 'S']
 
-        self.baudrate_current = None
+        self.baudrate_current = None,
         # 只允许用户输入整型数值
         self.validator = QtGui.QIntValidator(self)
         self.line_timeout.setValidator(self.validator)
@@ -497,9 +515,7 @@ if __name__ == "__main__":
     # 设置窗口Icon
     icon = QtGui.QPixmap('./image/Logo_TU_Dresden_small.svg')
     icon_h_32 = icon.scaledToHeight(32, QtCore.Qt.TransformationMode.SmoothTransformation)
+    # app.setStyleSheet("QFrame { border: none; }")
     window.setWindowIcon(QtGui.QIcon(icon_h_32))
-    # window_step_guide = StepGuideChildWindow()
-    # window_step_guide.show()
-    # apply_stylesheet(window, theme='light_amber.xml', invert_secondary=True)
     window.show()
     sys.exit(app.exec())
