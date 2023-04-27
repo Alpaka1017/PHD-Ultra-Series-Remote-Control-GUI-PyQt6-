@@ -61,8 +61,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.flow_lower_button_2.setIconSize(QtCore.QSize(12, 20))
 
         """串口的检测、写入和读取线程"""
-        self.check_serial_thread = functions.CheckSerialThread(self)
-        self.read_data_from_port = functions.ReadDataFromPort(self.check_serial_thread, self.ui_main, self)
+        self.check_serial_thread = functions.CheckSerialThread(self.ui_main, self)
+        self.read_data_from_port = functions.ReadDataFromPort(self)
+        # send实例中，self.read_data_from_port作为参数只向其传递了emit()发送的响应标识
         self.send_data_to_port = functions.SendDataToPort(self.ui_main, self.check_serial_thread, self.read_data_from_port, self)
 
         """初始化状态栏，用于串口检测"""
@@ -193,6 +194,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """运行部分"""
         self.ui_main.Run_button_quick.clicked.connect(lambda: functions.validate_and_run(self.ui_main, self.send_data_to_port, self.setups_dict_quick_mode))
+        # self.ui_main.Run_button_quick.mouseDoubleClickEvent()
 
         """绘图部分"""
         self.ui_main.Reset_button.clicked.connect(lambda: functions.clear_graph_text(self.ui_main, self.send_data_to_port))

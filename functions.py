@@ -79,88 +79,94 @@ class CheckSerialThread(QtCore.QThread):
     port_param_dict = {}
     port_param_dict_previous = {}
 
-    def __init__(self, parent=None):
+    def __init__(self, ui=None, parent=None):
         super().__init__(parent)
+        self.read_thread = None
         self.port_param_dict_func = {}
         self.ser = None
+        self.ui = ui
         self.connected = False
         self.auto_reconnect = True
         self._pause_thread = False  # 用于暂停串口检测线程的标志
         self.wait_condition = QtCore.QWaitCondition()
         self.mutex = QtCore.QMutex()
         self.mutex_sub = QtCore.QMutex()
+        self.auto_reconnect_str = None
 
     def run(self):
-        while True:
-            self.mutex.lock()
-            try:
-                if self._pause_thread and not self.auto_reconnect:
-                    self.wait_condition.wait(self.mutex)
-                else:
-                    # Get serial parameters from the dialog
-                    self.port_param_dict_func = CheckSerialThread.port_param_dict
-                    # print(f'dict from run: {self.port_param_dict_func}\n')  # 有输出
-                    if self.port_param_dict_func['port'] != '' and not self.connected:
-                        self.connection_status_changed.emit(f"Connecting to port {self.port_param_dict_func['port']}.")
-                        try:
-                            self.ser = serial.Serial(**self.port_param_dict_func)
-                            # self.ser.set_buffer_size(rx_size=4096, tx_size=4096)
-                            self.connected = True  # 设置连接成功的标志
-                            # print(f'dict from run: {self.port_param_dict_func}\n')
-                            self.connection_status_changed.emit(f"Successfully connected to port {self.ser.port}.")
-                            self.serial_connected.emit(True)
-                            # CheckSerialThread.return_ser_status(self)
-                        except serial.SerialException as e:
-                            self.connection_status_changed.emit(
-                                f"Connection to port {self.port_param_dict_func['port']} failed, check the port usage. {str(e)}")
-                            self.serial_connected.emit(False)
-                            # Try to connect again if the port is released within 10 seconds
-                            for i in range(10):
-                                if not self.port_is_in_use(self.port_param_dict_func["port"]):
-                                    self.connection_status_changed.emit("Trying  to reconnect...")
-                                    break
-                                time.sleep(0.5)
-                            else:
-                                self.connection_status_changed.emit("Reconnection failed, please check the port usage.")
-                    elif self.port_param_dict_func['port'] == '':
-                        self.connection_status_changed.emit('Fatal Error!')
+        self.mutex.lock()
+        try:
+            if self._pause_thread and not self.auto_reconnect:
+                self.wait_condition.wait(self.mutex)
+            else:
+                # Get serial parameters from the dialog
+                self.port_param_dict_func = CheckSerialThread.port_param_dict
+                # print(f'dict from run: {self.port_param_dict_func}\n')  # 有输出
+                if self.port_param_dict_func['port'] != '' and not self.connected:
+                    self.connection_status_changed.emit(f"Connecting to port {self.port_param_dict_func['port']}.")
+                    try:
+                        self.ser = serial.Serial(**self.port_param_dict_func)
+                        # self.ser.set_buffer_size(rx_size=4096, tx_size=4096)
+                        self.start_read_thread()
+                        self.ser.flushInput()
+                        self.ser.flushOutput()
+                        # print('连接成功的参数：', self.port_param_dict_func)
+                        # 连接成功后清空类变量中的参数字典
+                        CheckSerialThread.port_param_dict = {}
+                        self.connected = True  # 设置连接成功的标志
+                        # print(f'dict from run: {self.port_param_dict_func}\n')
+                        self.connection_status_changed.emit(f"Successfully connected to port {self.ser.port}.")
+                        self.serial_connected.emit(True)
+                        # CheckSerialThread.return_ser_status(self)
+                    except serial.SerialException as e:
+                        self.connection_status_changed.emit(
+                            f"Connection to port {self.port_param_dict_func['port']} failed, check the port usage. {str(e)}")
+                        self.auto_reconnect_from_failure(e, self.port_param_dict_func)
                         self.serial_connected.emit(False)
-                    time.sleep(0.5)
-            finally:
-                self.mutex.unlock()
+                        # # Try to connect again if the port is released within 10 seconds
+                        # for i in range(50):
+                        #     if not self.port_is_in_use(self.port_param_dict_func["port"]):
+                        #         self.ser = serial.Serial(**self.port_param_dict_func)
+                        #         self.connection_status_changed.emit("Trying  to reconnect...")
+                        #         break
+                        #     time.sleep(0.1)
+                        # else:
+                        #     self.connection_status_changed.emit("Reconnection failed, please check the port usage.")
+                        #     self.ser = None
+                elif self.port_param_dict_func['port'] == '':
+                    self.connection_status_changed.emit('Fatal Error!')
+                    self.serial_connected.emit(False)
+                time.sleep(0.5)
+        finally:
+            self.mutex.unlock()
 
     def set_port_params(self, dict_port):
-        self.resume_thread()
+        # print('000000新接收的参数: ', dict_port)
         # print('000000dict from current: ', CheckSerialThread.port_param_dict)
         # print('000000dict from previous: ', CheckSerialThread.port_param_dict_previous)
-        if CheckSerialThread.port_param_dict_previous != dict_port:
-            CheckSerialThread.port_param_dict_previous = CheckSerialThread.port_param_dict
-            # print('1111111运行到这里了！！！！！！！！')
+
+        if CheckSerialThread.port_param_dict != dict_port:
+            self.resume_thread()
             self._pause_thread = False
             self.auto_reconnect = True
             self.disconnect_from_port(auto_reconnect=True, _pause_thread=False)
+
             CheckSerialThread.port_param_dict = dict_port
-            # print(dict_port)
-            # self._pause_thread = False
+
             # print('11111dict from current: ', CheckSerialThread.port_param_dict)
             # print('11111dict from previous: ', CheckSerialThread.port_param_dict_previous)
             self.start(auto_reconnect=True, _pause_thread=False)
-        elif self._pause_thread and not self.auto_reconnect:
-            # print('2222222222运行到这里了！！！！！！！！')
-            CheckSerialThread.port_param_dict_previous = CheckSerialThread.port_param_dict
+
+        if self._pause_thread and not self.auto_reconnect:  # 从stop恢复
+            self.resume_thread()
             CheckSerialThread.port_param_dict = dict_port
+
             # print('2222dict from current: ', CheckSerialThread.port_param_dict)
             # print('2222dict from previous: ', CheckSerialThread.port_param_dict_previous)
+
             self.start(auto_reconnect=True, _pause_thread=False)
         else:
             pass
-
-    @staticmethod
-    def port_is_in_use(port: str) -> bool:
-        for info in serial.tools.list_ports.comports():
-            if info.device == port:
-                return True
-        return False
 
     def start(self, auto_reconnect=True, _pause_thread=False):
         self.auto_reconnect = auto_reconnect
@@ -173,32 +179,38 @@ class CheckSerialThread(QtCore.QThread):
             if self.connected and self.ser is not None and self.ser.is_open:
                 self.connection_status_changed.emit(f"Disconnected from port {self.ser.port}.")
                 self.ser.close()
+                self.stop_read_thread()
                 self.ser = None
                 self.connected = False
                 self.serial_connected.emit(False)
-                CheckSerialThread.port_param_dict_previous = {}
-            # 自动重连接√，线程休眠x : 由方法调用
-            if auto_reconnect and not _pause_thread:
-                # pass
-                self.auto_reconnect = True
-                self._pause_thread = False
-                # self.resume_thread()
-                # self.resume_thread()
-            # 自动重连x，线程休眠√ : 由按钮断开
-            elif not auto_reconnect and _pause_thread:
-                # pass
-                self.auto_reconnect = False
-                self._pause_thread = True
-                self.serial_connected.emit(False)
-                # print('手动暂停了！！！！', self.auto_reconnect, self._pause_thread)
-                # self.pause_thread()
-                # self._pause_thread()
+                # 自动重连接√，线程休眠x : 由方法调用
+                if auto_reconnect and not _pause_thread:
+                    # pass
+                    self.auto_reconnect = True
+                    self._pause_thread = False
+                    # print('自动3333dict from current: ', CheckSerialThread.port_param_dict)
+                    # print('自动3333dict from previous: ', CheckSerialThread.port_param_dict_previous)
+                    # self.resume_thread()
+                    # self.resume_thread()
+                # 自动重连x，线程休眠√ : 由按钮断开
+                elif not auto_reconnect and _pause_thread:
+                    # pass
+                    self.auto_reconnect = False
+                    self._pause_thread = True
+                    self.serial_connected.emit(False)
+                    # print('手动4444dict from current: ', CheckSerialThread.port_param_dict)
+                    # print('手动4444dict from previous: ', CheckSerialThread.port_param_dict_previous)
+                    CheckSerialThread.port_param_dict = {}
+                    CheckSerialThread.port_param_dict_previous = {}
+                    # print('手动暂停了！！！！', self.auto_reconnect, self._pause_thread)
+                    # self.pause_thread()
+                    # self._pause_thread()
             else:
                 pass
 
         except Exception as e:
             # print("Failed to disconnect from port:", str(e))
-            self.connection_status_changed.emit("Failed to disconnect from port:", str(e))
+            self.connection_status_changed.emit("Failed to disconnect from port: " + str(e))
             self.connected = False
             self.ser = None
             self.serial_connected.emit(False)
@@ -211,10 +223,77 @@ class CheckSerialThread(QtCore.QThread):
         self._pause_thread = False
         self.wait_condition.wakeAll()
 
+    def auto_reconnect_from_failure(self, failure_str, dict_port):
+        if isinstance(failure_str, serial.SerialException):
+            count = 0
+            while not self.ser and count < 20:
+                # usage_port = port_is_in_use(dict_port['port'])
+                self.connection_status_changed.emit(f"Timeout of reconnection : {int(10 - count * 0.5)}s.")
+                try:
+                    self.ser = serial.Serial(**dict_port)
+                    self.connected = True
+                    self.start_read_thread()
+                    self.ser.flushInput()
+                    self.ser.flushOutput()
+                    self.connection_status_changed.emit(f"Successfully reconnected to port {self.ser.port}.")
+                    self.serial_connected.emit(True)
+                    CheckSerialThread.port_param_dict = {}
+                    break
+                except Exception as e:
+                    print(e)
+                count += 1
+                # print(count)
+                time.sleep(0.5)
+                self.connection_status_changed.emit(f"Reconnection to port {dict_port['port']} failed, please check "
+                                                    f"the port usage.")
+                self.serial_connected.emit(False)
+                self.ser = None
+                self._pause_thread = True
+                self.auto_reconnect = False
+
+            # def reconnect():
+            #     nonlocal count
+            #     count += 1
+            #     if not CheckSerialThread.port_is_in_use(dict_port['port']):
+            #         ser = serial.Serial(**dict_port)
+            #         ser.flushInput()
+            #         ser.flushOutput()
+            #         self.start_read_thread()
+            #         self.connection_status_changed.emit(f"Successfully reconnected to port {ser.port}.")
+            #         self.serial_connected.emit(True)
+            #         timer.stop()
+            #     elif count >= 10:
+            #         self.connection_status_changed.emit(
+            #             f"Reconnection to port {dict_port['port']} failed, please check the port usage.")
+            #         self.serial_connected.emit(False)
+            #         timer.stop()
+            #
+            # self.connection_status_changed.emit(f"Auto reconnecting to port {dict_port['port']}")
+            # timer = QtCore.QTimer()
+            # count = 0
+            # timer.timeout.connect(reconnect)
+            # timer.start(500)  # 500ms
+
     # @staticmethod
     def get_ser(self):
         return self.ser
 
+    def start_read_thread(self):
+        self.read_thread = ReadDataFromPort(ser=self.ser, ui_main=self.ui)
+        self.read_thread.start()
+
+    def stop_read_thread(self):
+        if self.read_thread:
+            self.read_thread.terminate()
+
+    # Check port usage: deprecated
+    @staticmethod
+    def port_is_in_use(port: str) -> bool:
+        for info in serial.tools.list_ports.comports():
+            print(info.device)
+            if info.device == port:
+                return True
+        return False
     # def ser_command_catalog(self):
     #     # print('Ser_command_catalog called!')
     #     self.mutex_sub.lock()
@@ -327,7 +406,7 @@ class SendDataToPort(QtCore.QThread):
         self.mutex_sub.unlock()
 
     def get_set_address(self, ui):
-        self.mutex.lock()
+        self.mutex_sub.lock()
         if isinstance(self.check_serial_thread.ser, serial.Serial):
             if ui.address_input.text() and ui.address_input.text() != '':
                 # print('addr.', ui.address_input.text())
@@ -336,11 +415,11 @@ class SendDataToPort(QtCore.QThread):
                 self.check_serial_thread.ser.write(('@addr. ' + '\r\n').encode('utf-8'))
         else:
             pass
-        self.mutex.unlock()
+        self.mutex_sub.unlock()
 
     def send_command_manual(self, ui):
         # print('send_command_manual called!')
-        self.mutex.lock()
+        self.mutex_sub.lock()
         if self.check_serial_thread.ser and isinstance(self.check_serial_thread.ser, serial.Serial):
             if ui.lineEdit_send_toPump.currentText() and ui.lineEdit_send_toPump.currentText() != '':
                 current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
@@ -348,7 +427,8 @@ class SendDataToPort(QtCore.QThread):
                 try:
                     self.check_serial_thread.ser.write(str_to_send.encode('utf-8'))
                     ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-                    ui.commands_sent.append(f"{current_time} >>{str_to_send}")
+                    # ui.commands_sent.insertHtml(f"<b>{current_time} >></b>\r\n{str_to_send}")
+                    ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
                 except Exception as e:
                     print('Encoding Error:', e)
                 # print(str_to_send.encode('utf-8'))
@@ -362,7 +442,7 @@ class SendDataToPort(QtCore.QThread):
                 pass
         else:
             pass
-        self.mutex.unlock()
+        self.mutex_sub.unlock()
 
     def ser_bgl_level(self, ui):
         value = ui.bgLight_Slider.value()
@@ -401,7 +481,7 @@ class SendDataToPort(QtCore.QThread):
         self.check_serial_thread.ser.write('@rrun\r\n'.encode('utf-8'))
 
     def release_to_stop(self):
-        print('release_to_stop called')
+        # print('release_to_stop called')
         self.check_serial_thread.ser.write('@stop\r\n'.encode('utf-8'))
 
     #
@@ -439,7 +519,7 @@ class SendDataToPort(QtCore.QThread):
                                                 "Motor rate": "@crate\r\n",
                                                 "Withdraw rate": "@wrate\r\n"}
         self.run_commands_set_ClearTarget = {"Clear target time": "@cttime\r\n",
-                                             "Clear target volume": "@cttimectvolume\r\n",
+                                             "Clear target volume": "@ctvolume\r\n",
                                              "Turn off the writes of rate to memory": "@NVRAM\r\n"}
         if all(value is not None and value != '' for key, value in setups_dict_quick_mode.items() if
                key in ['Run Mode', 'Syringe Info', 'Flow Parameter']):
@@ -728,40 +808,39 @@ class SendDataToPort(QtCore.QThread):
 class ReadDataFromPort(QtCore.QThread):
     receive_status = QtCore.pyqtSignal(str)
 
-    def __init__(self, check_serial_thread, ui, parent=None):
+    def __init__(self, ser, ui_main=None, parent=None):
         super().__init__(parent)
         self.mutex = QtCore.QMutex()
         self.mutex_sub = QtCore.QMutex()
-        self.check_serial_thread = check_serial_thread
-        self.ui = ui
+        # self.check_serial_thread = check_serial_thread
+        self.ui = ui_main
+        self.ser = ser
         self.response = None
-        self.connect_status = None
 
         # 以check_serial_thread线程中串口连接成功的标志为信号触发自动读取的函数
-        check_serial_thread.serial_connected.connect(self.handle_connect_status)
-        check_serial_thread.serial_connected.connect(self.auto_start_read_thread)
+        # check_serial_thread.serial_connected.connect(self.handle_connect_status)
+        # check_serial_thread.serial_connected.connect(self.auto_start_read_thread)
 
     def run(self):
+        # print(self.ui)
+        # print(self.ser)
+        print('ReadDataFromPort called!')
         # print('Run:', self.check_serial_thread.ser is None, self.connect_status)
-        if self.check_serial_thread.ser is None or not self.connect_status:
+        if self.ser is None:
             self.quit()
             return
 
-        while self.check_serial_thread.ser and self.connect_status:
-            # print('While:', self.check_serial_thread.ser is None, self.connect_status)
+        while self.ser:
             self.mutex.lock()
-            # print(self.connect_status)
-            # if not self.connect_status:
-            #     print(self.connect_status)
-            #     self.mutex.unlock()
-            #     return
-            # if self.check_serial_thread.ser and isinstance(self.check_serial_thread.ser, serial.Serial):
             current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
             response = self.read_single_line()
             # print('response from run multi:', response)
             """不以(':', '>', '<', '*', 'T*')结尾的读取数据用来绘图"""
             if response and response != b'':
+                print('response from read, undecoded:', response, '\r\n', type(response))
                 response_dec = response.decode('utf-8', 'replace').strip()
+                response_dec_rep = response.replace(b'\r', b'\r\n').decode('utf-8').strip()   # 保证解码之后能够通过print()打印，然后解析
+                print(response_dec_rep)
                 # print('response_dec from run multi:', response_dec)
                 if response_dec.endswith(':'):
                     self.receive_status.emit('Continue')
@@ -770,13 +849,13 @@ class ReadDataFromPort(QtCore.QThread):
                     self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                 elif response_dec.endswith('>'):
                     self.receive_status.emit('INF running')
-                    print('>', response_dec)
+                    # print('>>>>>>>>>>>>>', response_dec)
                     # self.ui.Response_from_pump.append(f"{current_time} >>{response_dec}")
                     self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                     QtCore.QCoreApplication.instance().processEvents()
                 elif response_dec.endswith('<'):
                     self.receive_status.emit('WD running')
-                    print('<', response_dec)
+                    # print('<<<<<<<<<<<<<<', response_dec)
                     # self.ui.Response_from_pump.append(f"{current_time} >>{response_dec}")
                     self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                     QtCore.QCoreApplication.instance().processEvents()
@@ -800,17 +879,17 @@ class ReadDataFromPort(QtCore.QThread):
             # 释放锁，避免阻塞其他线程的执行
             self.mutex.unlock()
 
-    def auto_start_read_thread(self):
-        if self.check_serial_thread.ser and self.connect_status:
-            self.start()
-        else:
-            self.quit()
+    # def auto_start_read_thread(self):
+    #     if self.ser and self.connect_status:
+    #         self.start()
+    #     else:
+    #         self.quit()
 
-    def handle_connect_status(self, connect_status):
-        self.connect_status = connect_status
+    # def handle_connect_status(self, connect_status):
+    #     self.connect_status = connect_status
 
     def read_single_line(self):
-        if self.check_serial_thread.ser is None:
+        if self.ser is None:
             self.quit()
             # print("Connection broken.", self.isRunning())
             return
@@ -820,15 +899,18 @@ class ReadDataFromPort(QtCore.QThread):
             # if response_line is not None and response_line != b'':
             #     print('response_line', response_line)
             try:
-                response_line = self.check_serial_thread.ser.readline()
+                response_line = self.ser.readline()
                 if response_line is not None and response_line != b'':
-                    print('response_line', response_line)
+                    pass
+                    # print('response_line', response_line)
                 # print('response_line', response_line)
-                while response_line.startswith(b'\n') or response_line.endswith((b':', b'<', b'>', b'*', b'T*', b'\r\n')):
-                    response_line += self.check_serial_thread.ser.readline()
+                while response_line.startswith(b'\n') and response_line.endswith(
+                        (b':', b'<', b'>', b'*', b'T*', b'\r')):
+                    response_line += self.ser.readline()
                 self.response = response_line
                 if self.response is not None and self.response != b'':
-                    print('self.response', self.response)
+                    pass
+                    # print('self.response', self.response)
             except Exception as e:
                 print(e)
         # print('self.response multi-line: ', self.response)
@@ -912,62 +994,30 @@ def on_button_clicked(button, tab, ui, setups_dict_quick_mode):
         tab.setTabEnabled(0, True)
         tab.setTabEnabled(1, False)
         setups_dict_quick_mode['Run Mode'] = 'INF'
-        # if ui.param_flowRate_1.text() == '' or ui.param_target_1.text() == '':
-        #     setups_dict_quick_mode['Flow Parameter'] = None
-        # else:
-        #     setups_dict_quick_mode['Flow Parameter'] = {
-        #         'Frate INF': ui.param_flowRate_1.text() + ui.comboBox_unit_frate_1.currentText(),
-        #         'Target INF': ui.param_target_1.text() + ui.comboBox_unit_target_1.currentText()}
     elif button.property('value') == 'WD':
         tab.setTabText(0, tabs_name[1])
         tab.setTabText(1, tabs_name[3])
         tab.setTabEnabled(0, True)
         tab.setTabEnabled(1, False)
         setups_dict_quick_mode['Run Mode'] = 'WD'
-        # if ui.param_flowRate_1.text() == '' or ui.param_target_1.text() == '':
-        #     setups_dict_quick_mode['Flow Parameter'] = None
-        # else:
-        #     setups_dict_quick_mode['Flow Parameter'] = {
-        #         'Frate WD': ui.param_flowRate_1.text() + ui.comboBox_unit_frate_1.currentText(),
-        #         'Target WD': ui.param_target_1.text() + ui.comboBox_unit_target_1.currentText()}
     elif button.property('value') == 'INF/ WD':
         tab.setTabText(0, tabs_name[0])
         tab.setTabText(1, tabs_name[1])
         tab.setTabEnabled(0, True)
         tab.setTabEnabled(1, True)
         setups_dict_quick_mode['Run Mode'] = 'INF/ WD'
-        # if ui.param_flowRate_1.text() == '' or ui.param_target_1.text() == '' or ui.param_flowRate_2.text() == '' or ui.param_target_2.text() == '':
-        #     setups_dict_quick_mode['Flow Parameter'] = None
-        # else:
-        #     setups_dict_quick_mode['Flow Parameter'] = {
-        #         'Frate INF': ui.param_flowRate_1.text() + ui.comboBox_unit_frate_1.currentText(),
-        #         'Target INF': ui.param_target_1.text() + ui.comboBox_unit_target_1.currentText(),
-        #         'Frate WD': ui.param_flowRate_2.text() + ui.comboBox_unit_frate_2.currentText(),
-        #         'Target WD': ui.param_target_2.text() + ui.comboBox_unit_target_2.currentText()
-        #     }
     elif button.property('value') == 'WD/ INF':
         tab.setTabText(0, tabs_name[1])
         tab.setTabText(1, tabs_name[0])
         tab.setTabEnabled(0, True)
         tab.setTabEnabled(1, True)
         setups_dict_quick_mode['Run Mode'] = 'WD/ INF'
-        # if ui.param_flowRate_1.text() == '' or ui.param_target_1.text() == '' or ui.param_flowRate_2.text() == '' or ui.param_target_2.text() == '':
-        #     setups_dict_quick_mode['Flow Parameter'] = None
-        # else:
-        #     setups_dict_quick_mode['Flow Parameter'] = {
-        #         'Frate WD': ui.param_flowRate_1.text() + ui.comboBox_unit_frate_1.currentText(),
-        #         'Target WD': ui.param_target_1.text() + ui.comboBox_unit_target_1.currentText(),
-        #         'Frate INF': ui.param_flowRate_2.text() + ui.comboBox_unit_frate_2.currentText(),
-        #         'Target INF': ui.param_target_2.text() + ui.comboBox_unit_target_2.currentText()
-        #     }
     else:
         tab.setTabText(0, tabs_name[2])
         tab.setTabText(1, tabs_name[3])
         tab.setTabEnabled(0, False)
         tab.setTabEnabled(1, False)
         setups_dict_quick_mode['Run Mode'] = 'Custom method'
-        # setups_dict_quick_mode['Flow Parameter'] = ''
-    # print(button.property('value'))
     return setups_dict_quick_mode
 
 
@@ -977,8 +1027,6 @@ def on_button_clicked(button, tab, ui, setups_dict_quick_mode):
 def init_combox_syrSize(ui, setups_dict_quick_mode):
     ui.comboBox_syrManu.clear()
     ui.comboBox_syrSize.clear()
-    # ui.comboBox_syrManu.insertItem(0, "")
-    # ui.comboBox_syrSize.insertItem(0, "")
     ui.comboBox_syrManu.currentTextChanged.connect(
         lambda dict_quick_mode: update_combox_syrSize(ui.comboBox_syrManu.currentText(), setups_dict_quick_mode, ui))
     ui.comboBox_syrManu.currentTextChanged.connect(
@@ -1013,17 +1061,20 @@ def get_min_max_limit(ui, selected_values):
     if matching_sublist is not None:
         list_lower_limit = matching_sublist[1]
         list_upper_limit = matching_sublist[2]
+        max_force_level = matching_sublist[3]
     else:
         list_lower_limit = None
         list_upper_limit = None
-    if list_lower_limit and list_upper_limit:
+        max_force_level = None
+    if list_lower_limit and list_upper_limit and max_force_level:
         # print(list_lower_limit, list_upper_limit)
-        return list_lower_limit, list_upper_limit
+        return list_lower_limit, list_upper_limit, max_force_level
 
 
 # Function of button_lower and button_upper(1/2): set min. and max. flow rate with associated units
 def set_max_min_flow_rate(ui, sender_button):
-    flow_min, flow_max = get_min_max_limit(ui, Get_syringe_dict().get(ui.comboBox_syrManu.currentText(), []))
+    flow_min, flow_max, force_level = get_min_max_limit(ui,
+                                                        Get_syringe_dict().get(ui.comboBox_syrManu.currentText(), []))
     param_flow_min = flow_min.split()[0]
     unit_flow_min = flow_min.split()[1]
     param_flow_max = flow_max.split()[0]
@@ -1033,6 +1084,7 @@ def set_max_min_flow_rate(ui, sender_button):
             ui.param_flowRate_1.setText(param_flow_min)
             if ui.comboBox_unit_frate_1.findText(unit_flow_min) != -1:
                 ui.comboBox_unit_frate_1.setCurrentText(unit_flow_min)
+                print('Recommended force level for selected syringe size:', force_level)
             else:
                 pass
         else:
@@ -1042,6 +1094,7 @@ def set_max_min_flow_rate(ui, sender_button):
             ui.param_flowRate_2.setText(param_flow_min)
             if ui.comboBox_unit_frate_2.findText(unit_flow_min) != -1:
                 ui.comboBox_unit_frate_2.setCurrentText(unit_flow_min)
+                print('Recommended force level for selected syringe size:', force_level)
             else:
                 pass
         else:
@@ -1051,6 +1104,7 @@ def set_max_min_flow_rate(ui, sender_button):
             ui.param_flowRate_1.setText(param_flow_max)
             if ui.comboBox_unit_frate_1.findText(unit_flow_max) != -1:
                 ui.comboBox_unit_frate_1.setCurrentText(unit_flow_max)
+                print('Recommended force level for selected syringe size:', force_level)
             else:
                 pass
         else:
@@ -1060,6 +1114,7 @@ def set_max_min_flow_rate(ui, sender_button):
             ui.param_flowRate_2.setText(param_flow_max)
             if ui.comboBox_unit_frate_2.findText(unit_flow_max) != -1:
                 ui.comboBox_unit_frate_2.setCurrentText(unit_flow_max)
+                print('Recommended force level for selected syringe size:', force_level)
             else:
                 pass
         else:
@@ -1138,7 +1193,7 @@ def user_input_range_validate(flow_min, flow_max, param_num, param_unit):
 
 
 def Quick_mode_param_run(ui, setups_dict_quick_mode):
-    flow_min, flow_max = get_min_max_limit(ui, Get_syringe_dict().get(ui.comboBox_syrManu.currentText(), []))
+    flow_min, flow_max, _ = get_min_max_limit(ui, Get_syringe_dict().get(ui.comboBox_syrManu.currentText(), []))
     if setups_dict_quick_mode['Run Mode'] == 'INF':
         if ui.param_flowRate_1.text() == '' or ui.param_target_1.text() == '':
             setups_dict_quick_mode['Flow Parameter'] = 'None'
@@ -1553,17 +1608,22 @@ def clear_graph_text(ui, send_data_to_port):
     ui.commands_sent.setText('')
     send_data_to_port.clear_from_button(ui)
 
+
 def fast_btn_timer_start(timer):
     timer.start(500)
+
 
 def fast_btn_timer_stop(timer):
     timer.stop()
 
+
 def rwd_btn_timer_start(timer):
     timer.start(500)
 
+
 def rwd_btn_timer_stop(timer):
     timer.stop()
+
 
 """Enable switching theme from toolbar -> theme"""
 
