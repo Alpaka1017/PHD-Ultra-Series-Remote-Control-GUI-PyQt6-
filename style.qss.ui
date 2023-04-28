@@ -10,153 +10,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>885</width>
-    <height>841</height>
+    <width>882</width>
+    <height>848</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
-  </property>
-  <property name="styleSheet">
-   <string notr="true">/*Default style for QApplication*/
-[subQGroupBoxFont=&quot;regular&quot;] {
-    font: &quot;Open Sans&quot;;
-    font-size: 9pt;
-    color: black;
-}
-[mainQGroupBoxFont=&quot;bold&quot;] {
-    font: &quot;Open Sans SemiBold&quot;;
-    font-size: 9pt;
-    font-weight: 63;
-}
-
-[QLabelFont=&quot;regular&quot;] {
-    font: &quot;Open Sans&quot;;
-    font-size: 9pt;
-    color: black;
-}
-
-[QRadiobuttonFont=&quot;regular&quot;] {
-    font: &quot;Open Sans&quot;;
-    font-size: 9pt;
-    color: black;
-}
-
-[QTextEditSet=&quot;Courier New&quot;] {
-    border: 1px solid gray;
-    border-radius: 3px;
-    font-family:Courier New;
-    font-size: 10pt;
-}
-
-
-QMainWindow {
-    font: 10pt &quot;Open Sans&quot;;
-    font-color: black;
-    background-color: rgb(235, 235, 235);
-}
-
-QMainWindow &gt; QWidget#left_frame QGroupBox {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#groupBox_5 {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#RadioButtonGroup {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#ComboxBoxGroup {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#groupBox_param_enter {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#UserDefinedSetupGroup {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#GraphicsViewGroup {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#ReceivedDataGroup {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#SentDataGroup {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#groupBox_5 {
-    font: 63 9pt &quot;Open Sans SemiBold&quot;;
-}
-
-#SerialPortGroup {
-    font: 9pt &quot;Open Sans Medium&quot;;
-}
-
-#AddressGroup {
-    font: 9pt &quot;Open Sans Medium&quot;;
-}
-
-#QuickMoveGroup {
-    font: 9pt &quot;Open Sans Medium&quot;;
-}
-
-#CatalogGroup {
-    font: 9pt &quot;Open Sans Medium&quot;;
-}
-
-#BackgroundLightGroup {
-    font: 9pt &quot;Open Sans Medium&quot;;
-}
-
-
-*#QLabel {
-    font: 9pt &quot;Open Sans Medium&quot;;
-}
-
-*#QRadioButton {
-    font: 9pt &quot;Open Sans&quot;;
-}
-
-*#QFrame {
-    border: none;
-}
-
-*#QGroupBox {
-    border: none;
-}
-
-
-QTextEdit {
-    border: 1px solid gray;
-    border-radius: 3px;
-    font-family:Courier New;
-    font-size: 10pt;
-}
-
-
-QMenu::item:selected{
-    background-color:rgb(0,100,200);
-}
-
-QMenuBar {
-}
-
-QStatusBar {
-    color: black;
-}
-
-QStatusBar QLabel {
-    color: black;
-}
-</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
@@ -167,52 +26,14 @@ QStatusBar QLabel {
    </property>
    <layout class="QGridLayout" name="gridLayout_9">
     <item row="0" column="0">
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Fixed</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="1" column="1">
-     <spacer name="verticalSpacer">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>500</width>
-        <height>0</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item row="0" column="1">
-     <layout class="QGridLayout" name="main_layout">
-      <property name="spacing">
-       <number>6</number>
-      </property>
+     <layout class="QGridLayout" name="gridLayout_17">
       <item row="0" column="1">
        <widget class="QFrame" name="right_frame">
         <property name="maximumSize">
          <size>
-          <width>1000</width>
+          <width>602</width>
           <height>16777215</height>
          </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QGroupBox {
-	
-	font: 57 9pt &quot;Open Sans Medium&quot;;
-}</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -228,7 +49,7 @@ QStatusBar QLabel {
           <number>0</number>
          </property>
          <property name="verticalSpacing">
-          <number>6</number>
+          <number>9</number>
          </property>
          <item row="3" column="0">
           <widget class="QGroupBox" name="groupBox_5">
@@ -239,7 +60,10 @@ QStatusBar QLabel {
             </size>
            </property>
            <property name="styleSheet">
-            <string notr="true"/>
+            <string notr="true">QGroupBox {
+	
+	font: 10pt &quot;Open Sans&quot;;
+}</string>
            </property>
            <property name="title">
             <string>Optional Functions</string>
@@ -400,7 +224,7 @@ QStatusBar QLabel {
               <property name="styleSheet">
                <string notr="true">QGroupBox {
 	
-	font: 40 9pt &quot;Open Sans Medium&quot;;
+	font: 10pt &quot;Open Sans&quot;;
 }</string>
               </property>
               <property name="title">
@@ -465,7 +289,7 @@ QStatusBar QLabel {
               <property name="styleSheet">
                <string notr="true">QGroupBox {
 	
-	font: 40 9pt &quot;Open Sans Medium&quot;;
+	font: 10pt &quot;Open Sans&quot;;
 }</string>
               </property>
               <property name="title">
@@ -500,7 +324,38 @@ QStatusBar QLabel {
                  </property>
                 </widget>
                </item>
-               <item row="3" column="1">
+               <item row="1" column="1">
+                <widget class="QSlider" name="bgLight_Slider">
+                 <property name="minimumSize">
+                  <size>
+                   <width>50</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>120</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="minimum">
+                  <number>1</number>
+                 </property>
+                 <property name="maximum">
+                  <number>100</number>
+                 </property>
+                 <property name="value">
+                  <number>80</number>
+                 </property>
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="tickPosition">
+                  <enum>QSlider::NoTicks</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
                 <widget class="QLabel" name="forceLimit_Label">
                  <property name="minimumSize">
                   <size>
@@ -525,7 +380,7 @@ QStatusBar QLabel {
                  </property>
                 </widget>
                </item>
-               <item row="4" column="1">
+               <item row="3" column="1">
                 <widget class="QSlider" name="forceLimit_Slider">
                  <property name="minimumSize">
                   <size>
@@ -562,37 +417,6 @@ QStatusBar QLabel {
                  </property>
                 </widget>
                </item>
-               <item row="2" column="1">
-                <widget class="QSlider" name="bgLight_Slider">
-                 <property name="minimumSize">
-                  <size>
-                   <width>50</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>120</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
-                 <property name="minimum">
-                  <number>1</number>
-                 </property>
-                 <property name="maximum">
-                  <number>100</number>
-                 </property>
-                 <property name="value">
-                  <number>80</number>
-                 </property>
-                 <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="tickPosition">
-                  <enum>QSlider::NoTicks</enum>
-                 </property>
-                </widget>
-               </item>
               </layout>
              </widget>
             </item>
@@ -609,7 +433,7 @@ QStatusBar QLabel {
            </property>
            <property name="maximumSize">
             <size>
-             <width>1000</width>
+             <width>580</width>
              <height>280</height>
             </size>
            </property>
@@ -622,7 +446,7 @@ QStatusBar QLabel {
            <property name="styleSheet">
             <string notr="true">QGroupBox {
 	
-	font: 57 9pt &quot;Open Sans Medium&quot;;
+	font: 10pt &quot;Open Sans&quot;;
 }</string>
            </property>
            <property name="title">
@@ -639,9 +463,6 @@ QStatusBar QLabel {
               </property>
               <property name="cursor" stdset="0">
                <cursorShape>CrossCursor</cursorShape>
-              </property>
-              <property name="mouseTracking">
-               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -752,7 +573,7 @@ QStatusBar QLabel {
               </property>
               <property name="maximumSize">
                <size>
-                <width>500</width>
+                <width>280</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -762,36 +583,21 @@ QStatusBar QLabel {
                 <height>0</height>
                </size>
               </property>
-              <property name="font">
-               <font>
-                <family>Open Sans Medium</family>
-                <pointsize>9</pointsize>
-                <weight>7</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
               <property name="layoutDirection">
                <enum>Qt::LeftToRight</enum>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QGroupBox {
-	
-	font: 57 9pt &quot;Open Sans Medium&quot;;
-}</string>
               </property>
               <property name="title">
                <string>Response received</string>
               </property>
               <layout class="QGridLayout" name="gridLayout_14">
                <property name="leftMargin">
-                <number>6</number>
+                <number>0</number>
                </property>
                <property name="topMargin">
                 <number>9</number>
                </property>
                <property name="rightMargin">
-                <number>6</number>
+                <number>0</number>
                </property>
                <property name="bottomMargin">
                 <number>5</number>
@@ -809,15 +615,15 @@ QStatusBar QLabel {
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>500</width>
-                   <height>1000</height>
+                   <width>260</width>
+                   <height>350</height>
                   </size>
                  </property>
                  <property name="font">
                   <font>
                    <family>Courier New</family>
-                   <pointsize>10</pointsize>
-                   <weight>50</weight>
+                   <pointsize>9</pointsize>
+                   <weight>7</weight>
                    <italic>false</italic>
                    <bold>false</bold>
                   </font>
@@ -827,20 +633,11 @@ QStatusBar QLabel {
                  </property>
                  <property name="styleSheet">
                   <string notr="true">QTextEdit {
-	
-	font: 10pt &quot;Courier New&quot;;
+	font-family:Courier New;
+	font-size: 10 pt;
 }</string>
                  </property>
-                 <property name="frameShape">
-                  <enum>QFrame::StyledPanel</enum>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Sunken</enum>
-                 </property>
                  <property name="readOnly">
-                  <bool>true</bool>
-                 </property>
-                 <property name="acceptRichText">
                   <bool>true</bool>
                  </property>
                  <property name="textInteractionFlags">
@@ -861,7 +658,7 @@ QStatusBar QLabel {
               </property>
               <property name="maximumSize">
                <size>
-                <width>500</width>
+                <width>280</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -874,7 +671,7 @@ QStatusBar QLabel {
               <property name="styleSheet">
                <string notr="true">QGroupBox {
 	
-	font: 57 9pt &quot;Open Sans Medium&quot;;
+	font: 10pt &quot;Open Sans&quot;;
 }</string>
               </property>
               <property name="title">
@@ -882,13 +679,10 @@ QStatusBar QLabel {
               </property>
               <layout class="QGridLayout" name="gridLayout_15">
                <property name="leftMargin">
-                <number>6</number>
+                <number>9</number>
                </property>
                <property name="topMargin">
                 <number>9</number>
-               </property>
-               <property name="rightMargin">
-                <number>6</number>
                </property>
                <property name="bottomMargin">
                 <number>5</number>
@@ -909,8 +703,8 @@ QStatusBar QLabel {
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>500</width>
-                   <height>1000</height>
+                   <width>260</width>
+                   <height>350</height>
                   </size>
                  </property>
                  <property name="mouseTracking">
@@ -921,22 +715,12 @@ QStatusBar QLabel {
                  </property>
                  <property name="styleSheet">
                   <string notr="true">QTextEdit {
-	
-	font: 10pt &quot;Courier New&quot;;
+	font-family:Courier New;
+	font-size: 10 pt;
 }</string>
-                 </property>
-                 <property name="frameShadow">
-                  <enum>QFrame::Sunken</enum>
                  </property>
                  <property name="readOnly">
                   <bool>true</bool>
-                 </property>
-                 <property name="html">
-                  <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Courier New'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                  </property>
                  <property name="textInteractionFlags">
                   <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
@@ -959,7 +743,7 @@ p, li { white-space: pre-wrap; }
            </property>
            <property name="maximumSize">
             <size>
-             <width>1000</width>
+             <width>260</width>
              <height>30</height>
             </size>
            </property>
@@ -1026,7 +810,7 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="maximumSize">
                <size>
-                <width>920</width>
+                <width>500</width>
                 <height>25</height>
                </size>
               </property>
@@ -1055,20 +839,14 @@ p, li { white-space: pre-wrap; }
           <height>16777215</height>
          </size>
         </property>
-        <property name="font">
-         <font>
-          <family>Open Sans Medium</family>
-          <pointsize>9</pointsize>
-          <weight>7</weight>
-          <italic>false</italic>
-          <bold>false</bold>
-         </font>
-        </property>
         <property name="autoFillBackground">
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true"/>
+         <string notr="true">QFrame {
+	
+	font: 10pt &quot;Open Sans&quot;;
+}</string>
         </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
@@ -1076,9 +854,9 @@ p, li { white-space: pre-wrap; }
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_2">
-         <property name="leftMargin">
-          <number>6</number>
+        <layout class="QVBoxLayout" name="verticalLayout_6">
+         <property name="spacing">
+          <number>11</number>
          </property>
          <property name="topMargin">
           <number>5</number>
@@ -1089,10 +867,7 @@ p, li { white-space: pre-wrap; }
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <property name="verticalSpacing">
-          <number>7</number>
-         </property>
-         <item row="0" column="0">
+         <item>
           <widget class="QGroupBox" name="RadioButtonGroup">
            <property name="minimumSize">
             <size>
@@ -1103,20 +878,14 @@ p, li { white-space: pre-wrap; }
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>16777215</height>
+             <height>160</height>
             </size>
            </property>
-           <property name="font">
-            <font>
-             <family>Open Sans Medium</family>
-             <pointsize>9</pointsize>
-             <weight>7</weight>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
-           </property>
            <property name="styleSheet">
-            <string notr="true"/>
+            <string notr="true">QGroupBox {
+	
+	font: 10pt &quot;Open Sans&quot;;
+}</string>
            </property>
            <property name="title">
             <string>Operation Mode</string>
@@ -1184,7 +953,7 @@ p, li { white-space: pre-wrap; }
            </layout>
           </widget>
          </item>
-         <item row="1" column="0">
+         <item>
           <widget class="QGroupBox" name="ComboxBoxGroup">
            <property name="minimumSize">
             <size>
@@ -1195,44 +964,32 @@ p, li { white-space: pre-wrap; }
            <property name="maximumSize">
             <size>
              <width>450</width>
-             <height>16777215</height>
+             <height>200</height>
             </size>
            </property>
-           <property name="font">
-            <font>
-             <family>Open Sans Medium</family>
-             <pointsize>9</pointsize>
-             <weight>7</weight>
-             <italic>false</italic>
-             <bold>false</bold>
-            </font>
+           <property name="styleSheet">
+            <string notr="true">QGroupBox {
+	
+	font: 10pt &quot;Open Sans&quot;;
+}</string>
            </property>
            <property name="title">
             <string>Syringe Slection</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_8">
             <property name="topMargin">
-             <number>9</number>
+             <number>6</number>
             </property>
             <property name="bottomMargin">
-             <number>11</number>
-            </property>
-            <property name="verticalSpacing">
              <number>6</number>
             </property>
             <item row="0" column="0">
              <widget class="QLabel" name="label">
-              <property name="font">
-               <font>
-                <family>Open Sans Medium</family>
-                <pointsize>9</pointsize>
-                <weight>7</weight>
-                <italic>false</italic>
-                <bold>false</bold>
-               </font>
-              </property>
               <property name="styleSheet">
-               <string notr="true"/>
+               <string notr="true">QLabel {
+	
+	font: 10pt &quot;Open Sans&quot;;
+}</string>
               </property>
               <property name="text">
                <string>Manufacturer</string>
@@ -1302,7 +1059,7 @@ p, li { white-space: pre-wrap; }
               <property name="minimumSize">
                <size>
                 <width>230</width>
-                <height>25</height>
+                <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -1316,7 +1073,7 @@ p, li { white-space: pre-wrap; }
            </layout>
           </widget>
          </item>
-         <item row="2" column="0">
+         <item>
           <widget class="QGroupBox" name="groupBox_param_enter">
            <property name="minimumSize">
             <size>
@@ -1330,10 +1087,16 @@ p, li { white-space: pre-wrap; }
              <height>180</height>
             </size>
            </property>
+           <property name="styleSheet">
+            <string notr="true">QGroupBox {
+	
+	font: 10pt &quot;Open Sans&quot;;
+}</string>
+           </property>
            <property name="title">
             <string>Flow Parameter</string>
            </property>
-           <layout class="QGridLayout" name="gridLayout_20">
+           <layout class="QHBoxLayout" name="horizontalLayout">
             <property name="leftMargin">
              <number>5</number>
             </property>
@@ -1346,8 +1109,13 @@ p, li { white-space: pre-wrap; }
             <property name="bottomMargin">
              <number>5</number>
             </property>
-            <item row="0" column="0">
+            <item>
              <widget class="QTabWidget" name="flow_param_tab">
+              <property name="styleSheet">
+               <string notr="true">QTabWidget {
+	background-color: rgb(211, 211, 211);
+}</string>
+              </property>
               <property name="inputMethodHints">
                <set>Qt::ImhNone</set>
               </property>
@@ -1368,7 +1136,7 @@ p, li { white-space: pre-wrap; }
                 <property name="geometry">
                  <rect>
                   <x>210</x>
-                  <y>25</y>
+                  <y>28</y>
                   <width>25</width>
                   <height>30</height>
                  </rect>
@@ -1512,21 +1280,21 @@ p, li { white-space: pre-wrap; }
                  <property name="geometry">
                   <rect>
                    <x>5</x>
-                   <y>53</y>
+                   <y>57</y>
                    <width>83</width>
-                   <height>23</height>
+                   <height>25</height>
                   </rect>
                  </property>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>23</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>23</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="text">
@@ -1537,21 +1305,21 @@ p, li { white-space: pre-wrap; }
                  <property name="geometry">
                   <rect>
                    <x>5</x>
-                   <y>5</y>
-                   <width>91</width>
-                   <height>20</height>
+                   <y>1</y>
+                   <width>67</width>
+                   <height>25</height>
                   </rect>
                  </property>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>20</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>20</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="text">
@@ -1562,7 +1330,7 @@ p, li { white-space: pre-wrap; }
                  <property name="geometry">
                   <rect>
                    <x>5</x>
-                   <y>80</y>
+                   <y>85</y>
                    <width>100</width>
                    <height>25</height>
                   </rect>
@@ -1584,7 +1352,7 @@ p, li { white-space: pre-wrap; }
                  <property name="geometry">
                   <rect>
                    <x>5</x>
-                   <y>27</y>
+                   <y>29</y>
                    <width>100</width>
                    <height>25</height>
                   </rect>
@@ -1639,190 +1407,180 @@ p, li { white-space: pre-wrap; }
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
-                <widget class="QLabel" name="label_14">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>5</y>
-                   <width>20</width>
-                   <height>20</height>
-                  </rect>
+                <layout class="QGridLayout" name="gridLayout_13">
+                 <property name="leftMargin">
+                  <number>0</number>
                  </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>20</height>
-                  </size>
+                 <property name="topMargin">
+                  <number>0</number>
                  </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>20</width>
-                   <height>20</height>
-                  </size>
+                 <property name="rightMargin">
+                  <number>0</number>
                  </property>
-                 <property name="text">
-                  <string/>
+                 <property name="verticalSpacing">
+                  <number>5</number>
                  </property>
-                </widget>
-                <widget class="QComboBox" name="comboBox_unit_frate_1">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>27</y>
-                   <width>80</width>
-                   <height>25</height>
-                  </rect>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>80</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>pl/hr</string>
-                  </property>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_14">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>20</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
                  </item>
-                 <item>
-                  <property name="text">
-                   <string>nl/hr</string>
-                  </property>
+                 <item row="1" column="0">
+                  <widget class="QComboBox" name="comboBox_unit_frate_1">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>80</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>pl/hr</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>nl/hr</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ul/hr</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ml/hr</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>pl/min</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>nl/min</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ul/min</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ml/min</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>pl/s</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>nl/s</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ul/s</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ml/s</string>
+                    </property>
+                   </item>
+                  </widget>
                  </item>
-                 <item>
-                  <property name="text">
-                   <string>ul/hr</string>
-                  </property>
+                 <item row="4" column="0">
+                  <widget class="QComboBox" name="comboBox_unit_target_1">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>80</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>pl</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>nl</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ul</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ml</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Secs</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>h:m:s</string>
+                    </property>
+                   </item>
+                  </widget>
                  </item>
-                 <item>
-                  <property name="text">
-                   <string>ml/hr</string>
-                  </property>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_15">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>20</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
                  </item>
-                 <item>
-                  <property name="text">
-                   <string>pl/min</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>nl/min</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ul/min</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ml/min</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>pl/s</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>nl/s</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ul/s</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ml/s</string>
-                  </property>
-                 </item>
-                </widget>
-                <widget class="QComboBox" name="comboBox_unit_target_1">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>80</y>
-                   <width>80</width>
-                   <height>25</height>
-                  </rect>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>80</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>pl</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>nl</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ul</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ml</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Secs</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>h:m:s</string>
-                  </property>
-                 </item>
-                </widget>
-                <widget class="QLabel" name="label_15">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>53</y>
-                   <width>20</width>
-                   <height>23</height>
-                  </rect>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>23</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>20</width>
-                   <height>23</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
+                </layout>
                </widget>
               </widget>
               <widget class="QWidget" name="Param2">
@@ -1860,21 +1618,21 @@ p, li { white-space: pre-wrap; }
                  <property name="geometry">
                   <rect>
                    <x>5</x>
-                   <y>53</y>
+                   <y>57</y>
                    <width>83</width>
-                   <height>23</height>
+                   <height>25</height>
                   </rect>
                  </property>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>23</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>23</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="text">
@@ -1885,21 +1643,21 @@ p, li { white-space: pre-wrap; }
                  <property name="geometry">
                   <rect>
                    <x>5</x>
-                   <y>5</y>
-                   <width>91</width>
-                   <height>20</height>
+                   <y>1</y>
+                   <width>67</width>
+                   <height>25</height>
                   </rect>
                  </property>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>20</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>20</height>
+                   <height>25</height>
                   </size>
                  </property>
                  <property name="text">
@@ -1910,7 +1668,7 @@ p, li { white-space: pre-wrap; }
                  <property name="geometry">
                   <rect>
                    <x>5</x>
-                   <y>80</y>
+                   <y>85</y>
                    <width>100</width>
                    <height>25</height>
                   </rect>
@@ -1932,7 +1690,7 @@ p, li { white-space: pre-wrap; }
                  <property name="geometry">
                   <rect>
                    <x>5</x>
-                   <y>27</y>
+                   <y>29</y>
                    <width>100</width>
                    <height>25</height>
                   </rect>
@@ -1955,7 +1713,7 @@ p, li { white-space: pre-wrap; }
                 <property name="geometry">
                  <rect>
                   <x>210</x>
-                  <y>25</y>
+                  <y>28</y>
                   <width>25</width>
                   <height>30</height>
                  </rect>
@@ -2089,190 +1847,180 @@ p, li { white-space: pre-wrap; }
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
-                <widget class="QLabel" name="label_8">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>5</y>
-                   <width>20</width>
-                   <height>20</height>
-                  </rect>
+                <layout class="QGridLayout" name="gridLayout_2">
+                 <property name="leftMargin">
+                  <number>0</number>
                  </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>20</height>
-                  </size>
+                 <property name="topMargin">
+                  <number>0</number>
                  </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>20</width>
-                   <height>20</height>
-                  </size>
+                 <property name="rightMargin">
+                  <number>0</number>
                  </property>
-                 <property name="text">
-                  <string/>
+                 <property name="verticalSpacing">
+                  <number>5</number>
                  </property>
-                </widget>
-                <widget class="QComboBox" name="comboBox_unit_frate_2">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>27</y>
-                   <width>80</width>
-                   <height>25</height>
-                  </rect>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>80</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>pl/hr</string>
-                  </property>
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="label_8">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>20</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
                  </item>
-                 <item>
-                  <property name="text">
-                   <string>nl/hr</string>
-                  </property>
+                 <item row="1" column="0">
+                  <widget class="QComboBox" name="comboBox_unit_frate_2">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>80</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>pl/hr</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>nl/hr</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ul/hr</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ml/hr</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>pl/min</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>nl/min</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ul/min</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ml/min</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>pl/s</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>nl/s</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ul/s</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ml/s</string>
+                    </property>
+                   </item>
+                  </widget>
                  </item>
-                 <item>
-                  <property name="text">
-                   <string>ul/hr</string>
-                  </property>
+                 <item row="4" column="0">
+                  <widget class="QComboBox" name="comboBox_unit_target_2">
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>80</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <item>
+                    <property name="text">
+                     <string>pl</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>nl</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ul</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>ml</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>Secs</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text">
+                     <string>h:m:s</string>
+                    </property>
+                   </item>
+                  </widget>
                  </item>
-                 <item>
-                  <property name="text">
-                   <string>ml/hr</string>
-                  </property>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="label_9">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>20</width>
+                     <height>25</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                  </widget>
                  </item>
-                 <item>
-                  <property name="text">
-                   <string>pl/min</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>nl/min</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ul/min</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ml/min</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>pl/s</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>nl/s</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ul/s</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ml/s</string>
-                  </property>
-                 </item>
-                </widget>
-                <widget class="QComboBox" name="comboBox_unit_target_2">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>80</y>
-                   <width>80</width>
-                   <height>25</height>
-                  </rect>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>80</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>80</width>
-                   <height>25</height>
-                  </size>
-                 </property>
-                 <item>
-                  <property name="text">
-                   <string>pl</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>nl</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ul</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>ml</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>Secs</string>
-                  </property>
-                 </item>
-                 <item>
-                  <property name="text">
-                   <string>h:m:s</string>
-                  </property>
-                 </item>
-                </widget>
-                <widget class="QLabel" name="label_9">
-                 <property name="geometry">
-                  <rect>
-                   <x>5</x>
-                   <y>56</y>
-                   <width>20</width>
-                   <height>23</height>
-                  </rect>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>0</width>
-                   <height>23</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>20</width>
-                   <height>23</height>
-                  </size>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
+                </layout>
                </widget>
               </widget>
              </widget>
@@ -2280,7 +2028,7 @@ p, li { white-space: pre-wrap; }
            </layout>
           </widget>
          </item>
-         <item row="3" column="0">
+         <item>
           <widget class="QFrame" name="RunButtonFrame">
            <property name="minimumSize">
             <size>
@@ -2326,7 +2074,7 @@ p, li { white-space: pre-wrap; }
            </layout>
           </widget>
          </item>
-         <item row="4" column="0">
+         <item>
           <widget class="QGroupBox" name="UserDefinedSetupGroup">
            <property name="enabled">
             <bool>true</bool>
@@ -2340,14 +2088,14 @@ p, li { white-space: pre-wrap; }
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>16777215</height>
+             <height>160</height>
             </size>
            </property>
            <property name="font">
             <font>
-             <family>Open Sans Medium</family>
-             <pointsize>9</pointsize>
-             <weight>7</weight>
+             <family>Open Sans</family>
+             <pointsize>10</pointsize>
+             <weight>50</weight>
              <italic>false</italic>
              <bold>false</bold>
             </font>
@@ -2359,7 +2107,10 @@ p, li { white-space: pre-wrap; }
             <enum>Qt::LeftToRight</enum>
            </property>
            <property name="styleSheet">
-            <string notr="true"/>
+            <string notr="true">QGroupBox {
+	
+	font: 10pt &quot;Open Sans&quot;;
+}</string>
            </property>
            <property name="title">
             <string>Steps setup</string>
@@ -2369,10 +2120,10 @@ p, li { white-space: pre-wrap; }
            </property>
            <layout class="QGridLayout" name="gridLayout_10">
             <property name="topMargin">
-             <number>20</number>
+             <number>0</number>
             </property>
             <property name="bottomMargin">
-             <number>20</number>
+             <number>0</number>
             </property>
             <property name="verticalSpacing">
              <number>11</number>
@@ -2525,7 +2276,7 @@ p, li { white-space: pre-wrap; }
               <property name="maximumSize">
                <size>
                 <width>300</width>
-                <height>16777215</height>
+                <height>140</height>
                </size>
               </property>
               <property name="frameShape">
@@ -2564,7 +2315,7 @@ p, li { white-space: pre-wrap; }
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
-                   <height>16777215</height>
+                   <height>120</height>
                   </size>
                  </property>
                 </widget>
@@ -2587,18 +2338,9 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>885</width>
-     <height>23</height>
+     <width>882</width>
+     <height>25</height>
     </rect>
-   </property>
-   <property name="mouseTracking">
-    <bool>true</bool>
-   </property>
-   <property name="focusPolicy">
-    <enum>Qt::NoFocus</enum>
-   </property>
-   <property name="acceptDrops">
-    <bool>false</bool>
    </property>
    <widget class="QMenu" name="menuTheme">
     <property name="title">
@@ -2682,11 +2424,10 @@ p, li { white-space: pre-wrap; }
      <height>20</height>
     </size>
    </property>
-   <property name="mouseTracking">
-    <bool>true</bool>
-   </property>
    <property name="styleSheet">
-    <string notr="true"/>
+    <string notr="true">QStatusBar {
+	background-color: white;
+}</string>
    </property>
   </widget>
   <action name="actionLight">
@@ -2706,25 +2447,16 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionDark_amber">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Dark amber</string>
    </property>
   </action>
   <action name="actionDark_blue">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Dark blue</string>
    </property>
   </action>
   <action name="actionDark_cyan">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="enabled">
     <bool>true</bool>
    </property>
@@ -2738,145 +2470,91 @@ p, li { white-space: pre-wrap; }
    </property>
   </action>
   <action name="actionBlue_D">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Blue</string>
    </property>
   </action>
   <action name="actionCyan_D">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Cyan</string>
    </property>
   </action>
   <action name="actionLightgreen_D">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Lightgreen</string>
    </property>
   </action>
   <action name="actionPink_D">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Pink</string>
    </property>
   </action>
   <action name="actionPurple_D">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Purple</string>
    </property>
   </action>
   <action name="actionRed_D">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Red</string>
    </property>
   </action>
   <action name="actionTeal">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Teal</string>
    </property>
   </action>
   <action name="actionYellow">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Yellow</string>
    </property>
   </action>
   <action name="actionAmber_L">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Amber</string>
    </property>
   </action>
   <action name="actionBlue_L">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Blue</string>
    </property>
   </action>
   <action name="actionCyan_L">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Cyan</string>
    </property>
   </action>
   <action name="actionLightgreen_L">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Lightgreen</string>
    </property>
   </action>
   <action name="actionPink_L">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Pink</string>
    </property>
   </action>
   <action name="actionPurple_L">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Purple</string>
    </property>
   </action>
   <action name="actionRed_L">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Red</string>
    </property>
   </action>
   <action name="actionTeal_L">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Teal</string>
    </property>
   </action>
   <action name="actionYellow_L">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Yellow</string>
    </property>
   </action>
   <action name="actionReset">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
    <property name="text">
     <string>Reset</string>
    </property>

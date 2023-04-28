@@ -6,11 +6,13 @@
 ########################################################################################################################
 import sys
 
+import qdarktheme
 from PyQt6 import QtCore, QtGui, QtWidgets
 
 import functions
-from PortSetup_child_UI import Ui_Dialog_PortSetup
+
 from RemoteControl_main_UI import Ui_MainWindow
+from PortSetup_child_UI import Ui_Dialog_PortSetup
 from StepGuide_child_UI import Ui_Dialog_StepDetails
 from UserDefinedSteps_child_UI import Ui_Dialog
 
@@ -26,10 +28,9 @@ class MainWindow(QtWidgets.QMainWindow):
                                        'Flow Parameter': None}
         self.ui_main = Ui_MainWindow()
         self.ui_main.setupUi(self)
-
-        """更改主题"""
-        self.ui_main.actionLight.triggered.connect(lambda: functions.switch_theme_light(self.ui_main))
-        self.ui_main.actionDark.triggered.connect(lambda: functions.switch_theme_dark(self.ui_main))
+        with open("./qss/origin_style.qss") as style_sheet:
+            self.style_sheet = style_sheet.read()
+        app_instance = QtWidgets.QApplication.instance()
 
         """几个输入部分的格式验证器"""
         self.double_validator = QtGui.QDoubleValidator()
@@ -40,6 +41,33 @@ class MainWindow(QtWidgets.QMainWindow):
         self.int_validator.setBottom(0)
         self.int_validator.setTop(99)
 
+        """菜单栏"""
+        self.actionGroup = QtGui.QActionGroup(self)
+        self.actionGroup.addAction(self.ui_main.actionNo_line_feed)         # No line feed after end identifier
+        self.actionGroup.addAction(self.ui_main.action_carrige_return)      # <cr>
+        self.actionGroup.addAction(self.ui_main.action_line_feed)           # <lf>
+        self.actionGroup.addAction(self.ui_main.action_CR_LF)               # <cr&lf>
+
+        self.decodingGroup = QtGui.QActionGroup(self)
+        self.decodingGroup.addAction(self.ui_main.actionASCII)
+        self.decodingGroup.addAction(self.ui_main.actionUTF_8)
+
+        self.themGroup = QtGui.QActionGroup(self)
+        self.themGroup.addAction(self.ui_main.actionLight)
+        self.themGroup.addAction(self.ui_main.actionDark)
+        self.themGroup.addAction(self.ui_main.actionDefaultTheme)
+
+        """更改主题"""
+        self.ui_main.actionLight.triggered.connect(
+            lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.sender(), app=app_instance, style_sheet=None))
+        self.ui_main.actionDark.triggered.connect(
+            lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.sender(), app=app_instance, style_sheet=None))
+        self.ui_main.actionDefaultTheme.triggered.connect(
+            lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.sender(), app=app_instance,
+                                                      style_sheet=self.style_sheet))
+        # 设置global layout与窗口边界的距离
+        self.ui_main.main_layout.setContentsMargins(0, 0, 0, 0)
+
         """计时器"""
         # FF和RW按钮
         self.timer_fast_move = QtCore.QTimer()
@@ -47,14 +75,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """upper/ lower按钮图标"""
         icon_upper = QtGui.QIcon()
-        icon_upper.addPixmap(QtGui.QPixmap("./image/upper_limit_icon.png"), QtGui.QIcon.Mode.Active, QtGui.QIcon.State.On)
+        icon_upper.addPixmap(QtGui.QPixmap("./image/upper_limit_icon.png"), QtGui.QIcon.Mode.Active,
+                             QtGui.QIcon.State.On)
         self.ui_main.flow_upper_button_1.setIcon(icon_upper)
         self.ui_main.flow_upper_button_1.setIconSize(QtCore.QSize(12, 20))
         self.ui_main.flow_upper_button_2.setIcon(icon_upper)
         self.ui_main.flow_upper_button_2.setIconSize(QtCore.QSize(12, 20))
 
         icon_lower = QtGui.QIcon()
-        icon_lower.addPixmap(QtGui.QPixmap("./image/lower_limit_icon.png"), QtGui.QIcon.Mode.Active, QtGui.QIcon.State.On)
+        icon_lower.addPixmap(QtGui.QPixmap("./image/lower_limit_icon.png"), QtGui.QIcon.Mode.Active,
+                             QtGui.QIcon.State.On)
         self.ui_main.flow_lower_button_1.setIcon(icon_lower)
         self.ui_main.flow_lower_button_1.setIconSize(QtCore.QSize(12, 20))
         self.ui_main.flow_lower_button_2.setIcon(icon_lower)
@@ -64,13 +94,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.check_serial_thread = functions.CheckSerialThread(self.ui_main, self)
         self.read_data_from_port = functions.ReadDataFromPort(self)
         # send实例中，self.read_data_from_port作为参数只向其传递了emit()发送的响应标识
-        self.send_data_to_port = functions.SendDataToPort(self.ui_main, self.check_serial_thread, self.read_data_from_port, self)
+        self.send_data_to_port = functions.SendDataToPort(self.ui_main, self.check_serial_thread,
+                                                          self.read_data_from_port, self)
 
         """初始化状态栏，用于串口检测"""
-        self.ui_main.statusbar.showMessage('Waiting serial port to be connected.')
-        self.ui_main.statusbar.setStyleSheet('color:grey')
-        self.timer = QtCore.QTimer(self)
-        self.timer.timeout.connect(lambda status: functions.update_connection_status(self, status))
+        self.status_label = QtWidgets.QLabel('  Waiting serial port to be connected.')
+        self.status_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.status_label.setStyleSheet('color: grey')
+
+        self.spacer_status_label = QtWidgets.QWidget()
+        self.spacer_status_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        # self.ui_main.statusbar.addWidget(self.spacer_status_label)
+        self.ui_main.statusbar.addWidget(self.status_label)
+        # self.timer = QtCore.QTimer(self)
+        # self.timer.timeout.connect(lambda status: functions.update_connection_status(self, status))
         self.check_serial_thread.connection_status_changed.connect(
             lambda status: functions.update_connection_status(self, status))
 
@@ -80,9 +117,9 @@ class MainWindow(QtWidgets.QMainWindow):
                                                         _pause_thread=True))
 
         """实例化子窗口"""
-        self.ui_child_steps_dialog = StepsDialogChildWindow(self)   # 自定义steps列表子窗口
-        self.ui_child_port_setup = PortSetupChildWindow(self)       # 串口参数设置子窗口
-        self.ui_child_step_guide = StepGuideChildWindow(self)       # 双击打开steps参数子窗口
+        self.ui_child_steps_dialog = StepsDialogChildWindow(self)        # 自定义steps列表子窗口
+        self.ui_child_port_setup = PortSetupChildWindow(self)            # 串口参数设置子窗口
+        self.ui_child_step_guide = StepGuideChildWindow(self)            # 双击打开steps参数子窗口
         self.ui_child_port_setup.dictReady.connect(
             lambda: functions.receive_dict(self.check_serial_thread, self.ui_child_port_setup.port_param_dict))
 
@@ -106,27 +143,35 @@ class MainWindow(QtWidgets.QMainWindow):
             button.setProperty('value', values['value'])
             tab_var = self.ui_main.flow_param_tab
             button.clicked.connect(
-                lambda checked, btn=button, tab=tab_var: functions.on_button_clicked(btn, tab, self.ui_main, self.setups_dict_quick_mode))
+                lambda checked, btn=button, tab=tab_var: functions.on_button_clicked(btn, tab, self.ui_main,
+                                                                                     self.setups_dict_quick_mode))
 
         """ComboBox Syringe selection部分"""
         functions.init_combox_syrSize(self.ui_main, self.setups_dict_quick_mode)
         self.ui_main.comboBox_syrManu.addItems(functions.Get_syringe_dict().keys())
 
         # Syringe选择框和用户自定义Syringe输入框的逻辑关系
-        self.ui_main.syr_param_enter.textChanged.connect(lambda: functions.update_combox_syr_enabled(self.ui_main, self.setups_dict_quick_mode))
+        self.ui_main.syr_param_enter.textChanged.connect(
+            lambda: functions.update_combox_syr_enabled(self.ui_main, self.setups_dict_quick_mode))
 
         """Quick Mode参数输入部分，配置一键输入最大/最小值，并限制范围"""
-        self.ui_main.flow_lower_button_1.clicked.connect(lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
-        self.ui_main.flow_lower_button_2.clicked.connect(lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
-        self.ui_main.flow_upper_button_1.clicked.connect(lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
-        self.ui_main.flow_upper_button_2.clicked.connect(lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
+        self.ui_main.flow_lower_button_1.clicked.connect(
+            lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
+        self.ui_main.flow_lower_button_2.clicked.connect(
+            lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
+        self.ui_main.flow_upper_button_1.clicked.connect(
+            lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
+        self.ui_main.flow_upper_button_2.clicked.connect(
+            lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
 
         """自定义Method部分"""
         # 连接用户自定义userDefined_Add按钮和槽函数:Add
         self.ui_main.userDefined_Add.clicked.connect(
             lambda: functions.show_user_defined_dialog(self.ui_child_steps_dialog))
-        self.ui_child_steps_dialog.selected_items.connect(lambda item_text, item_icon, parameters_dict=None, list_widget=self.ui_main.
-                                                                 listWidget_userDefined_method: functions.add_to_list(item_text, item_icon, self.setups_dict_custom, list_widget))
+        self.ui_child_steps_dialog.selected_items.connect(
+            lambda item_text, item_icon, parameters_dict=None, list_widget=self.ui_main.
+                   listWidget_userDefined_method: functions.add_to_list(item_text, item_icon, self.setups_dict_custom,
+                                                                        list_widget))
 
         # 连接用户自定义userDefined_Del按钮和槽函数:Del
         self.ui_main.userDefined_Del.disconnect()
@@ -136,7 +181,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # 指定steps参数和OK按钮
         # self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(lambda item_selected: functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method, self.setups_dict_custom, item=item_selected))
-        self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(lambda item_selected: functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method, self.ui_child_step_guide, self.setups_dict_custom, item=item_selected))
+        self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(
+            lambda item_selected: functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method,
+                                                                self.ui_child_step_guide, self.setups_dict_custom,
+                                                                item=item_selected))
 
         # 自定义方法：OK按钮 --> 返回steps配置字典
         self.ui_main.userDefined_OK.clicked.connect(lambda: functions.print_setups_dict_custom(self.setups_dict_custom))
@@ -168,12 +216,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.tilt_sensor_cali_button.clicked.connect(self.send_data_to_port.ser_command_tilt)
 
         # 背景光强度dim
-        self.ui_main.bgLight_Slider.valueChanged.connect(lambda: self.send_data_to_port.ser_bgl_label_show(self.ui_main))
+        self.ui_main.bgLight_Slider.valueChanged.connect(
+            lambda: self.send_data_to_port.ser_bgl_label_show(self.ui_main))
         self.ui_main.bgLight_Slider.sliderReleased.connect(lambda: self.send_data_to_port.ser_bgl_level(self.ui_main))
 
         # 压力上限
-        self.ui_main.forceLimit_Slider.sliderReleased.connect(lambda: self.send_data_to_port.ser_force_limit(self.ui_main))
-        self.ui_main.forceLimit_Slider.valueChanged.connect(lambda: self.send_data_to_port.ser_force_label_show(self.ui_main))
+        self.ui_main.forceLimit_Slider.sliderReleased.connect(
+            lambda: self.send_data_to_port.ser_force_limit(self.ui_main))
+        self.ui_main.forceLimit_Slider.valueChanged.connect(
+            lambda: self.send_data_to_port.ser_force_label_show(self.ui_main))
 
         # FF和RW
         self.timer_fast_move.timeout.connect(self.send_data_to_port.fast_forward_btn)
@@ -187,153 +238,38 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.rewinde_btn.released.connect(self.send_data_to_port.release_to_stop)
 
         # 其他手动输入指令
-        self.ui_main.data_sent_send_button.clicked.connect(lambda: self.send_data_to_port.send_command_manual(self.ui_main))
+        self.ui_main.data_sent_send_button.clicked.connect(
+            lambda: self.send_data_to_port.send_command_manual(self.ui_main))
         # 与回车键绑定
-        shortcut_return = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Return), self.ui_main.lineEdit_send_toPump)
+        shortcut_return = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Return),
+                                          self.ui_main.lineEdit_send_toPump)
         shortcut_return.activated.connect(lambda: self.ui_main.data_sent_send_button.click())
 
         """运行部分"""
-        self.ui_main.Run_button_quick.clicked.connect(lambda: functions.validate_and_run(self.ui_main, self.send_data_to_port, self.setups_dict_quick_mode))
+        self.ui_main.Run_button_quick.clicked.connect(
+            lambda: functions.validate_and_run(self.ui_main, self.send_data_to_port, self.setups_dict_quick_mode))
+
+        """选择结束位换行标识"""
+        # 换行标识
+        self.ui_main.actionNo_line_feed.triggered.connect(
+            lambda: self.read_data_from_port.set_line_feed_style(self.ui_main, self.sender()))
+        self.ui_main.action_carrige_return.triggered.connect(
+            lambda: self.read_data_from_port.set_line_feed_style(self.ui_main, self.sender()))
+        self.ui_main.action_line_feed.triggered.connect(
+            lambda: self.read_data_from_port.set_line_feed_style(self.ui_main, self.sender()))
+        self.ui_main.action_CR_LF.triggered.connect(
+            lambda: self.read_data_from_port.set_line_feed_style(self.ui_main, self.sender()))
+
+        # 编码/解码方式
+        self.ui_main.actionASCII.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
+        self.ui_main.actionUTF_8.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
+        self.ui_main.actionASCII.triggered.connect(lambda: self.read_data_from_port.set_decode_format(self.ui_main, self.sender()))
+        self.ui_main.actionUTF_8.triggered.connect(lambda: self.read_data_from_port.set_decode_format(self.ui_main, self.sender()))
         # self.ui_main.Run_button_quick.mouseDoubleClickEvent()
 
         """绘图部分"""
-        self.ui_main.Reset_button.clicked.connect(lambda: functions.clear_graph_text(self.ui_main, self.send_data_to_port))
-    # def validate_and_run(self):
-    #     functions.Quick_mode_param_run(self.ui_main, self.setups_dict_quick_mode)
-    #     if self.setups_dict_quick_mode['Flow Parameter'] is not None:
-    #         self.send_data_to_port.ser_quick_mode_command_set(self.ui_main, self.setups_dict_quick_mode)
-    #     else:
-    #         pass
-    # def delete_selected_item(self):
-    #     selected_items = self.ui_main.listWidget_userDefined_method.selectedItems()
-    #     if len(selected_items) > 0:
-    #         for item in selected_items:
-    #             row = self.ui_main.listWidget_userDefined_method.row(item)
-    #             key = item.text().split(".")[1].strip()
-    #             self.ui_main.listWidget_userDefined_method.takeItem(row)
-    #             self.update_item_numbers()
-    #             self.update_parameters_dict(key)
-    #
-    # def update_item_numbers(self):
-    #     for i in range(self.ui_main.listWidget_userDefined_method.count()):
-    #         item = self.ui_main.listWidget_userDefined_method.item(i)
-    #         item.setText(f"{i + 1}. {item.text()[3:]}")
-    #     self.ui_main.userDefined_Del.disconnect()
-    #     self.ui_main.userDefined_Del.clicked.connect(self.delete_selected_item)
-    #
-    # def update_parameters_dict(self, key_to_remove=None):
-    #     if key_to_remove:
-    #         self.setups_dict_custom.pop(key_to_remove, None)
-    #     else:
-    #         for i in range(self.ui_main.listWidget_userDefined_method.count()):
-    #             item = self.ui_main.listWidget_userDefined_method.item(i)
-    #             key = item.text().split(".")[1].strip()
-    #             if key not in self.setups_dict_custom:
-    #                 self.setups_dict_custom[key] = ''
-
-    # def edit_item_parameter(self, item):
-    #     # print('edit_item_parameter called')
-    #     current_row = self.ui_main.listWidget_userDefined_method.row(item)
-    #     # 获取当前item对应的key
-    #     item_text = item.text().split(".")[1].strip()
-    #     # 如果当前key已经存在，加上一个后缀"_数字"
-    #     if item_text in self.setups_dict_custom.keys():
-    #         suffix = 1
-    #         while f"{item_text}_{suffix}" in self.setups_dict_custom.keys():
-    #             suffix += 1
-    #         item_text = f"{item_text}_{suffix}"
-    #     # 设置默认值为item的参数
-    #     default_value = self.setups_dict_custom.get(item.text().split(".")[1].strip(), "")
-    #     text, ok = QtWidgets.QInputDialog.getText(self, 'Edit Item', 'Enter parameter for item:', text=default_value)
-    #     if ok:
-    #         # print(f"Parameter for item {current_row + 1} is: {text}")
-    #         # 将item的text部分和参数分别作为字典的键和值进行打印和返回
-    #         item_parameter = text.strip()
-    #         self.setups_dict_custom[item_text] = item_parameter
-    #         # print(f"Key: {item_text}, Value: {item_parameter}")
-
-    # def print_parameters_dict(self):
-    #     print(self.setups_dict_custom)
-
-    # def import_user_defined_methods(self):
-    #     # 打开目录选择文件
-    #     self.setups_dict_custom = {}
-    #     file_path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Import User Defined Methods", "UserDefinedMethods",
-    #                                                          "JSON files (*.json)")
-    #     if file_path:
-    #         with open(file_path, "r") as f:
-    #             # 读取文件内容为字典
-    #             imported_dict = json.load(f)
-    #             # 将导入的字典添加到parameters_dict中
-    #             if isinstance(imported_dict, dict):
-    #                 for key, value in imported_dict.items():
-    #                     # 判断是否有重复的键，如果有加上一个后缀
-    #                     new_key = key
-    #                     suffix = 1
-    #                     while new_key in self.setups_dict_custom.keys():
-    #                         new_key = f"{key}_{suffix}"
-    #                         suffix += 1
-    #                     self.setups_dict_custom[new_key] = value
-    #                 # 更新listWidget中的显示
-    #                 self.update_list_widget()
-    #             else:
-    #                 QtWidgets.QMessageBox.information(self, 'Invalid import', 'Data tried to be imported is not a '
-    #                                                                           'dictionary type data!')
-    #
-    # def update_list_widget(self):
-    #     # 清空listWidget
-    #     self.ui_main.listWidget_userDefined_method.model().removeRows(0,
-    #                                                              self.ui_main.listWidget_userDefined_method.model().rowCount())
-    #     # 添加每一个键值对到listWidget中
-    #     for i, (key, value) in enumerate(self.setups_dict_custom.items()):
-    #         # 根据key选择icon
-    #         icon_path = os.path.join("image", functions.icon_dict.get("const.png"))
-    #         for icon_name, key_str in functions.icon_dict.items():
-    #             if key_str in key:
-    #                 icon_path = os.path.join("image", icon_name)
-    #                 break
-    #         # 在listWidget中添加带icon的item
-    #         item = QtWidgets.QListWidgetItem(QtGui.QIcon(icon_path), f"{i + 1}. {key}")
-    #         self.ui_main.listWidget_userDefined_method.addItem(item)
-
-    # @QtCore.pyqtSlot(dict)
-    # def receive_dict(self, port_param_dict):
-    #     self.check_serial_thread.set_port_params(port_param_dict)
-
-    # def update_connection_status(self, status: str):
-    #     if "Successfully" in status:
-    #         self.statusBar().setStyleSheet("color:green")
-    #     elif "failed" in status:
-    #         self.statusBar().setStyleSheet("color:red")
-    #     elif 'Fatal Error!' in status:
-    #         QtWidgets.QMessageBox.critical(self, 'Port Error!', 'No port assigned!')
-    #     elif "Disconnected" in status:
-    #         self.statusBar().setStyleSheet("color: grey")
-    #     else:
-    #         self.statusBar().setStyleSheet('color:orange')
-    #     self.statusBar().showMessage(status)
-
-    # def on_port_button_stop_clicked(self):
-    #     print('port_button_stop clicked')
-    #     self.check_serial_thread.disconnect_from_port()
-    # def show_port_setup_dialog(self):
-    #     # ... other code ...
-    #     params = self.ui_child_port_setup.get_setup_params()
-    #     if params:
-    #         self.check_serial_thread.set_port_params(params)
-    #         self.check_serial_thread.start()
-    #         self.statusBar().setStyleSheet("color:yellow")
-    #         self.statusBar().showMessage("正在检测串口...")
-    #     else:
-    #         QtWidgets.QMessageBox.warning(self, "错误", "无效的串口参数")
-
-    # def Quick_mode_param_run(self):
-    #     if self.setups_dict_quick_mode['Run Mode'] is None:
-    #         QtWidgets.QMessageBox.information(self, 'Input Error.', 'Please specify a run mode for Quick Mode!')
-    #     elif self.setups_dict_quick_mode['Flow Parameter'] is None:
-    #         QtWidgets.QMessageBox.information(self, 'Input Error.', 'Please enter valid parameters for the selected run mode!')
-    #     else:
-    #         print(self.setups_dict_quick_mode)
+        self.ui_main.Reset_button.clicked.connect(
+            lambda: functions.clear_graph_text(self.ui_main, self.send_data_to_port))
 
 
 class StepsDialogChildWindow(QtWidgets.QDialog, Ui_Dialog):
@@ -432,8 +368,8 @@ class PortSetupChildWindow(QtWidgets.QDialog, Ui_Dialog_PortSetup):
         if self.line_timeout.text() != '':
             self.port_param_dict['timeout'] = int(self.line_timeout.text())
         else:
-            self.port_param_dict['timeout'] = int(1)
-            QtWidgets.QMessageBox.information(self, 'No timeout specified', 'Default timeout set to 1s.')
+            self.port_param_dict['timeout'] = int(0)
+            QtWidgets.QMessageBox.information(self, 'No timeout specified', 'Default timeout set to 0.')
 
         # print(self.port_param_dict)
         # self.parent().check_serial_thread.set_port_param_dict(self.port_param_dict)
@@ -511,6 +447,7 @@ class StepGuideChildWindow(QtWidgets.QDialog, Ui_Dialog_StepDetails):
 
 
 if __name__ == "__main__":
+    # qdarktheme.enable_hi_dpi()
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow()
     window.setWindowTitle('PHD Series syringe pump remote control v0.0.1')

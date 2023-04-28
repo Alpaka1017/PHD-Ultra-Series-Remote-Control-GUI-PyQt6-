@@ -1,0 +1,156 @@
+/*Default style for QApplication*/
+[subQGroupBoxFont="regular"] {
+	font: "Open Sans";
+    font-size: 9pt;
+	color: black;
+}
+[mainQGroupBoxFont="bold"] {
+	font: "Open Sans SemiBold";
+    font-size: 9pt;
+	font-weight: 63;
+}
+
+[QLabelFont="regular"] {
+	font: "Open Sans";
+    font-size: 9pt;
+	color: black;
+}
+
+[QRadiobuttonFont="regular"] {
+	font: "Open Sans";
+    font-size: 9pt;
+	color: black;
+}
+
+[QTextEditSet="Courier New"] {
+	border: 1px solid gray;
+	border-radius: 3px;
+	font-family:Courier New;
+	font-size: 10 pt;
+}
+
+
+QMainWindow {
+	font: 10pt "Open Sans";
+	font-color: black;
+	background-color: rgb(235, 235, 235);
+	
+}
+
+QMainWindow > QWidget#left_frame QGroupBox {
+	font: 63 9pt "Open Sans SemiBold";
+}
+
+#groupBox_5 {
+	font: 63 9pt "Open Sans SemiBold";
+}
+
+#RadioButtonGroup {
+	font: 63 9pt "Open Sans SemiBold";
+}
+#ComboxBoxGroup {
+	font: 63 9pt "Open Sans SemiBold";
+}
+#groupBox_param_enter {
+	font: 63 9pt "Open Sans SemiBold";
+}
+#UserDefinedSetupGroup {
+	font: 63 9pt "Open Sans SemiBold";
+}
+#GraphicsViewGroup {
+	font: 63 9pt "Open Sans SemiBold";
+}
+#ReceivedDataGroup {
+	font: 63 9pt "Open Sans SemiBold";
+}
+#SentDataGroup {
+	font: 63 9pt "Open Sans SemiBold";
+}
+#groupBox_5 {
+	font: 63 9pt "Open Sans SemiBold";
+}
+
+#SerialPortGroup {
+	font: 9pt "Open Sans Medium";
+}
+#AddressGroup {
+	font: 9pt "Open Sans Medium";
+}
+#QuickMoveGroup {
+	font: 9pt "Open Sans Medium";
+}
+#CatalogGroup {
+	font: 9pt "Open Sans Medium";
+}
+#BackgroundLightGroup {
+	font: 9pt "Open Sans Medium";
+}
+
+*#QLabel {
+	font: 9pt "Open Sans Medium";
+}
+
+*#QRadioButton {
+	font: 9pt "Open Sans";
+}
+
+*#QFrame {
+	border: none;
+}
+*#QGroupBox {
+	border: none;
+}
+
+QTextEdit {
+	color: black;
+	border: 1px solid gray;
+	border-radius: 3px;
+	font-family:Courier New;
+	font-size: 10 pt;
+}
+
+QLineEdit {
+	color: black;
+}
+
+QComboBox {
+	color: black;
+}
+
+QMenu::item:selected{
+	color: black;
+	background-color:rgb(0,100,200);
+}
+QMenuBar {
+	color: black;
+	background-color:rgb(255,255,255);
+}
+
+QStatusBar {
+	background-color: rgb(255, 255, 255);
+    color: black;
+}
+
+QStatusBar QLabel {
+	background-color:  rgb(255, 255, 255);
+    color: black;
+}
+QListWidget::item {
+    margin-top: 5px;
+}
+
+QListWidget {
+	color: black;
+}
+
+QComboBox {
+	color: black;
+}
+
+QComboBox QAbstractItemView {
+    color: black; /* color of items in drop down list */
+}
+
+QLineEdit {
+	color: black;
+}

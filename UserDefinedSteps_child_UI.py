@@ -1,4 +1,4 @@
-# Form implementation generated from reading ui file 'C:/Users/Xueyong Lu/AppData/Local/Temp/UserDefinedSteps_childXpREVC.ui'
+# Form implementation generated from reading ui file 'C:/Users/Xueyong Lu/AppData/Local/Temp/UserDefinedSteps_childroXtDM.ui'
 #
 # Created by: PyQt6 UI code generator 6.4.2
 #
@@ -7,26 +7,31 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-import Resource_StepsDefine_image
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(254, 281)
-        Dialog.setStyleSheet("QDialog {\n"
-"    background-color: rgb(255, 255, 255);\n"
-"}")
-        # QtCore.QResource.registerResource("Resource_StepsDefine_image.rcc")
+        Dialog.resize(251, 301)
+        Dialog.setStyleSheet("")
         self.buttonBox = QtWidgets.QDialogButtonBox(parent=Dialog)
-        self.buttonBox.setGeometry(QtCore.QRect(50, 240, 191, 32))
+        self.buttonBox.setGeometry(QtCore.QRect(50, 265, 191, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Orientation.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.StandardButton.Cancel|QtWidgets.QDialogButtonBox.StandardButton.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.groupBox = QtWidgets.QGroupBox(parent=Dialog)
-        self.groupBox.setGeometry(QtCore.QRect(10, 10, 231, 221))
+        self.groupBox.setGeometry(QtCore.QRect(10, 10, 231, 251))
+        self.groupBox.setStyleSheet("QGroupBox {\n"
+"    \n"
+"    font: 57 9pt \"Open Sans Medium\";\n"
+"}")
         self.groupBox.setObjectName("groupBox")
         self.listWidget = QtWidgets.QListWidget(parent=self.groupBox)
-        self.listWidget.setGeometry(QtCore.QRect(10, 20, 211, 201))
+        self.listWidget.setGeometry(QtCore.QRect(10, 24, 211, 217))
+        self.listWidget.setStyleSheet("QListWidget::item {\n"
+"    margin-top: 5px;\n"
+"}\n"
+"")
         self.listWidget.setObjectName("listWidget")
         item = QtWidgets.QListWidgetItem()
         font = QtGui.QFont()

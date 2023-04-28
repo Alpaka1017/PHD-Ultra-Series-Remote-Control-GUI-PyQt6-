@@ -22,7 +22,7 @@ wvolume
 wtime
 crate
 wrate
-status
+status [fl/s, t(ms), V(fl), flag]
 
 <
 6.31619 ml
@@ -34,6 +34,10 @@ Withdrawing at 30 ml/min
 30 ml/min
 <
 500000000000 12667 6316189542948 W..TI.
+[fl/s, t(ms), V(fl), flag]
+
+
+
 <
 6.81621 ml
 <
