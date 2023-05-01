@@ -52,7 +52,7 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 
 ## Achieved
 
-&#x2611; Added the allowable flow range to adapt to different syringes, and quick set the min./max. value
+&#x2611; Added the allowable flow range to adapt to different syringes, and quick set the *min./max.* value
 
 ![iSxgXq.png](https://i.328888.xyz/2023/04/24/iSxgXq.png)
 
@@ -85,6 +85,12 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 &#x2726;  Added the function to switch between different line-ending identifiers for received data
 
 &#x2726;  Added support for various encoding/decoding options
+
+&#x2726;  Add a feature to validate the recommended force limit to prevent damage to the selected syringe in case of unexpected events
+
+![iKSY6Q.png](https://i.328888.xyz/2023/04/30/iKSY6Q.png)
+
+&#x2726;  Add the 'logging' module for easy debugging and recording of program running status
 
 ![iKnCyw.png](https://i.328888.xyz/2023/04/29/iKnCyw.png)
 

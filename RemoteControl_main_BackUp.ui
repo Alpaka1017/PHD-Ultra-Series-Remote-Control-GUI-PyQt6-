@@ -643,6 +643,12 @@ QStatusBar QLabel {
               <property name="mouseTracking">
                <bool>true</bool>
               </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="toolTipDuration">
+               <number>-1</number>
+              </property>
              </widget>
             </item>
             <item>
@@ -1288,6 +1294,12 @@ p, li { white-space: pre-wrap; }
                 <height>25</height>
                </size>
               </property>
+              <property name="mouseTracking">
+               <bool>false</bool>
+              </property>
+              <property name="toolTipDuration">
+               <number>-1</number>
+              </property>
              </widget>
             </item>
             <item row="2" column="0">
@@ -1341,7 +1353,7 @@ p, li { white-space: pre-wrap; }
              <number>6</number>
             </property>
             <property name="rightMargin">
-             <number>0</number>
+             <number>5</number>
             </property>
             <property name="bottomMargin">
              <number>5</number>
@@ -1684,6 +1696,15 @@ p, li { white-space: pre-wrap; }
                    <width>80</width>
                    <height>25</height>
                   </size>
+                 </property>
+                 <property name="toolTip">
+                  <string/>
+                 </property>
+                 <property name="toolTipDuration">
+                  <number>-1</number>
+                 </property>
+                 <property name="whatsThis">
+                  <string/>
                  </property>
                  <item>
                   <property name="text">
@@ -2488,7 +2509,7 @@ p, li { white-space: pre-wrap; }
                   </size>
                  </property>
                  <property name="text">
-                  <string>Exp</string>
+                  <string>Save</string>
                  </property>
                 </widget>
                </item>
@@ -2507,7 +2528,7 @@ p, li { white-space: pre-wrap; }
                   </size>
                  </property>
                  <property name="text">
-                  <string>Imp</string>
+                  <string>Load</string>
                  </property>
                 </widget>
                </item>

@@ -8,6 +8,8 @@ import sys
 
 import qdarktheme
 from PyQt6 import QtCore, QtGui, QtWidgets
+import logging.config
+from settings import settings_log
 
 import functions
 
@@ -16,6 +18,11 @@ from PortSetup_child_UI import Ui_Dialog_PortSetup
 from StepGuide_child_UI import Ui_Dialog_StepDetails
 from UserDefinedSteps_child_UI import Ui_Dialog
 
+
+# Configuration logging functionality
+logging.config.dictConfig(settings_log.LOGGING_DIC)
+logger_debug_console = logging.getLogger('logger1')         # Console print
+# logger_info_console_file = logging.getLogger('logger2')   # Console & file recording
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -93,10 +100,13 @@ class MainWindow(QtWidgets.QMainWindow):
         """串口的检测、写入和读取线程"""
         self.check_serial_thread = functions.CheckSerialThread(self.ui_main, self)
         self.read_data_from_port = functions.ReadDataFromPort(self)
-        # send实例中，self.read_data_from_port作为参数只向其传递了emit()发送的响应标识
-        self.send_data_to_port = functions.SendDataToPort(self.ui_main, self.check_serial_thread,
-                                                          self.read_data_from_port, self)
+        self.send_data_to_port = functions.SendDataToPort(self.check_serial_thread, self.read_data_from_port, self.ui_main, self)
+        # self.read_data_from_port.receive_status.connect(lambda: functions.return_receive_status)
+        # self.read_data_from_port.receive_status.connect(self.read_data_from_port.print_receive_status)
+        # self.read_data_from_port.return_receive_status
 
+        # self.read_data_from_port.receive_status.connect(lambda: functions.return_receive_status(self.send_data_to_port))
+        # send实例中，self.read_data_from_port作为参数只向其传递了emit()发送的响应标识
         """初始化状态栏，用于串口检测"""
         self.status_label = QtWidgets.QLabel('  Waiting serial port to be connected.')
         self.status_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
@@ -149,6 +159,9 @@ class MainWindow(QtWidgets.QMainWindow):
         """ComboBox Syringe selection部分"""
         functions.init_combox_syrSize(self.ui_main, self.setups_dict_quick_mode)
         self.ui_main.comboBox_syrManu.addItems(functions.Get_syringe_dict().keys())
+        # 选择不同Syringe时，在QSlider (Force setting)上提示用户的荐用force level
+        # self.ui_main.comboBox_syrSize.currentTextChanged.connect(lambda: functions.force_level_recommendation(self.ui_main, self.ui_main.comboBox_syrSize))
+
 
         # Syringe选择框和用户自定义Syringe输入框的逻辑关系
         self.ui_main.syr_param_enter.textChanged.connect(
@@ -192,7 +205,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # 自定义方法Export功能
         self.ui_main.userDefined_Export.clicked.connect(
-            lambda: functions.export_user_defined_methods(self.setups_dict_custom))
+            lambda: functions.export_user_defined_methods(self.ui_main, self.setups_dict_custom))
 
         # 自定义方法Import功能
         self.ui_main.userDefined_Import.clicked.connect(
@@ -208,44 +221,45 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """Msc.项"""
         # 设定或者显示当前泵的地址
-        self.ui_main.address_button.clicked.connect(lambda: self.send_data_to_port.get_set_address(self.ui_main))
-        # 显示catalog
+        # self.ui_main.address_button.clicked.connect(lambda: self.send_data_to_port.get_set_address(self.ui_main))
+         # 显示catalog
         self.ui_main.catalog_display_button.clicked.connect(self.send_data_to_port.ser_command_catalog)
 
         # 校准tilt sensor
-        self.ui_main.tilt_sensor_cali_button.clicked.connect(self.send_data_to_port.ser_command_tilt)
-
-        # 背景光强度dim
-        self.ui_main.bgLight_Slider.valueChanged.connect(
-            lambda: self.send_data_to_port.ser_bgl_label_show(self.ui_main))
-        self.ui_main.bgLight_Slider.sliderReleased.connect(lambda: self.send_data_to_port.ser_bgl_level(self.ui_main))
-
-        # 压力上限
-        self.ui_main.forceLimit_Slider.sliderReleased.connect(
-            lambda: self.send_data_to_port.ser_force_limit(self.ui_main))
-        self.ui_main.forceLimit_Slider.valueChanged.connect(
-            lambda: self.send_data_to_port.ser_force_label_show(self.ui_main))
-
-        # FF和RW
-        self.timer_fast_move.timeout.connect(self.send_data_to_port.fast_forward_btn)
-        self.ui_main.fast_forward_btn.pressed.connect(lambda: functions.fast_btn_timer_start(self.timer_fast_move))
-        self.ui_main.fast_forward_btn.released.connect(lambda: functions.fast_btn_timer_stop(self.timer_fast_move))
-        self.ui_main.fast_forward_btn.released.connect(self.send_data_to_port.release_to_stop)
-
-        self.timer_rewind.timeout.connect(self.send_data_to_port.rewind_btn)
-        self.ui_main.rewinde_btn.pressed.connect(lambda: functions.rwd_btn_timer_start(self.timer_rewind))
-        self.ui_main.rewinde_btn.released.connect(lambda: functions.rwd_btn_timer_stop(self.timer_rewind))
-        self.ui_main.rewinde_btn.released.connect(self.send_data_to_port.release_to_stop)
-
-        # 其他手动输入指令
-        self.ui_main.data_sent_send_button.clicked.connect(
-            lambda: self.send_data_to_port.send_command_manual(self.ui_main))
-        # 与回车键绑定
-        shortcut_return = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Return),
-                                          self.ui_main.lineEdit_send_toPump)
-        shortcut_return.activated.connect(lambda: self.ui_main.data_sent_send_button.click())
+        # self.ui_main.tilt_sensor_cali_button.clicked.connect(self.send_data_to_port.ser_command_tilt)
+        #
+        # # 背景光强度dim
+        # self.ui_main.bgLight_Slider.valueChanged.connect(
+        #     lambda: self.send_data_to_port.ser_bgl_label_show(self.ui_main))
+        # self.ui_main.bgLight_Slider.sliderReleased.connect(lambda: self.send_data_to_port.ser_bgl_level(self.ui_main))
+        #
+        # # 压力上限
+        # self.ui_main.forceLimit_Slider.sliderReleased.connect(
+        #     lambda: self.send_data_to_port.ser_force_limit(self.ui_main))
+        # self.ui_main.forceLimit_Slider.valueChanged.connect(
+        #     lambda: self.send_data_to_port.ser_force_label_show(self.ui_main))
+        #
+        # # FF和RW
+        # self.timer_fast_move.timeout.connect(self.send_data_to_port.fast_forward_btn)
+        # self.ui_main.fast_forward_btn.pressed.connect(lambda: functions.fast_btn_timer_start(self.timer_fast_move))
+        # self.ui_main.fast_forward_btn.released.connect(lambda: functions.fast_btn_timer_stop(self.timer_fast_move))
+        # self.ui_main.fast_forward_btn.released.connect(self.send_data_to_port.release_to_stop)
+        #
+        # self.timer_rewind.timeout.connect(self.send_data_to_port.rewind_btn)
+        # self.ui_main.rewinde_btn.pressed.connect(lambda: functions.rwd_btn_timer_start(self.timer_rewind))
+        # self.ui_main.rewinde_btn.released.connect(lambda: functions.rwd_btn_timer_stop(self.timer_rewind))
+        # self.ui_main.rewinde_btn.released.connect(self.send_data_to_port.release_to_stop)
+        #
+        # # 其他手动输入指令
+        # self.ui_main.data_sent_send_button.clicked.connect(
+        #     lambda: self.send_data_to_port.send_command_manual(self.ui_main))
+        # # 与回车键绑定
+        # shortcut_return = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Return),
+        #                                   self.ui_main.lineEdit_send_toPump)
+        # shortcut_return.activated.connect(lambda: self.ui_main.data_sent_send_button.click())
 
         """运行部分"""
+        # self.timer_run = QtCore.QTimer()
         self.ui_main.Run_button_quick.clicked.connect(
             lambda: functions.validate_and_run(self.ui_main, self.send_data_to_port, self.setups_dict_quick_mode))
 
@@ -261,8 +275,8 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda: self.read_data_from_port.set_line_feed_style(self.ui_main, self.sender()))
 
         # 编码/解码方式
-        self.ui_main.actionASCII.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
-        self.ui_main.actionUTF_8.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
+        # self.ui_main.actionASCII.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
+        # self.ui_main.actionUTF_8.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
         self.ui_main.actionASCII.triggered.connect(lambda: self.read_data_from_port.set_decode_format(self.ui_main, self.sender()))
         self.ui_main.actionUTF_8.triggered.connect(lambda: self.read_data_from_port.set_decode_format(self.ui_main, self.sender()))
         # self.ui_main.Run_button_quick.mouseDoubleClickEvent()
@@ -271,6 +285,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.Reset_button.clicked.connect(
             lambda: functions.clear_graph_text(self.ui_main, self.send_data_to_port))
 
+    @QtCore.pyqtSlot(str)
+    def return_receive_status(self, receive_status):
+        print('return_receive_status called')
+        print(receive_status)
 
 class StepsDialogChildWindow(QtWidgets.QDialog, Ui_Dialog):
     selected_items = QtCore.pyqtSignal(str, QtGui.QIcon)
@@ -386,64 +404,10 @@ class StepGuideChildWindow(QtWidgets.QDialog, Ui_Dialog_StepDetails):
         self.setupUi(self)
         self.setModal(True)
 
-        # i = 8
-        # self.label_stepGuide_dict = {
-        #     "Constant Rate": "Format: INF|WD, rate, units",
-        #     "Ramp Rate": "Format: INF|WD, rate [r<sub>1</sub>, r<sub>2</sub>], target t",
-        #     "Stepped Rate": "Format: INF|WD, rate [r<sub>1</sub>, r<sub>2</sub>], target [t, steps]",
-        #     "Pulse Flow": "Format: INF|WD, rate [r<sub>1</sub>, r<sub>2</sub>], [v<sub>1</sub>, v<sub>2</sub>]| ["
-        #                   "t<sub>1</sub>, t<sub>2</sub>], pulses",
-        #     "Bolus Delivery": "Format: target t, target v",
-        #     "Concentration Delivery": "Format: weight, rate, concentration[%], Dose|time lag",
-        #     "Gradient": "Format: total rate, [addr.1-[%], addr.2-[%]...] , time|steps",
-        #     "Autofill": "Format: INF/WD| WD/INF, [r<sub>1</sub>, r<sub>2</sub>], v per Cyc, total v/ Cyc",
-        # }
-        #
-        # self.image_pathTitle_dict = {
-        #     "const_param.png": "Constant Rate",
-        #     "ramp_param.png": "Ramp Rate",
-        #     "stepped_param.png": "Stepped Rate",
-        #     "pulse_param.png": "Pulse Flow",
-        #     "bolus_param.png": "Bolus Delivery",
-        #     "concentration_param.png": "Concentration Delivery",
-        #     "gradient_param.png": "Gradient",
-        #     "autofill_param.png": "Autofill",
-        # }
-
-        # self.label_stepGuide_dict = {
-        #     "Constant": "Format: INF|WD, rate, units",
-        #     "Ramp": "Format: INF|WD, rate [r<sub>1</sub>, r<sub>2</sub>], target t",
-        #     "Stepped": "Format: INF|WD, rate [r<sub>1</sub>, r<sub>2</sub>], target [t, steps]",
-        #     "Pulse": "Format: INF|WD, rate [r<sub>1</sub>, r<sub>2</sub>], [v<sub>1</sub>, v<sub>2</sub>]| ["
-        #              "t<sub>1</sub>, t<sub>2</sub>], pulses",
-        #     "Bolus": "Format: target t, target v",
-        #     "Concentration": "Format: weight, rate, concentration[%], Dose|time lag",
-        #     "Gradient": "Format: total rate, [addr.1-[%], addr.2-[%]...] , time|steps",
-        #     "Autofill": "Format: INF/WD| WD/INF, [r<sub>1</sub>, r<sub>2</sub>], v per Cyc, total v/ Cyc",
-        # }
-        #
-        # self.image_pathTitle_dict = {
-        #     "const_param.png": "Constant",
-        #     "ramp_param.png": "Ramp",
-        #     "stepped_param.png": "Stepped",
-        #     "pulse_param.png": "Pulse",
-        #     "bolus_param.png": "Bolus",
-        #     "concentration_param.png": "Concentration",
-        #     "gradient_param.png": "Gradient",
-        #     "autofill_param.png": "Autofill",
-        # }
         # 初始化窗口组件
         self.text = None
         self.image_label = QtWidgets.QLabel()
         self.layout = QtWidgets.QVBoxLayout(self.groupBox)
-        # self.layout.addWidget(self.image_label)
-        # path = os.path.join(os.getcwd(), 'image')
-        # self.pixmap = QtGui.QPixmap(os.path.join(path, list(self.image_pathTitle_dict.keys())[i - 1]))
-        # self.image_label.setPixmap(self.pixmap)
-        # self.image_label.setScaledContents(True)
-
-        # self.label.setText(list(self.label_stepGuide_dict.values())[i - 1])
-        # self.groupBox.setTitle(list(self.image_pathTitle_dict.values())[i - 1])
 
 
 if __name__ == "__main__":
