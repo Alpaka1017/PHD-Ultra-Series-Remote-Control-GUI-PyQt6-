@@ -99,8 +99,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """串口的检测、写入和读取线程"""
         self.check_serial_thread = functions.CheckSerialThread(self.ui_main, self)
-        self.read_data_from_port = functions.ReadDataFromPort(self)
-        self.send_data_to_port = functions.SendDataToPort(self.check_serial_thread, self.read_data_from_port, self.ui_main, self)
+        # self.read_data_from_port = functions.ReadDataFromPort(self)
+        # self.send_data_to_port = functions.SendDataToPort(self)
+        self.read_send_thread = functions.ReadSendPort(check_serial_thread=self.check_serial_thread, ui_main=self.ui_main)
         # self.read_data_from_port.receive_status.connect(lambda: functions.return_receive_status)
         # self.read_data_from_port.receive_status.connect(self.read_data_from_port.print_receive_status)
         # self.read_data_from_port.return_receive_status
@@ -160,7 +161,7 @@ class MainWindow(QtWidgets.QMainWindow):
         functions.init_combox_syrSize(self.ui_main, self.setups_dict_quick_mode)
         self.ui_main.comboBox_syrManu.addItems(functions.Get_syringe_dict().keys())
         # 选择不同Syringe时，在QSlider (Force setting)上提示用户的荐用force level
-        # self.ui_main.comboBox_syrSize.currentTextChanged.connect(lambda: functions.force_level_recommendation(self.ui_main, self.ui_main.comboBox_syrSize))
+        self.ui_main.comboBox_syrSize.currentTextChanged.connect(lambda: functions.force_level_recommendation(self.ui_main, self.ui_main.comboBox_syrSize))
 
 
         # Syringe选择框和用户自定义Syringe输入框的逻辑关系
@@ -217,73 +218,73 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.port_button.clicked.connect(lambda: functions.show_port_setup_dialog(self.ui_child_port_setup))
 
         # 获取快速模式的参数并运行Run_button_quick
-        # self.ui_main.Run_button_quick.clicked.connect(lambda: functions.Quick_mode_param_run(self.ui_main, self.setups_dict_quick_mode))
+        self.ui_main.Run_button_quick.clicked.connect(lambda: functions.Quick_mode_param_run(self.ui_main, self.setups_dict_quick_mode))
 
         """Msc.项"""
         # 设定或者显示当前泵的地址
-        # self.ui_main.address_button.clicked.connect(lambda: self.send_data_to_port.get_set_address(self.ui_main))
+        self.ui_main.address_button.clicked.connect(lambda: self.read_send_thread.get_set_address(self.ui_main))
          # 显示catalog
-        self.ui_main.catalog_display_button.clicked.connect(self.send_data_to_port.ser_command_catalog)
+        self.ui_main.catalog_display_button.clicked.connect(self.read_send_thread.ser_command_catalog)
+
 
         # 校准tilt sensor
-        # self.ui_main.tilt_sensor_cali_button.clicked.connect(self.send_data_to_port.ser_command_tilt)
+        self.ui_main.tilt_sensor_cali_button.clicked.connect(self.read_send_thread.ser_command_tilt)
         #
         # # 背景光强度dim
-        # self.ui_main.bgLight_Slider.valueChanged.connect(
-        #     lambda: self.send_data_to_port.ser_bgl_label_show(self.ui_main))
-        # self.ui_main.bgLight_Slider.sliderReleased.connect(lambda: self.send_data_to_port.ser_bgl_level(self.ui_main))
+        self.ui_main.bgLight_Slider.valueChanged.connect(
+            lambda: self.read_send_thread.ser_bgl_label_show(self.ui_main))
+        self.ui_main.bgLight_Slider.sliderReleased.connect(lambda: self.read_send_thread.ser_bgl_level(self.ui_main))
         #
         # # 压力上限
-        # self.ui_main.forceLimit_Slider.sliderReleased.connect(
-        #     lambda: self.send_data_to_port.ser_force_limit(self.ui_main))
-        # self.ui_main.forceLimit_Slider.valueChanged.connect(
-        #     lambda: self.send_data_to_port.ser_force_label_show(self.ui_main))
+        self.ui_main.forceLimit_Slider.sliderReleased.connect(
+            lambda: self.read_send_thread.ser_force_limit(self.ui_main))
+        self.ui_main.forceLimit_Slider.valueChanged.connect(
+            lambda: self.read_send_thread.ser_force_label_show(self.ui_main))
         #
         # # FF和RW
-        # self.timer_fast_move.timeout.connect(self.send_data_to_port.fast_forward_btn)
-        # self.ui_main.fast_forward_btn.pressed.connect(lambda: functions.fast_btn_timer_start(self.timer_fast_move))
-        # self.ui_main.fast_forward_btn.released.connect(lambda: functions.fast_btn_timer_stop(self.timer_fast_move))
-        # self.ui_main.fast_forward_btn.released.connect(self.send_data_to_port.release_to_stop)
-        #
-        # self.timer_rewind.timeout.connect(self.send_data_to_port.rewind_btn)
-        # self.ui_main.rewinde_btn.pressed.connect(lambda: functions.rwd_btn_timer_start(self.timer_rewind))
-        # self.ui_main.rewinde_btn.released.connect(lambda: functions.rwd_btn_timer_stop(self.timer_rewind))
-        # self.ui_main.rewinde_btn.released.connect(self.send_data_to_port.release_to_stop)
+        self.timer_fast_move.timeout.connect(self.read_send_thread.fast_forward_btn)
+        self.ui_main.fast_forward_btn.pressed.connect(lambda: functions.fast_btn_timer_start(self.timer_fast_move))
+        self.ui_main.fast_forward_btn.released.connect(lambda: functions.fast_btn_timer_stop(self.timer_fast_move))
+        self.ui_main.fast_forward_btn.released.connect(self.read_send_thread.release_to_stop)
+
+        self.timer_rewind.timeout.connect(self.read_send_thread.rewind_btn)
+        self.ui_main.rewinde_btn.pressed.connect(lambda: functions.rwd_btn_timer_start(self.timer_rewind))
+        self.ui_main.rewinde_btn.released.connect(lambda: functions.rwd_btn_timer_stop(self.timer_rewind))
+        self.ui_main.rewinde_btn.released.connect(self.read_send_thread.release_to_stop)
         #
         # # 其他手动输入指令
-        # self.ui_main.data_sent_send_button.clicked.connect(
-        #     lambda: self.send_data_to_port.send_command_manual(self.ui_main))
+        self.ui_main.data_sent_send_button.clicked.connect(
+            lambda: self.read_send_thread.send_command_manual(self.ui_main))
         # # 与回车键绑定
-        # shortcut_return = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Return),
-        #                                   self.ui_main.lineEdit_send_toPump)
-        # shortcut_return.activated.connect(lambda: self.ui_main.data_sent_send_button.click())
+        shortcut_return = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Return),
+                                          self.ui_main.lineEdit_send_toPump)
+        shortcut_return.activated.connect(lambda: self.ui_main.data_sent_send_button.click())
 
         """运行部分"""
-        # self.timer_run = QtCore.QTimer()
+        self.timer_run = QtCore.QTimer()
         self.ui_main.Run_button_quick.clicked.connect(
-            lambda: functions.validate_and_run(self.ui_main, self.send_data_to_port, self.setups_dict_quick_mode))
+            lambda: functions.validate_and_run(self.ui_main, self.read_send_thread, self.setups_dict_quick_mode))
 
         """选择结束位换行标识"""
         # 换行标识
         self.ui_main.actionNo_line_feed.triggered.connect(
-            lambda: self.read_data_from_port.set_line_feed_style(self.ui_main, self.sender()))
+            lambda: self.read_send_thread.set_line_feed_style(self.ui_main, self.sender()))
         self.ui_main.action_carrige_return.triggered.connect(
-            lambda: self.read_data_from_port.set_line_feed_style(self.ui_main, self.sender()))
+            lambda: self.read_send_thread.set_line_feed_style(self.ui_main, self.sender()))
         self.ui_main.action_line_feed.triggered.connect(
-            lambda: self.read_data_from_port.set_line_feed_style(self.ui_main, self.sender()))
+            lambda: self.read_send_thread.set_line_feed_style(self.ui_main, self.sender()))
         self.ui_main.action_CR_LF.triggered.connect(
-            lambda: self.read_data_from_port.set_line_feed_style(self.ui_main, self.sender()))
+            lambda: self.read_send_thread.set_line_feed_style(self.ui_main, self.sender()))
 
         # 编码/解码方式
         # self.ui_main.actionASCII.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
         # self.ui_main.actionUTF_8.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
-        self.ui_main.actionASCII.triggered.connect(lambda: self.read_data_from_port.set_decode_format(self.ui_main, self.sender()))
-        self.ui_main.actionUTF_8.triggered.connect(lambda: self.read_data_from_port.set_decode_format(self.ui_main, self.sender()))
-        # self.ui_main.Run_button_quick.mouseDoubleClickEvent()
+        self.ui_main.actionASCII.triggered.connect(lambda: self.read_send_thread.set_decode_format(self.ui_main, self.sender()))
+        self.ui_main.actionUTF_8.triggered.connect(lambda: self.read_send_thread.set_decode_format(self.ui_main, self.sender()))
 
         """绘图部分"""
         self.ui_main.Reset_button.clicked.connect(
-            lambda: functions.clear_graph_text(self.ui_main, self.send_data_to_port))
+            lambda: functions.clear_graph_text(self.ui_main, self.read_send_thread))
 
     @QtCore.pyqtSlot(str)
     def return_receive_status(self, receive_status):
