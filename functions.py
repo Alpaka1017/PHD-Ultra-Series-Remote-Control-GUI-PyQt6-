@@ -1,6 +1,7 @@
 # noinspection PyTypeChecker
 import datetime
 import os
+import sys
 import time
 from decimal import Decimal
 import re
@@ -255,13 +256,15 @@ class CheckSerialThread(QtCore.QThread):
 
     def start_read_thread(self):
         pass
+
     #     self.read_thread = ReadDataFromPort(ser=self.ser, ui_main=self.ui)
     #     self.read_thread.start()
-        # if self.read_thread.isRunning():
-        #     print('read_thread running', self.read_thread.ser)
+    # if self.read_thread.isRunning():
+    #     print('read_thread running', self.read_thread.ser)
 
     def stop_read_thread(self):
         pass
+
     #     if self.read_thread:
     #         self.read_thread.terminate()
 
@@ -297,637 +300,640 @@ class CheckSerialThread(QtCore.QThread):
 
 
 # 为避免与串口检测线程冲突造成阻塞，另起两个线程，分别负责串口数据的发送和接收
-class SendDataToPort(QtCore.QThread):
-    encode_type = 'utf-8'
+# class SendDataToPort(QtCore.QThread):
+#     encode_type = 'utf-8'
+#
+#     def __init__(self, parent, check_serial_thread, receive_status=None, ser=None, ui_main=None):
+#         super().__init__(parent)
+#         self.force_level = None
+#         self.run_commands_set_ButtonClear = {}
+#         self.mutex = QtCore.QMutex()
+#         self.mutex_sub = QtCore.QMutex()
+#         self.check_serial_thread = check_serial_thread
+#         # self.read_data_from_port = read_data_from_port
+#         self.ser = ser
+#         # self.read_data_from_port = read_data_from_port
+#         # self.read_data_from_port = ReadDataFromPort(self.check_serial_thread.ser)
+#         self.ui = ui_main
+#         self.receive_status = receive_status
+#         self.run_commands_set = {}
+#         self.run_commands_set_Syrm = {}
+#         self.run_commands_set_INF = {}
+#         self.run_commands_set_WD = {}
+#         self.run_commands_set_GetResponse_INF = {}
+#         self.run_commands_set_GetResponse_WD = {}
+#         self.run_commands_set_ClearTarget = {}
+#         self.run_commands_set_Clear_INF = {}
+#         self.run_commands_set_Clear_WD = {}
+#         self.run_commands_set_Ramp = {}
+#         self.status_str = None
+#         self.args_list = None
+#         self.timer_run = QtCore.QTimer()
+#         self.running_flag = True
+#         # self.timer_run.timeout.connect(lambda: self.ser_quick_mode_command_set(ui, setups_dict_quick_mode))
+#
+#         # self.read_data_from_port.receive_status.connect(lambda status: self.send_thread_start(status))
+#
+#     def run(self):
+#         print('Send thread running: ', self.isRunning())
+#         print(self.ser)
+#         print(self.receive_status)
+#         if self.ser is None:
+#             # self.quit()
+#             # return
+#             pass
+#         while True:
+#             # self.mutex.lock()
+#             try:
+#                 pass
+#                 # print('self.receive_status from send class!', self.receive_status)
+#                 # self.read_data_from_port.receive_status.connect(self.handle_receive_status)
+#                 # else:
+#                 #     pass
+#                 # self.read_data_from_port.receive_status.connect(self.handle_receive_status)
+#                 # print(self.status_str)
+#             except Exception as e:
+#                 logger_debug_console.info(e)
+#
+#     def ser_command_catalog(self):
+#         # print('ser_command_catalog called!')
+#         # print('From send thread: ', self.ser)
+#         # print(self.check_serial_thread.ser, type(self.check_serial_thread.ser))
+#         # print(self.check_serial_thread, self.read_data_from_port)
+#         # self.status_str = self.read_data_from_port.receive_status()
+#         print(self.ser)
+#         self.mutex_sub.lock()
+#         self.running_flag = False
+#         if isinstance(self.ser, serial.Serial):
+#             # self.start()
+#             self.ser.write('@cat\r\n'.encode(SendDataToPort.encode_type))
+#             # print(SendDataToPort.encode_type)
+#         else:
+#             pass
+#         self.mutex_sub.unlock()
+#
+#     def ser_command_tilt(self):
+#         self.mutex_sub.lock()
+#         if isinstance(self.check_serial_thread.ser, serial.Serial):
+#             self.check_serial_thread.ser.write('@tilt\r\n'.encode(SendDataToPort.encode_type))
+#         else:
+#             logger_info_console_file.warning(
+#                 f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
+#         self.mutex_sub.unlock()
+#
+#     def get_set_address(self, ui):
+#         self.mutex_sub.lock()
+#         if isinstance(self.check_serial_thread.ser, serial.Serial):
+#             if ui.address_input.text() and ui.address_input.text() != '':
+#                 # print('addr.', ui.address_input.text())
+#                 self.check_serial_thread.ser.write(
+#                     ('@addr. ' + str(ui.address_input.text()) + '\r\n').encode(SendDataToPort.encode_type))
+#             else:
+#                 self.check_serial_thread.ser.write(('@addr. ' + '\r\n').encode(SendDataToPort.encode_type))
+#         else:
+#             pass
+#         self.mutex_sub.unlock()
+#
+#     def send_command_manual(self, ui):
+#         # print('send_command_manual called!')
+#         self.mutex_sub.lock()
+#         if self.check_serial_thread.ser and isinstance(self.check_serial_thread.ser, serial.Serial):
+#             if ui.lineEdit_send_toPump.currentText() and ui.lineEdit_send_toPump.currentText() != '':
+#                 current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+#                 str_to_send = '@' + ui.lineEdit_send_toPump.currentText() + '\r\n'
+#                 try:
+#                     self.check_serial_thread.ser.write(str_to_send.encode(SendDataToPort.encode_type))
+#                     ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#                     # ui.commands_sent.insertHtml(f"<b>{current_time} >></b>\r\n{str_to_send}")
+#                     ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
+#                 except Exception as e:
+#                     logger_info_console_file.warning(e)
+#                     # 如果数据未能成功写入，并且超过了缓冲区最大限制，则重置buffer
+#                     if len(self.check_serial_thread.ser.out_waiting) > 4096:
+#                         self.check_serial_thread.ser.reset_output_buffer()
+#                         ui.commands_sent.append(f"{current_time} >>\r\nBuffer overflow, clearing buffer...")
+#                     self.check_serial_thread.ser.write(str_to_send.encode(SendDataToPort.encode_type))
+#                     ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#                     ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
+#                 # 将输入唯一保存在下拉列表中
+#                 if ui.lineEdit_send_toPump.currentText() not in [ui.lineEdit_send_toPump.itemText(i) for i in
+#                                                                  range(ui.lineEdit_send_toPump.count())]:
+#                     ui.lineEdit_send_toPump.addItem(ui.lineEdit_send_toPump.currentText())
+#                 else:
+#                     pass
+#             else:
+#                 pass
+#         else:
+#             pass
+#         self.mutex_sub.unlock()
+#
+#     def ser_bgl_level(self, ui):
+#         value = ui.bgLight_Slider.value()
+#         self.mutex_sub.lock()
+#         current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+#         if isinstance(self.check_serial_thread.ser, serial.Serial):
+#             self.check_serial_thread.ser.write(('@dim ' + str(value) + '\r\n').encode(SendDataToPort.encode_type))
+#             ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#             # ui.commands_sent.insertHtml(f"<b>{current_time} >></b>\r\n{str_to_send}")
+#             ui.commands_sent.append(f"{current_time} >>\r\nBackground light set to: {str(value)} %")
+#         else:
+#             logger_info_console_file.warning(
+#                 f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
+#             pass
+#         self.mutex_sub.unlock()
+#
+#     def ser_force_limit(self, ui):
+#         value = ui.forceLimit_Slider.value()
+#         self.mutex_sub.lock()
+#         current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+#         if isinstance(self.check_serial_thread.ser, serial.Serial):
+#             self.check_serial_thread.ser.write(('@force ' + str(value) + '\r\n').encode(SendDataToPort.encode_type))
+#             ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#             ui.commands_sent.append(f"{current_time} >>\r\nForce limit set to: {str(value)} %")
+#         else:
+#             logger_info_console_file.warning(
+#                 f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
+#             pass
+#         self.mutex_sub.unlock()
+#
+#     @staticmethod
+#     def ser_bgl_label_show(ui):
+#         value = ui.bgLight_Slider.value()
+#         ui.bgLight_Label.setText("BG-Light: " + str(value) + "[%]")
+#
+#     @staticmethod
+#     def ser_force_label_show(ui):
+#         value = ui.forceLimit_Slider.value()
+#         ui.forceLimit_Label.setText("Force Limit: " + str(value) + "[%]")
+#
+#     def fast_forward_btn(self):
+#         if isinstance(self.check_serial_thread.ser, serial.Serial):
+#             self.check_serial_thread.ser.write('@run\r\n'.encode(SendDataToPort.encode_type))
+#         else:
+#             pass
+#
+#     def rewind_btn(self):
+#         if isinstance(self.check_serial_thread.ser, serial.Serial):
+#             self.check_serial_thread.ser.write('@rrun\r\n'.encode(SendDataToPort.encode_type))
+#         else:
+#             pass
+#
+#     def release_to_stop(self):
+#         if isinstance(self.check_serial_thread.ser, serial.Serial):
+#             self.check_serial_thread.ser.write('@stop\r\n'.encode(SendDataToPort.encode_type))
+#         else:
+#             pass
+#
+#     def ser_quick_mode_command_set(self, ui, setups_dict_quick_mode):
+#         self.mutex.lock()
+#         update_combox_syr_enabled(ui, setups_dict_quick_mode)
+#         self.force_level = force_level_recommendation(self.ui)
+#         self.run_commands_set = {}
+#         self.run_commands_set_Syrm = {}
+#         self.run_commands_set_INF = {}
+#         self.run_commands_set_WD = {}
+#         self.run_commands_set_GetResponse_INF = {"Infused volume": "@ivolume\r\n",
+#                                                  "Infused time": "@itime\r\n",
+#                                                  "Motor rate": "@crate\r\n",
+#                                                  "Infusing rate": "@irate\r\n"}
+#         self.run_commands_set_GetResponse_WD = {"Withdrawn volume": "@wvolume\r\n",
+#                                                 "Withdrawn time": "@wtime\r\n",
+#                                                 "Motor rate": "@crate\r\n",
+#                                                 "Withdraw rate": "@wrate\r\n"}
+#         self.run_commands_set_ClearTarget = {"Clear target t:": "@cttime\r\n",
+#                                              "Clear target V:": "@ctvolume\r\n",
+#                                              "Writes to memory: OFF:": "@NVRAM\r\n",
+#                                              "Default force level": f"@force {self.force_level}\r\n"}
+#         if all(value is not None and value != '' for key, value in setups_dict_quick_mode.items() if
+#                key in ['Run Mode', 'Syringe Info', 'Flow Parameter']):
+#             # 注射器选择指令
+#             self.run_commands_set_Syrm['Syringe Type'] = {
+#                 'prompt': ' >>Syringe selected: ' + setups_dict_quick_mode['Syringe Info']['Selected Syringe'],
+#                 'command': '@syrm' + ' ' + setups_dict_quick_mode['Syringe Info']['Selected Syringe'] + '\r\n'}
+#
+#             if setups_dict_quick_mode['Run Mode'] == 'INF':
+#                 self.run_commands_set_INF['Rate INF'] = {
+#                     'prompt': ' >>Infusion rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'],
+#                     'command': '@irate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'] + '\r\n'}
+#                 if 'l' in setups_dict_quick_mode['Flow Parameter']['Target INF']:
+#                     self.run_commands_set_INF['Target INF'] = {
+#                         "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target INF'],
+#                         "command": '@tvolume' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target INF'] + '\r\n'}
+#                 else:
+#                     self.run_commands_set_INF['Target  INF'] = {
+#                         "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target INF'],
+#                         "command": '@ttime' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target INF'] + '\r\n'}
+#                 self.run_commands_set_INF['Run Code INF'] = {"prompt": ' >>Infusion running:', "command": "@irun\r\n"}
+#                 # self.run_commands_set_INF['Motor rate INF'] = 'crate\r\n'
+#                 # self.run_commands_set_INF['Volume INF'] = 'ivolume\r\n'
+#             elif setups_dict_quick_mode['Run Mode'] == 'WD':
+#                 self.run_commands_set_WD['Rate WD'] = {
+#                     'prompt': ' >>Withdraw rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'],
+#                     'command': '@wrate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'] + '\r\n'}
+#                 if 'l' in setups_dict_quick_mode['Flow Parameter']['Target WD']:
+#                     self.run_commands_set_WD['Target WD'] = {
+#                         "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target WD'],
+#                         "command": '@tvolume' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target WD'] + '\r\n'}
+#                 else:
+#                     self.run_commands_set_WD['Target WD'] = {
+#                         "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target WD'],
+#                         "command": '@ttime' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target WD'] + '\r\n'}
+#                 self.run_commands_set_WD['Run Code WD'] = {"prompt": ' >>Withdraw running:', "command": "@wrun\r\n"}
+#                 # self.run_commands_set_WD['Motor rate WD'] = 'crate\r\n'
+#                 # self.run_commands_set_WD['Volume WD'] = 'wvolume\r\n'
+#                 # print('输出命令：', run_commands_set)
+#             elif setups_dict_quick_mode['Run Mode'] == 'INF/ WD':
+#                 self.run_commands_set_INF['Rate INF'] = {
+#                     'prompt': ' >>Infusion rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'],
+#                     'command': '@irate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'] + '\r\n'}
+#                 if 'l' in setups_dict_quick_mode['Flow Parameter']['Target INF']:
+#                     self.run_commands_set_INF['Target INF'] = {
+#                         "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target INF'],
+#                         "command": '@tvolume' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target INF'] + '\r\n'}
+#                 else:
+#                     self.run_commands_set_INF['Target INF'] = {
+#                         "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target INF'],
+#                         "command": '@ttime' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target INF'] + '\r\n'}
+#                 self.run_commands_set_INF['Run Code INF'] = {"prompt": ' >>Infusion running:', "command": "@irun\r\n"}
+#                 # self.run_commands_set_INF['Motor rate INF'] = 'crate\r\n'
+#                 # self.run_commands_set_INF['Volume INF'] = 'ivolume\r\n'
+#                 # WD
+#                 self.run_commands_set_WD['Rate WD'] = {
+#                     'prompt': ' >>Withdraw rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'],
+#                     'command': '@wrate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'] + '\r\n'}
+#                 if 'l' in setups_dict_quick_mode['Flow Parameter']['Target WD']:
+#                     self.run_commands_set_WD['Target WD'] = {
+#                         "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target WD'],
+#                         "command": '@tvolume' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target WD'] + '\r\n'}
+#                 else:
+#                     self.run_commands_set_WD['Target WD'] = {
+#                         "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target WD'],
+#                         "command": '@ttime' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target WD'] + '\r\n'}
+#                 self.run_commands_set_WD['Run Code WD'] = {"prompt": ' >>Withdraw running:', "command": "@wrun\r\n"}
+#                 # self.run_commands_set_WD['Motor rate WD'] = 'crate\r\n'
+#                 # self.run_commands_set_WD['Volume WD'] = 'wvolume\r\n'
+#             elif setups_dict_quick_mode['Run Mode'] == 'WD/ INF':
+#                 self.run_commands_set_WD['Rate WD'] = {
+#                     'prompt': ' >>Withdraw rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'],
+#                     'command': '@wrate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'] + '\r\n'}
+#                 if 'l' in setups_dict_quick_mode['Flow Parameter']['Target WD']:
+#                     self.run_commands_set_WD['Target WD'] = {
+#                         "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target WD'],
+#                         "command": '@tvolume' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target WD'] + '\r\n'}
+#                 else:
+#                     self.run_commands_set_WD['Target WD'] = {
+#                         "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target WD'],
+#                         "command": '@ttime' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target WD'] + '\r\n'}
+#                 self.run_commands_set_WD['Run Code WD'] = {"prompt": ' >>Withdraw running:', "command": "@wrun\r\n"}
+#                 # self.run_commands_set_WD['Motor rate WD'] = 'crate\r\n'
+#                 # self.run_commands_set_WD['Volume WD'] = 'wvolume\r\n'
+#                 # INF
+#                 self.run_commands_set_INF['Rate INF'] = {
+#                     'prompt': ' >>Infusion rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'],
+#                     'command': '@irate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'] + '\r\n'}
+#                 if 'l' in setups_dict_quick_mode['Flow Parameter']['Target INF']:
+#                     self.run_commands_set_INF['Target INF'] = {
+#                         "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target INF'],
+#                         "command": '@tvolume' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target INF'] + '\r\n'}
+#                 else:
+#                     self.run_commands_set_INF['Target INF'] = {
+#                         "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
+#                             'Target INF'],
+#                         "command": '@ttime' + ' ' +
+#                                    setups_dict_quick_mode['Flow Parameter'][
+#                                        'Target INF'] + '\r\n'}
+#                 self.run_commands_set_INF['Run Code INF'] = {"prompt": ' >>Infusion running:', "command": "@irun\r\n"}
+#                 # self.run_commands_set_INF['Motor rate INF'] = 'crate\r\n'
+#                 # self.run_commands_set_INF['Volume INF'] = 'ivolume\r\n'
+#             else:
+#                 pass
+#
+#             if not isinstance(self.check_serial_thread.ser, serial.Serial):
+#                 QtWidgets.QMessageBox.information(ui.Run_button_quick, 'Port not connected.',
+#                                                   'Please check the port connection.')
+#             else:
+#                 if setups_dict_quick_mode['Run Mode'] == 'INF':
+#                     self.args_list = (self.ui, self.status_str, 0.8, 0.1, self.run_commands_set_ClearTarget,
+#                                       self.run_commands_set_Syrm, self.run_commands_set_INF,
+#                                       self.run_commands_set_GetResponse_INF)
+#                     self.send_run_commands(*self.args_list)
+#                     self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+#                 elif setups_dict_quick_mode['Run Mode'] == 'WD':
+#                     self.args_list = (self.ui, self.status_str, 0.8, 0.1, self.run_commands_set_ClearTarget,
+#                                       self.run_commands_set_Syrm, self.run_commands_set_WD,
+#                                       self.run_commands_set_GetResponse_WD)
+#                     self.send_run_commands(*self.args_list)
+#                     self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+#                 elif setups_dict_quick_mode['Run Mode'] == 'INF/ WD':
+#                     self.args_list = (self.ui, self.status_str, 0.8, 0.1, self.run_commands_set_ClearTarget,
+#                                       self.run_commands_set_Syrm, self.run_commands_set_INF,
+#                                       self.run_commands_set_GetResponse_INF, self.run_commands_set_ClearTarget,
+#                                       self.run_commands_set_WD, self.run_commands_set_GetResponse_WD)
+#                     self.send_run_commands(*self.args_list)
+#                     self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+#                 elif setups_dict_quick_mode['Run Mode'] == 'WD/ INF':
+#                     self.args_list = (self.ui, self.status_str, 0.8, 0.1, self.run_commands_set_ClearTarget,
+#                                       self.run_commands_set_Syrm, self.run_commands_set_WD,
+#                                       self.run_commands_set_GetResponse_WD, self.run_commands_set_ClearTarget,
+#                                       self.run_commands_set_INF, self.run_commands_set_GetResponse_INF)
+#                     self.send_run_commands(*self.args_list)
+#                     self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+#                 else:
+#                     pass
+#
+#         self.mutex.unlock()
+#
+#     def send_run_commands(self, ui, status_str, time_run, time_response, *run_dict):
+#         self.timer_run.start()
+#         current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+#         for dict_run in run_dict:
+#             if status_str in (None, 'Continue'):
+#                 if not isinstance(list(dict_run.values())[0], dict):  # clear
+#                     for key, value in dict_run.items():
+#                         ui.commands_sent.append(f"{current_time} >>{key}:")
+#                         # print(f"{current_time} >>{value}:")
+#                         self.check_serial_thread.ser.write(value.encode(SendDataToPort.encode_type))
+#                         # QtCore.QCoreApplication.instance().processEvents()
+#                         # time.sleep(time_run)
+#                         # 用QTimer 代替原来的time.sleep()
+#                         self.timer_run.singleShot(time_run, QtCore.QCoreApplication.processEvents)
+#                         logger_debug_console.debug(status_str)
+#                 else:
+#                     for value in dict_run.values():
+#                         ui.commands_sent.append(f"{current_time}{value['prompt']}")
+#                         # print(f"{current_time}{value['prompt']}")
+#                         self.check_serial_thread.ser.write(value['command'].encode(SendDataToPort.encode_type))
+#                         # QtCore.QCoreApplication.instance().processEvents()
+#                         # time.sleep(time_run)
+#                         self.timer_run.singleShot(time_run, QtCore.QCoreApplication.processEvents)
+#                         # 运行到commands_set_INF/WD的'irun/wrun'时，响应会变为：'>'或者'<' || 'INF running', 'WD running'
+#                         logger_debug_console.debug(status_str)
+#             elif status_str in ('INF running', 'WD running'):  # 每0.1s向pump发送获取四个参数的命令
+#                 if isinstance(list(dict_run.values())[0], str):
+#                     while True:
+#                         commands = ''.join(dict_run.values())
+#                         # print('commands', commands)
+#                         logger_debug_console.info(f"commands: {commands}")
+#                         self.check_serial_thread.ser.write(commands.encode(SendDataToPort.encode_type))
+#                         # QtCore.QCoreApplication.instance().processEvents()
+#                         # time.sleep(time_response)
+#                         self.timer_run.singleShot(time_response, QtCore.QCoreApplication.processEvents)
+#                         logger_debug_console.debug(status_str)
+#             elif status_str == 'Target reached':
+#                 logger_debug_console.debug(status_str)
+#                 continue
+#             elif status_str == 'STOP':
+#                 self.timer_run.stop()
+#                 logger_debug_console.debug(status_str)
+#                 break
+#
+#     def clear_from_button(self, ui):
+#         self.run_commands_set_Clear_INF = {"Clear infused time": "@citime\r\n",
+#                                            "Clear infused volume": "@civolume\r\n"}
+#         self.run_commands_set_Clear_WD = {"Clear withdrawn time": "@cwtime\r\n",
+#                                           "Clear withdrawn volume": "@cwvolume\r\n"}
+#         self.run_commands_set_ButtonClear = {"Clear target t:": "@cttime\r\n",
+#                                              "Clear target V:": "@ctvolume\r\n"}
+#         current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+#         for key, value in self.run_commands_set_ButtonClear.items():
+#             # print(f"{current_time} >>{key}\r\n")
+#             if isinstance(self.check_serial_thread.ser, serial.Serial):
+#                 # ui.commands_sent.append(f"{current_time} >>{key}")
+#                 self.check_serial_thread.ser.write(value.encode(SendDataToPort.encode_type))
+#                 QtCore.QCoreApplication.instance().processEvents()
+#                 time.sleep(0.1)
+#             else:
+#                 pass
+#
+#     @staticmethod
+#     def set_encode_format(ui, encode_sender):
+#         if encode_sender == ui.actionUTF_8:
+#             SendDataToPort.encode_type = 'utf-8'
+#         elif encode_sender == ui.actionASCII:
+#             SendDataToPort.encode_type = 'ascii'
+#         return SendDataToPort.encode_type
+#
+#     def send_thread_start(self, status):
+#         if status and status != '':
+#             self.return_status(status)
+#             self.start()
+#         super().start()
+#
+#     def return_status(self, status):
+#         self.receive_status = status
+#         return status
+#
+#
+# class ReadDataFromPort(QtCore.QThread):
+#     receive_status = QtCore.pyqtSignal(str)
+#     # read_running = QtCore.pyqtSignal(bool)
+#     # Enable selection of encoding/ decoding format
+#     decode_style = 'NoLF'  # 默认结尾标识：无换行符
+#     __line_feed_type = (b':', b'<', b'>', b'*', b'T*')  # Default no line feed following end identifier
+#     decode_type = 'utf-8'
+#
+#     def __init__(self, ser, ui_main=None, parent=None):
+#         super().__init__(parent)
+#         self.mutex = QtCore.QMutex()
+#         self.mutex_sub = QtCore.QMutex()
+#         self.ui = ui_main
+#         self.ser = ser
+#         self.__response = None
+#         self.__receive_status = None
+#         self.send_thread = None
+#         # self.receive_status.connect(self.print_receive_status)
+#         # self.read_running.connect(self.call_send_thread)
+#
+#     @staticmethod
+#     def set_line_feed_style(ui, sender_check):
+#         if sender_check == ui.actionNo_line_feed:
+#             ReadDataFromPort.__line_feed_type = (b':', b'<', b'>', b'*', b'T*')
+#             ReadDataFromPort.decode_style = 'NoLF'
+#         elif sender_check == ui.action_carrige_return:
+#             ReadDataFromPort.__line_feed_type = (b':\r', b'<\r', b'>\r', b'*\r', b'T*\r')
+#             ReadDataFromPort.decode_style = 'CR'
+#         elif sender_check == ui.action_line_feed:
+#             ReadDataFromPort.__line_feed_type = (b':\n', b'<\n', b'>\n', b'*\n', b'T*\n')
+#             ReadDataFromPort.decode_style = 'LF'
+#         elif sender_check == ui.action_CR_LF:
+#             ReadDataFromPort.__line_feed_type = (b':\r\n', b'<\r\n', b'>\r\n', b'*\r\n', b'T*\r\n')
+#             ReadDataFromPort.decode_style = 'CR&LF'
+#         logger_debug_console.info(
+#             f"set_line_feed_style called! Current decoding format: {ReadDataFromPort.decode_style}")
+#         logger_debug_console.info(f"当前结尾标识符: {ReadDataFromPort.__line_feed_type}")
+#         return ReadDataFromPort.__line_feed_type, ReadDataFromPort.decode_style
+#
+#     @staticmethod
+#     def decode_according_to_identifier(decode_style, response):
+#         if not decode_style or decode_style == 'NoLF':
+#             return response.decode(ReadDataFromPort.decode_type, 'replace')
+#         elif decode_style == 'CR':
+#             return response.replace(b'\r', b'\r\n').decode(ReadDataFromPort.decode_type).strip()
+#         elif decode_style == 'LF' or decode_style == 'CR&LF':
+#             return response.decode(ReadDataFromPort.decode_type, 'replace').strip()
+#
+#     def run(self):
+#         # print(self.ui)
+#         # print(self.ser)
+#         # print('ReadDataFromPort called!')
+#         # print('Run:', self.ser is None, self.connect_status)
+#         if self.ser is None:
+#             self.quit()
+#             return
+#         else:
+#             self.call_send_thread()
+#             pass
+#             # self.start_send_thread()
+#
+#         while self.ser:
+#             self.mutex.lock()
+#             print('Read running: ', self.isRunning())
+#             current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+#             response = self.read_single_line()
+#             # response = self.response
+#             # if response and response != b'':
+#             # print('response from run multi:', response)
+#             """不以(':', '>', '<', '*', 'T*')结尾的读取数据用来绘图"""
+#             if response and response != b'':
+#                 # response_dec = response.decode('utf-8', 'replace')         # Pump
+#                 # response_dec = response.decode('utf-8', 'replace').strip()  # 末尾包含\r或者\r\n
+#                 # response_dec_rep = response.replace(b'\r', b'\r\n').decode('utf-8').strip()  # 保证解码之后能够通过print()打印，然后解析
+#                 # print('response_dec_rep', response_dec_rep)
+#                 # print('response_dec from run multi:', response_dec)
+#                 response_dec = self.decode_according_to_identifier(decode_style=ReadDataFromPort.decode_style,
+#                                                                    response=response)
+#                 if response_dec.endswith(':'):
+#                     self.receive_status.emit('Continue')
+#                     # print(self.receive_status.signal)
+#                     self.__receive_status = 'Continue'
+#                     print('self.receive_status_instance: ', self.__receive_status)
+#                     self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
+#                     # print(f"{current_time} >>\n{response_dec}\n")
+#                     self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#                     QtCore.QCoreApplication.instance().processEvents()
+#                 elif response_dec.endswith('>'):
+#                     self.receive_status.emit('INF running')
+#                     # print('>>>>>>>>>>>>>', response_dec)
+#                     self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
+#                     self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#                     QtCore.QCoreApplication.instance().processEvents()
+#                 elif response_dec.endswith('<'):
+#                     self.receive_status.emit('WD running')
+#                     # print('<<<<<<<<<<<<<<', response_dec)
+#                     self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
+#                     self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#                     QtCore.QCoreApplication.instance().processEvents()
+#                 elif response_dec.endswith('*'):
+#                     if response_dec[-2:] == 'T*':
+#                         self.receive_status.emit('Target reached')
+#                         self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
+#                         self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#                         QtCore.QCoreApplication.instance().processEvents()
+#                     else:
+#                         self.receive_status.emit('STOP')
+#                         self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
+#                         self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#                         QtCore.QCoreApplication.instance().processEvents()
+#                 else:
+#                     # self.ui.Response_from_pump.append(f"{current_time} >>{response_dec}")
+#                     # self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
+#                     pass
+#             else:
+#                 pass
+#             # 释放锁，避免阻塞其他线程的执行
+#             self.mutex.unlock()
+#
+#     def read_single_line(self):
+#         if self.ser is None:
+#             self.quit()
+#             return
+#         else:
+#             try:
+#                 # Config buffer zone for data receive
+#                 self.__response = b''
+#                 while True:
+#                     line = self.ser.readline()
+#                     if line and line != b'':
+#                         self.__response += line
+#                         if line.endswith(ReadDataFromPort.__line_feed_type):  # default: no end identifier
+#                             break
+#             except Exception as e:
+#                 logger_info_console_file.info(e)
+#         # print('self.response multi-line: ', self.response)
+#         if self.__response and self.__response != b'':
+#             pass
+#             # logger_debug_console.debug(f'Response from read function, multi-lines: {self.__response}')
+#         return self.__response
+#
+#     @staticmethod
+#     def set_decode_format(ui, decode_sender):
+#         if decode_sender == ui.actionUTF_8:
+#             ReadDataFromPort.decode_type = 'utf-8'
+#         elif decode_sender == ui.actionASCII:
+#             ReadDataFromPort.decode_type = 'ascii'
+#         return ReadDataFromPort.decode_type
+#
+#     @QtCore.pyqtSlot(str)
+#     def print_receive_status(self, status):
+#         print('received status: ', status)
+#
+#     # @property
+#     # def receive_status(self):
+#     #     print('receive_status from Read property!', self.__receive_status)
+#     #     return self.__receive_status
+#     def call_send_thread(self):
+#         if self.isRunning():
+#             pass
+#             # self.send_thread = SendDataToPort(parent=None, ser=self.ser, receive_status=self.__receive_status, ui_main=self.ui)
+#             # self.send_thread.start()
+#             # print(self.send_thread.isRunning(), self.send_thread.receive_status)
+#         else:
+#             pass
+#             # self.send_thread.terminate()
+#
+#     def return_receive_status(self):
+#         if self.__receive_status and self.__receive_status != '':
+#             print(self.__receive_status)
+#
+#     # def start_send_thread(self):
+#     #     send_thread = SendDataToPort(self.ui, ser=self.ser, check_serial_thread=None, read_data_from_port=None)
+#     #     send_thread.start()
+#     #     if send_thread.isRunning():
+#     #         print(send_thread.ser)
 
-    def __init__(self, parent, check_serial_thread, receive_status=None, ser=None, ui_main=None):
-        super().__init__(parent)
-        self.force_level = None
-        self.run_commands_set_ButtonClear = {}
-        self.mutex = QtCore.QMutex()
-        self.mutex_sub = QtCore.QMutex()
-        self.check_serial_thread = check_serial_thread
-        # self.read_data_from_port = read_data_from_port
-        self.ser = ser
-        # self.read_data_from_port = read_data_from_port
-        # self.read_data_from_port = ReadDataFromPort(self.check_serial_thread.ser)
-        self.ui = ui_main
-        self.receive_status = receive_status
-        self.run_commands_set = {}
-        self.run_commands_set_Syrm = {}
-        self.run_commands_set_INF = {}
-        self.run_commands_set_WD = {}
-        self.run_commands_set_GetResponse_INF = {}
-        self.run_commands_set_GetResponse_WD = {}
-        self.run_commands_set_ClearTarget = {}
-        self.run_commands_set_Clear_INF = {}
-        self.run_commands_set_Clear_WD = {}
-        self.run_commands_set_Ramp = {}
-        self.status_str = None
-        self.args_list = None
-        self.timer_run = QtCore.QTimer()
-        self.running_flag = True
-        # self.timer_run.timeout.connect(lambda: self.ser_quick_mode_command_set(ui, setups_dict_quick_mode))
-
-        # self.read_data_from_port.receive_status.connect(lambda status: self.send_thread_start(status))
-
-    def run(self):
-        print('Send thread running: ', self.isRunning())
-        print(self.ser)
-        print(self.receive_status)
-        if self.ser is None:
-            # self.quit()
-            # return
-            pass
-        while True:
-            # self.mutex.lock()
-            try:
-                pass
-                # print('self.receive_status from send class!', self.receive_status)
-                # self.read_data_from_port.receive_status.connect(self.handle_receive_status)
-                # else:
-                #     pass
-                # self.read_data_from_port.receive_status.connect(self.handle_receive_status)
-                # print(self.status_str)
-            except Exception as e:
-                logger_debug_console.info(e)
-
-    def ser_command_catalog(self):
-        # print('ser_command_catalog called!')
-        # print('From send thread: ', self.ser)
-        # print(self.check_serial_thread.ser, type(self.check_serial_thread.ser))
-        # print(self.check_serial_thread, self.read_data_from_port)
-        # self.status_str = self.read_data_from_port.receive_status()
-        print(self.ser)
-        self.mutex_sub.lock()
-        self.running_flag = False
-        if isinstance(self.ser, serial.Serial):
-            # self.start()
-            self.ser.write('@cat\r\n'.encode(SendDataToPort.encode_type))
-            # print(SendDataToPort.encode_type)
-        else:
-            pass
-        self.mutex_sub.unlock()
-
-    def ser_command_tilt(self):
-        self.mutex_sub.lock()
-        if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write('@tilt\r\n'.encode(SendDataToPort.encode_type))
-        else:
-            logger_info_console_file.warning(f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
-        self.mutex_sub.unlock()
-
-    def get_set_address(self, ui):
-        self.mutex_sub.lock()
-        if isinstance(self.check_serial_thread.ser, serial.Serial):
-            if ui.address_input.text() and ui.address_input.text() != '':
-                # print('addr.', ui.address_input.text())
-                self.check_serial_thread.ser.write(
-                    ('@addr. ' + str(ui.address_input.text()) + '\r\n').encode(SendDataToPort.encode_type))
-            else:
-                self.check_serial_thread.ser.write(('@addr. ' + '\r\n').encode(SendDataToPort.encode_type))
-        else:
-            pass
-        self.mutex_sub.unlock()
-
-    def send_command_manual(self, ui):
-        # print('send_command_manual called!')
-        self.mutex_sub.lock()
-        if self.check_serial_thread.ser and isinstance(self.check_serial_thread.ser, serial.Serial):
-            if ui.lineEdit_send_toPump.currentText() and ui.lineEdit_send_toPump.currentText() != '':
-                current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-                str_to_send = '@' + ui.lineEdit_send_toPump.currentText() + '\r\n'
-                try:
-                    self.check_serial_thread.ser.write(str_to_send.encode(SendDataToPort.encode_type))
-                    ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-                    # ui.commands_sent.insertHtml(f"<b>{current_time} >></b>\r\n{str_to_send}")
-                    ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
-                except Exception as e:
-                    logger_info_console_file.warning(e)
-                    # 如果数据未能成功写入，并且超过了缓冲区最大限制，则重置buffer
-                    if len(self.check_serial_thread.ser.out_waiting) > 4096:
-                        self.check_serial_thread.ser.reset_output_buffer()
-                        ui.commands_sent.append(f"{current_time} >>\r\nBuffer overflow, clearing buffer...")
-                    self.check_serial_thread.ser.write(str_to_send.encode(SendDataToPort.encode_type))
-                    ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-                    ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
-                # 将输入唯一保存在下拉列表中
-                if ui.lineEdit_send_toPump.currentText() not in [ui.lineEdit_send_toPump.itemText(i) for i in
-                                                                 range(ui.lineEdit_send_toPump.count())]:
-                    ui.lineEdit_send_toPump.addItem(ui.lineEdit_send_toPump.currentText())
-                else:
-                    pass
-            else:
-                pass
-        else:
-            pass
-        self.mutex_sub.unlock()
-
-    def ser_bgl_level(self, ui):
-        value = ui.bgLight_Slider.value()
-        self.mutex_sub.lock()
-        current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-        if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write(('@dim ' + str(value) + '\r\n').encode(SendDataToPort.encode_type))
-            ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-            # ui.commands_sent.insertHtml(f"<b>{current_time} >></b>\r\n{str_to_send}")
-            ui.commands_sent.append(f"{current_time} >>\r\nBackground light set to: {str(value)} %")
-        else:
-            logger_info_console_file.warning(f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
-            pass
-        self.mutex_sub.unlock()
-
-    def ser_force_limit(self, ui):
-        value = ui.forceLimit_Slider.value()
-        self.mutex_sub.lock()
-        current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-        if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write(('@force ' + str(value) + '\r\n').encode(SendDataToPort.encode_type))
-            ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-            ui.commands_sent.append(f"{current_time} >>\r\nForce limit set to: {str(value)} %")
-        else:
-            logger_info_console_file.warning(f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
-            pass
-        self.mutex_sub.unlock()
-
-    @staticmethod
-    def ser_bgl_label_show(ui):
-        value = ui.bgLight_Slider.value()
-        ui.bgLight_Label.setText("BG-Light: " + str(value) + "[%]")
-
-    @staticmethod
-    def ser_force_label_show(ui):
-        value = ui.forceLimit_Slider.value()
-        ui.forceLimit_Label.setText("Force Limit: " + str(value) + "[%]")
-
-    def fast_forward_btn(self):
-        if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write('@run\r\n'.encode(SendDataToPort.encode_type))
-        else:
-            pass
-
-    def rewind_btn(self):
-        if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write('@rrun\r\n'.encode(SendDataToPort.encode_type))
-        else:
-            pass
-
-    def release_to_stop(self):
-        if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write('@stop\r\n'.encode(SendDataToPort.encode_type))
-        else:
-            pass
-
-    def ser_quick_mode_command_set(self, ui, setups_dict_quick_mode):
-        self.mutex.lock()
-        update_combox_syr_enabled(ui, setups_dict_quick_mode)
-        self.force_level = force_level_recommendation(self.ui)
-        self.run_commands_set = {}
-        self.run_commands_set_Syrm = {}
-        self.run_commands_set_INF = {}
-        self.run_commands_set_WD = {}
-        self.run_commands_set_GetResponse_INF = {"Infused volume": "@ivolume\r\n",
-                                                 "Infused time": "@itime\r\n",
-                                                 "Motor rate": "@crate\r\n",
-                                                 "Infusing rate": "@irate\r\n"}
-        self.run_commands_set_GetResponse_WD = {"Withdrawn volume": "@wvolume\r\n",
-                                                "Withdrawn time": "@wtime\r\n",
-                                                "Motor rate": "@crate\r\n",
-                                                "Withdraw rate": "@wrate\r\n"}
-        self.run_commands_set_ClearTarget = {"Clear target t:": "@cttime\r\n",
-                                             "Clear target V:": "@ctvolume\r\n",
-                                             "Writes to memory: OFF:": "@NVRAM\r\n",
-                                             "Default force level": f"@force {self.force_level}\r\n"}
-        if all(value is not None and value != '' for key, value in setups_dict_quick_mode.items() if
-               key in ['Run Mode', 'Syringe Info', 'Flow Parameter']):
-            # 注射器选择指令
-            self.run_commands_set_Syrm['Syringe Type'] = {
-                'prompt': ' >>Syringe selected: ' + setups_dict_quick_mode['Syringe Info']['Selected Syringe'],
-                'command': '@syrm' + ' ' + setups_dict_quick_mode['Syringe Info']['Selected Syringe'] + '\r\n'}
-
-            if setups_dict_quick_mode['Run Mode'] == 'INF':
-                self.run_commands_set_INF['Rate INF'] = {
-                    'prompt': ' >>Infusion rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'],
-                    'command': '@irate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'] + '\r\n'}
-                if 'l' in setups_dict_quick_mode['Flow Parameter']['Target INF']:
-                    self.run_commands_set_INF['Target INF'] = {
-                        "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
-                            'Target INF'],
-                        "command": '@tvolume' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target INF'] + '\r\n'}
-                else:
-                    self.run_commands_set_INF['Target  INF'] = {
-                        "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
-                            'Target INF'],
-                        "command": '@ttime' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target INF'] + '\r\n'}
-                self.run_commands_set_INF['Run Code INF'] = {"prompt": ' >>Infusion running:', "command": "@irun\r\n"}
-                # self.run_commands_set_INF['Motor rate INF'] = 'crate\r\n'
-                # self.run_commands_set_INF['Volume INF'] = 'ivolume\r\n'
-            elif setups_dict_quick_mode['Run Mode'] == 'WD':
-                self.run_commands_set_WD['Rate WD'] = {
-                    'prompt': ' >>Withdraw rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'],
-                    'command': '@wrate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'] + '\r\n'}
-                if 'l' in setups_dict_quick_mode['Flow Parameter']['Target WD']:
-                    self.run_commands_set_WD['Target WD'] = {
-                        "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
-                            'Target WD'],
-                        "command": '@tvolume' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target WD'] + '\r\n'}
-                else:
-                    self.run_commands_set_WD['Target WD'] = {
-                        "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
-                            'Target WD'],
-                        "command": '@ttime' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target WD'] + '\r\n'}
-                self.run_commands_set_WD['Run Code WD'] = {"prompt": ' >>Withdraw running:', "command": "@wrun\r\n"}
-                # self.run_commands_set_WD['Motor rate WD'] = 'crate\r\n'
-                # self.run_commands_set_WD['Volume WD'] = 'wvolume\r\n'
-                # print('输出命令：', run_commands_set)
-            elif setups_dict_quick_mode['Run Mode'] == 'INF/ WD':
-                self.run_commands_set_INF['Rate INF'] = {
-                    'prompt': ' >>Infusion rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'],
-                    'command': '@irate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'] + '\r\n'}
-                if 'l' in setups_dict_quick_mode['Flow Parameter']['Target INF']:
-                    self.run_commands_set_INF['Target INF'] = {
-                        "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
-                            'Target INF'],
-                        "command": '@tvolume' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target INF'] + '\r\n'}
-                else:
-                    self.run_commands_set_INF['Target INF'] = {
-                        "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
-                            'Target INF'],
-                        "command": '@ttime' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target INF'] + '\r\n'}
-                self.run_commands_set_INF['Run Code INF'] = {"prompt": ' >>Infusion running:', "command": "@irun\r\n"}
-                # self.run_commands_set_INF['Motor rate INF'] = 'crate\r\n'
-                # self.run_commands_set_INF['Volume INF'] = 'ivolume\r\n'
-                # WD
-                self.run_commands_set_WD['Rate WD'] = {
-                    'prompt': ' >>Withdraw rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'],
-                    'command': '@wrate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'] + '\r\n'}
-                if 'l' in setups_dict_quick_mode['Flow Parameter']['Target WD']:
-                    self.run_commands_set_WD['Target WD'] = {
-                        "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
-                            'Target WD'],
-                        "command": '@tvolume' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target WD'] + '\r\n'}
-                else:
-                    self.run_commands_set_WD['Target WD'] = {
-                        "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
-                            'Target WD'],
-                        "command": '@ttime' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target WD'] + '\r\n'}
-                self.run_commands_set_WD['Run Code WD'] = {"prompt": ' >>Withdraw running:', "command": "@wrun\r\n"}
-                # self.run_commands_set_WD['Motor rate WD'] = 'crate\r\n'
-                # self.run_commands_set_WD['Volume WD'] = 'wvolume\r\n'
-            elif setups_dict_quick_mode['Run Mode'] == 'WD/ INF':
-                self.run_commands_set_WD['Rate WD'] = {
-                    'prompt': ' >>Withdraw rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'],
-                    'command': '@wrate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate WD'] + '\r\n'}
-                if 'l' in setups_dict_quick_mode['Flow Parameter']['Target WD']:
-                    self.run_commands_set_WD['Target WD'] = {
-                        "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
-                            'Target WD'],
-                        "command": '@tvolume' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target WD'] + '\r\n'}
-                else:
-                    self.run_commands_set_WD['Target WD'] = {
-                        "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
-                            'Target WD'],
-                        "command": '@ttime' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target WD'] + '\r\n'}
-                self.run_commands_set_WD['Run Code WD'] = {"prompt": ' >>Withdraw running:', "command": "@wrun\r\n"}
-                # self.run_commands_set_WD['Motor rate WD'] = 'crate\r\n'
-                # self.run_commands_set_WD['Volume WD'] = 'wvolume\r\n'
-                # INF
-                self.run_commands_set_INF['Rate INF'] = {
-                    'prompt': ' >>Infusion rate: ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'],
-                    'command': '@irate' + ' ' + setups_dict_quick_mode['Flow Parameter']['Frate INF'] + '\r\n'}
-                if 'l' in setups_dict_quick_mode['Flow Parameter']['Target INF']:
-                    self.run_commands_set_INF['Target INF'] = {
-                        "prompt": " >>Target Volume: " + setups_dict_quick_mode['Flow Parameter'][
-                            'Target INF'],
-                        "command": '@tvolume' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target INF'] + '\r\n'}
-                else:
-                    self.run_commands_set_INF['Target INF'] = {
-                        "prompt": ' >>Target Time: ' + setups_dict_quick_mode['Flow Parameter'][
-                            'Target INF'],
-                        "command": '@ttime' + ' ' +
-                                   setups_dict_quick_mode['Flow Parameter'][
-                                       'Target INF'] + '\r\n'}
-                self.run_commands_set_INF['Run Code INF'] = {"prompt": ' >>Infusion running:', "command": "@irun\r\n"}
-                # self.run_commands_set_INF['Motor rate INF'] = 'crate\r\n'
-                # self.run_commands_set_INF['Volume INF'] = 'ivolume\r\n'
-            else:
-                pass
-
-            if not isinstance(self.check_serial_thread.ser, serial.Serial):
-                QtWidgets.QMessageBox.information(ui.Run_button_quick, 'Port not connected.',
-                                                  'Please check the port connection.')
-            else:
-                if setups_dict_quick_mode['Run Mode'] == 'INF':
-                    self.args_list = (self.ui, self.status_str, 0.8, 0.1, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_Syrm, self.run_commands_set_INF,
-                                           self.run_commands_set_GetResponse_INF)
-                    self.send_run_commands(*self.args_list)
-                    self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
-                elif setups_dict_quick_mode['Run Mode'] == 'WD':
-                    self.args_list = (self.ui, self.status_str, 0.8, 0.1, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_Syrm, self.run_commands_set_WD,
-                                           self.run_commands_set_GetResponse_WD)
-                    self.send_run_commands(*self.args_list)
-                    self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
-                elif setups_dict_quick_mode['Run Mode'] == 'INF/ WD':
-                    self.args_list = (self.ui, self.status_str, 0.8, 0.1, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_Syrm, self.run_commands_set_INF,
-                                           self.run_commands_set_GetResponse_INF, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_WD, self.run_commands_set_GetResponse_WD)
-                    self.send_run_commands(*self.args_list)
-                    self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
-                elif setups_dict_quick_mode['Run Mode'] == 'WD/ INF':
-                    self.args_list = (self.ui, self.status_str, 0.8, 0.1, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_Syrm, self.run_commands_set_WD,
-                                           self.run_commands_set_GetResponse_WD, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_INF, self.run_commands_set_GetResponse_INF)
-                    self.send_run_commands(*self.args_list)
-                    self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
-                else:
-                    pass
-
-        self.mutex.unlock()
-
-    def send_run_commands(self, ui, status_str, time_run, time_response, *run_dict):
-        self.timer_run.start()
-        current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-        for dict_run in run_dict:
-            if status_str in (None, 'Continue'):
-                if not isinstance(list(dict_run.values())[0], dict):  # clear
-                    for key, value in dict_run.items():
-                        ui.commands_sent.append(f"{current_time} >>{key}:")
-                        # print(f"{current_time} >>{value}:")
-                        self.check_serial_thread.ser.write(value.encode(SendDataToPort.encode_type))
-                        # QtCore.QCoreApplication.instance().processEvents()
-                        # time.sleep(time_run)
-                        # 用QTimer 代替原来的time.sleep()
-                        self.timer_run.singleShot(time_run, QtCore.QCoreApplication.processEvents)
-                        logger_debug_console.debug(status_str)
-                else:
-                    for value in dict_run.values():
-                        ui.commands_sent.append(f"{current_time}{value['prompt']}")
-                        # print(f"{current_time}{value['prompt']}")
-                        self.check_serial_thread.ser.write(value['command'].encode(SendDataToPort.encode_type))
-                        # QtCore.QCoreApplication.instance().processEvents()
-                        # time.sleep(time_run)
-                        self.timer_run.singleShot(time_run, QtCore.QCoreApplication.processEvents)
-                        # 运行到commands_set_INF/WD的'irun/wrun'时，响应会变为：'>'或者'<' || 'INF running', 'WD running'
-                        logger_debug_console.debug(status_str)
-            elif status_str in ('INF running', 'WD running'):  # 每0.1s向pump发送获取四个参数的命令
-                if isinstance(list(dict_run.values())[0], str):
-                    while True:
-                        commands = ''.join(dict_run.values())
-                        # print('commands', commands)
-                        logger_debug_console.info(f"commands: {commands}")
-                        self.check_serial_thread.ser.write(commands.encode(SendDataToPort.encode_type))
-                        # QtCore.QCoreApplication.instance().processEvents()
-                        # time.sleep(time_response)
-                        self.timer_run.singleShot(time_response, QtCore.QCoreApplication.processEvents)
-                        logger_debug_console.debug(status_str)
-            elif status_str == 'Target reached':
-                logger_debug_console.debug(status_str)
-                continue
-            elif status_str == 'STOP':
-                self.timer_run.stop()
-                logger_debug_console.debug(status_str)
-                break
-
-    def clear_from_button(self, ui):
-        self.run_commands_set_Clear_INF = {"Clear infused time": "@citime\r\n",
-                                           "Clear infused volume": "@civolume\r\n"}
-        self.run_commands_set_Clear_WD = {"Clear withdrawn time": "@cwtime\r\n",
-                                          "Clear withdrawn volume": "@cwvolume\r\n"}
-        self.run_commands_set_ButtonClear = {"Clear target t:": "@cttime\r\n",
-                                             "Clear target V:": "@ctvolume\r\n"}
-        current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-        for key, value in self.run_commands_set_ButtonClear.items():
-            # print(f"{current_time} >>{key}\r\n")
-            if isinstance(self.check_serial_thread.ser, serial.Serial):
-                # ui.commands_sent.append(f"{current_time} >>{key}")
-                self.check_serial_thread.ser.write(value.encode(SendDataToPort.encode_type))
-                QtCore.QCoreApplication.instance().processEvents()
-                time.sleep(0.1)
-            else:
-                pass
-
-
-    @staticmethod
-    def set_encode_format(ui, encode_sender):
-        if encode_sender == ui.actionUTF_8:
-            SendDataToPort.encode_type = 'utf-8'
-        elif encode_sender == ui.actionASCII:
-            SendDataToPort.encode_type = 'ascii'
-        return SendDataToPort.encode_type
-
-    def send_thread_start(self, status):
-        if status and status != '':
-            self.return_status(status)
-            self.start()
-        super().start()
-
-    def return_status(self, status):
-        self.receive_status = status
-        return status
-
-
-class ReadDataFromPort(QtCore.QThread):
-    receive_status = QtCore.pyqtSignal(str)
-    # read_running = QtCore.pyqtSignal(bool)
-    # Enable selection of encoding/ decoding format
-    decode_style = 'NoLF'  # 默认结尾标识：无换行符
-    __line_feed_type = (b':', b'<', b'>', b'*', b'T*')  # Default no line feed following end identifier
-    decode_type = 'utf-8'
-
-    def __init__(self, ser, ui_main=None, parent=None):
-        super().__init__(parent)
-        self.mutex = QtCore.QMutex()
-        self.mutex_sub = QtCore.QMutex()
-        self.ui = ui_main
-        self.ser = ser
-        self.__response = None
-        self.__receive_status = None
-        self.send_thread = None
-        # self.receive_status.connect(self.print_receive_status)
-        # self.read_running.connect(self.call_send_thread)
-
-    @staticmethod
-    def set_line_feed_style(ui, sender_check):
-        if sender_check == ui.actionNo_line_feed:
-            ReadDataFromPort.__line_feed_type = (b':', b'<', b'>', b'*', b'T*')
-            ReadDataFromPort.decode_style = 'NoLF'
-        elif sender_check == ui.action_carrige_return:
-            ReadDataFromPort.__line_feed_type = (b':\r', b'<\r', b'>\r', b'*\r', b'T*\r')
-            ReadDataFromPort.decode_style = 'CR'
-        elif sender_check == ui.action_line_feed:
-            ReadDataFromPort.__line_feed_type = (b':\n', b'<\n', b'>\n', b'*\n', b'T*\n')
-            ReadDataFromPort.decode_style = 'LF'
-        elif sender_check == ui.action_CR_LF:
-            ReadDataFromPort.__line_feed_type = (b':\r\n', b'<\r\n', b'>\r\n', b'*\r\n', b'T*\r\n')
-            ReadDataFromPort.decode_style = 'CR&LF'
-        logger_debug_console.info(
-            f"set_line_feed_style called! Current decoding format: {ReadDataFromPort.decode_style}")
-        logger_debug_console.info(f"当前结尾标识符: {ReadDataFromPort.__line_feed_type}")
-        return ReadDataFromPort.__line_feed_type, ReadDataFromPort.decode_style
-
-    @staticmethod
-    def decode_according_to_identifier(decode_style, response):
-        if not decode_style or decode_style == 'NoLF':
-            return response.decode(ReadDataFromPort.decode_type, 'replace')
-        elif decode_style == 'CR':
-            return response.replace(b'\r', b'\r\n').decode(ReadDataFromPort.decode_type).strip()
-        elif decode_style == 'LF' or decode_style == 'CR&LF':
-            return response.decode(ReadDataFromPort.decode_type, 'replace').strip()
-
-    def run(self):
-        # print(self.ui)
-        # print(self.ser)
-        # print('ReadDataFromPort called!')
-        # print('Run:', self.ser is None, self.connect_status)
-        if self.ser is None:
-            self.quit()
-            return
-        else:
-            self.call_send_thread()
-            pass
-            # self.start_send_thread()
-
-        while self.ser:
-            self.mutex.lock()
-            print('Read running: ', self.isRunning())
-            current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-            response = self.read_single_line()
-            # response = self.response
-            # if response and response != b'':
-            # print('response from run multi:', response)
-            """不以(':', '>', '<', '*', 'T*')结尾的读取数据用来绘图"""
-            if response and response != b'':
-                # response_dec = response.decode('utf-8', 'replace')         # Pump
-                # response_dec = response.decode('utf-8', 'replace').strip()  # 末尾包含\r或者\r\n
-                # response_dec_rep = response.replace(b'\r', b'\r\n').decode('utf-8').strip()  # 保证解码之后能够通过print()打印，然后解析
-                # print('response_dec_rep', response_dec_rep)
-                # print('response_dec from run multi:', response_dec)
-                response_dec = self.decode_according_to_identifier(decode_style=ReadDataFromPort.decode_style,
-                                                                   response=response)
-                if response_dec.endswith(':'):
-                    self.receive_status.emit('Continue')
-                    # print(self.receive_status.signal)
-                    self.__receive_status = 'Continue'
-                    print('self.receive_status_instance: ', self.__receive_status)
-                    self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
-                    # print(f"{current_time} >>\n{response_dec}\n")
-                    self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-                    QtCore.QCoreApplication.instance().processEvents()
-                elif response_dec.endswith('>'):
-                    self.receive_status.emit('INF running')
-                    # print('>>>>>>>>>>>>>', response_dec)
-                    self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
-                    self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-                    QtCore.QCoreApplication.instance().processEvents()
-                elif response_dec.endswith('<'):
-                    self.receive_status.emit('WD running')
-                    # print('<<<<<<<<<<<<<<', response_dec)
-                    self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
-                    self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-                    QtCore.QCoreApplication.instance().processEvents()
-                elif response_dec.endswith('*'):
-                    if response_dec[-2:] == 'T*':
-                        self.receive_status.emit('Target reached')
-                        self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
-                        self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-                        QtCore.QCoreApplication.instance().processEvents()
-                    else:
-                        self.receive_status.emit('STOP')
-                        self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
-                        self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-                        QtCore.QCoreApplication.instance().processEvents()
-                else:
-                    # self.ui.Response_from_pump.append(f"{current_time} >>{response_dec}")
-                    # self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
-                    pass
-            else:
-                pass
-            # 释放锁，避免阻塞其他线程的执行
-            self.mutex.unlock()
-
-    def read_single_line(self):
-        if self.ser is None:
-            self.quit()
-            return
-        else:
-            try:
-                # Config buffer zone for data receive
-                self.__response = b''
-                while True:
-                    line = self.ser.readline()
-                    if line and line != b'':
-                        self.__response += line
-                        if line.endswith(ReadDataFromPort.__line_feed_type):  # default: no end identifier
-                            break
-            except Exception as e:
-                logger_info_console_file.info(e)
-        # print('self.response multi-line: ', self.response)
-        if self.__response and self.__response != b'':
-            pass
-            # logger_debug_console.debug(f'Response from read function, multi-lines: {self.__response}')
-        return self.__response
-
-    @staticmethod
-    def set_decode_format(ui, decode_sender):
-        if decode_sender == ui.actionUTF_8:
-            ReadDataFromPort.decode_type = 'utf-8'
-        elif decode_sender == ui.actionASCII:
-            ReadDataFromPort.decode_type = 'ascii'
-        return ReadDataFromPort.decode_type
-
-    @QtCore.pyqtSlot(str)
-    def print_receive_status(self, status):
-        print('received status: ', status)
-
-    # @property
-    # def receive_status(self):
-    #     print('receive_status from Read property!', self.__receive_status)
-    #     return self.__receive_status
-    def call_send_thread(self):
-        if self.isRunning():
-            pass
-            # self.send_thread = SendDataToPort(parent=None, ser=self.ser, receive_status=self.__receive_status, ui_main=self.ui)
-            # self.send_thread.start()
-            # print(self.send_thread.isRunning(), self.send_thread.receive_status)
-        else:
-            pass
-            # self.send_thread.terminate()
-
-    def return_receive_status(self):
-        if self.__receive_status and self.__receive_status != '':
-            print(self.__receive_status)
-
-    # def start_send_thread(self):
-    #     send_thread = SendDataToPort(self.ui, ser=self.ser, check_serial_thread=None, read_data_from_port=None)
-    #     send_thread.start()
-    #     if send_thread.isRunning():
-    #         print(send_thread.ser)
 
 class ReadSendPort(QtCore.QThread):
     decode_style = 'NoLF'  # 默认结尾标识：无换行符
@@ -940,8 +946,8 @@ class ReadSendPort(QtCore.QThread):
         self.mutex = QtCore.QMutex()
         self.mutex_sub = QtCore.QMutex()
         self.ui = ui_main
-        self.ser = ser                                   # 用来启动线程时读取串口的ser实例对象
-        self.check_serial_thread = check_serial_thread   # 用来初始化UI操作传入的ser实例对象
+        self.ser = ser  # 用来启动线程时读取串口的ser实例对象
+        self.check_serial_thread = check_serial_thread  # 用来初始化UI操作传入的ser实例对象
         self.__response = None
         self.__receive_status = None
         self.force_level = None
@@ -952,14 +958,27 @@ class ReadSendPort(QtCore.QThread):
         self.run_commands_set_INF = {}
         self.run_commands_set_WD = {}
         self.run_commands_set_GetResponse_INF = {}
+        self.run_commands_set_GetResponse_INF_status = {}
+        self.run_commands_set_GetResponse_WD_status = {}
+        self.run_commands_set_GetResponse = {}
         self.run_commands_set_GetResponse_WD = {}
-        self.run_commands_set_ClearTarget = {}
+        self.run_commands_set_ClearTarget_INF = {}
+        self.run_commands_set_ClearTarget_WD = {}
         self.run_commands_set_Clear_INF = {}
         self.run_commands_set_Clear_WD = {}
         self.run_commands_set_Ramp = {}
-        self.args_list = None
+
+        self.run_INF = {}
+        self.run_WD = {}
+        self.run_INF_WD = {}
+        self.run_WD_INF = {}
+        self.run_commands = {}
+        self.run_commands_list = []
+
+        self.count_outer = 0
+        self.count_inner = 0
         self.timer_run = QtCore.QTimer()
-        self.running_flag = True
+        # self.running_flag = True
 
     @staticmethod
     def set_line_feed_style(ui, sender_check):
@@ -983,24 +1002,25 @@ class ReadSendPort(QtCore.QThread):
     @staticmethod
     def decode_according_to_identifier(decode_style, response):
         if not decode_style or decode_style == 'NoLF':
-            return response.decode(ReadDataFromPort.decode_type, 'replace')
+            return response.decode(ReadSendPort.decode_type, 'replace')
         elif decode_style == 'CR':
-            return response.replace(b'\r', b'\r\n').decode(ReadDataFromPort.decode_type).strip()
+            return response.replace(b'\r', b'\r\n').decode(ReadSendPort.decode_type).strip()
         elif decode_style == 'LF' or decode_style == 'CR&LF':
-            return response.decode(ReadDataFromPort.decode_type, 'replace').strip()
+            return response.decode(ReadSendPort.decode_type, 'replace').strip()
 
     def run(self):
+        # QtCore.QThread.exec(self)
         if self.ser is None:
             self.quit()
             return
         else:
-            print(self.ser)
+            # print(self.ser)
             pass
             # self.start_send_thread()
 
         while self.ser:
             self.mutex.lock()
-            print('Read Send running: ', self.isRunning())
+            # print('Read Send running: ', self.isRunning())
             current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
             response = self.read_single_line()
             # response = self.response
@@ -1100,7 +1120,7 @@ class ReadSendPort(QtCore.QThread):
         self.running_flag = False
         if isinstance(self.check_serial_thread.ser, serial.Serial):
             # self.start()
-            self.check_serial_thread.ser.write('@cat\r\n'.encode(SendDataToPort.encode_type))
+            self.check_serial_thread.ser.write('@cat\r\n'.encode(ReadSendPort.encode_type))
             # print(SendDataToPort.encode_type)
         else:
             pass
@@ -1109,9 +1129,10 @@ class ReadSendPort(QtCore.QThread):
     def ser_command_tilt(self):
         self.mutex_sub.lock()
         if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write('@tilt\r\n'.encode(SendDataToPort.encode_type))
+            self.check_serial_thread.ser.write('@tilt\r\n'.encode(ReadSendPort.encode_type))
         else:
-            logger_info_console_file.warning(f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
+            logger_info_console_file.warning(
+                f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
         self.mutex_sub.unlock()
 
     def get_set_address(self, ui):
@@ -1120,9 +1141,9 @@ class ReadSendPort(QtCore.QThread):
             if ui.address_input.text() and ui.address_input.text() != '':
                 # print('addr.', ui.address_input.text())
                 self.check_serial_thread.ser.write(
-                    ('@addr. ' + str(ui.address_input.text()) + '\r\n').encode(SendDataToPort.encode_type))
+                    ('@addr. ' + str(ui.address_input.text()) + '\r\n').encode(ReadSendPort.encode_type))
             else:
-                self.check_serial_thread.ser.write(('@addr. ' + '\r\n').encode(SendDataToPort.encode_type))
+                self.check_serial_thread.ser.write(('@addr. ' + '\r\n').encode(ReadSendPort.encode_type))
         else:
             pass
         self.mutex_sub.unlock()
@@ -1135,7 +1156,7 @@ class ReadSendPort(QtCore.QThread):
                 current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
                 str_to_send = '@' + ui.lineEdit_send_toPump.currentText() + '\r\n'
                 try:
-                    self.check_serial_thread.ser.write(str_to_send.encode(SendDataToPort.encode_type))
+                    self.check_serial_thread.ser.write(str_to_send.encode(ReadSendPort.encode_type))
                     ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                     # ui.commands_sent.insertHtml(f"<b>{current_time} >></b>\r\n{str_to_send}")
                     ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
@@ -1145,7 +1166,7 @@ class ReadSendPort(QtCore.QThread):
                     if len(self.check_serial_thread.ser.out_waiting) > 4096:
                         self.check_serial_thread.ser.reset_output_buffer()
                         ui.commands_sent.append(f"{current_time} >>\r\nBuffer overflow, clearing buffer...")
-                    self.check_serial_thread.ser.write(str_to_send.encode(SendDataToPort.encode_type))
+                    self.check_serial_thread.ser.write(str_to_send.encode(ReadSendPort.encode_type))
                     ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                     ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
                 # 将输入唯一保存在下拉列表中
@@ -1165,12 +1186,13 @@ class ReadSendPort(QtCore.QThread):
         self.mutex_sub.lock()
         current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
         if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write(('@dim ' + str(value) + '\r\n').encode(SendDataToPort.encode_type))
+            self.check_serial_thread.ser.write(('@dim ' + str(value) + '\r\n').encode(ReadSendPort.encode_type))
             ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
             # ui.commands_sent.insertHtml(f"<b>{current_time} >></b>\r\n{str_to_send}")
             ui.commands_sent.append(f"{current_time} >>\r\nBackground light set to: {str(value)} %")
         else:
-            logger_info_console_file.warning(f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
+            logger_info_console_file.warning(
+                f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
             pass
         self.mutex_sub.unlock()
 
@@ -1179,11 +1201,12 @@ class ReadSendPort(QtCore.QThread):
         self.mutex_sub.lock()
         current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
         if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write(('@force ' + str(value) + '\r\n').encode(SendDataToPort.encode_type))
+            self.check_serial_thread.ser.write(('@force ' + str(value) + '\r\n').encode(ReadSendPort.encode_type))
             ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
             ui.commands_sent.append(f"{current_time} >>\r\nForce limit set to: {str(value)} %")
         else:
-            logger_info_console_file.warning(f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
+            logger_info_console_file.warning(
+                f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
             pass
         self.mutex_sub.unlock()
 
@@ -1199,19 +1222,19 @@ class ReadSendPort(QtCore.QThread):
 
     def fast_forward_btn(self):
         if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write('@run\r\n'.encode(SendDataToPort.encode_type))
+            self.check_serial_thread.ser.write('@run\r\n'.encode(ReadSendPort.encode_type))
         else:
             pass
 
     def rewind_btn(self):
         if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write('@rrun\r\n'.encode(SendDataToPort.encode_type))
+            self.check_serial_thread.ser.write('@rrun\r\n'.encode(ReadSendPort.encode_type))
         else:
             pass
 
     def release_to_stop(self):
         if isinstance(self.check_serial_thread.ser, serial.Serial):
-            self.check_serial_thread.ser.write('@stop\r\n'.encode(SendDataToPort.encode_type))
+            self.check_serial_thread.ser.write('@stop\r\n'.encode(ReadSendPort.encode_type))
         else:
             pass
 
@@ -1231,10 +1254,18 @@ class ReadSendPort(QtCore.QThread):
                                                 "Withdrawn time": "@wtime\r\n",
                                                 "Motor rate": "@crate\r\n",
                                                 "Withdraw rate": "@wrate\r\n"}
-        self.run_commands_set_ClearTarget = {"Clear target t:": "@cttime\r\n",
-                                             "Clear target V:": "@ctvolume\r\n",
-                                             "Writes to memory: OFF:": "@NVRAM\r\n",
-                                             "Default force level": f"@force {self.force_level}\r\n"}
+        self.run_commands_set_GetResponse_INF_status = {'Get response INF:': b"@status\r\n"}
+        self.run_commands_set_GetResponse_WD_status = {'Get response WD:': b"@status\r\n"}
+        # 利用字典键值唯一的特性，在将运行参数全部合并为字典时，@NVRAM\r\n和f"@force {self.force_level}\r\n"只会执行一次
+        self.run_commands_set_ClearTarget_INF = {"Clear target t INF:": "@cttime\r\n",
+                                                 "Clear target V INF:": "@ctvolume\r\n",
+                                                 "Writes to memory: OFF:": "@NVRAM\r\n",
+                                                 "Force level adjusted:": f"@force {self.force_level}\r\n"}
+        self.run_commands_set_ClearTarget_WD = {"Clear target t WD:": "@cttime\r\n",
+                                                "Clear target V WD:": "@ctvolume\r\n",
+                                                "Writes to memory: OFF:": "@NVRAM\r\n",
+                                                "Force level adjusted:": f"@force {self.force_level}\r\n"}
+
         if all(value is not None and value != '' for key, value in setups_dict_quick_mode.items() if
                key in ['Run Mode', 'Syringe Info', 'Flow Parameter']):
             # 注射器选择指令
@@ -1377,37 +1408,159 @@ class ReadSendPort(QtCore.QThread):
                                                   'Please check the port connection.')
             else:
                 if setups_dict_quick_mode['Run Mode'] == 'INF':
-                    self.args_list = (self.ui, self.__receive_status, 800, 100, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_Syrm, self.run_commands_set_INF,
-                                           self.run_commands_set_GetResponse_INF)
-                    self.send_run_commands(*self.args_list)
-                    self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+                    self.run_INF.update(self.run_commands_set_ClearTarget_INF)
+                    self.run_INF.update(self.run_commands_set_Syrm)
+                    self.run_INF.update(self.run_commands_set_INF)
+                    self.run_INF.update(self.run_commands_set_GetResponse_INF_status)
+
+                    self.run_commands = self.run_INF
+                    self.run_commands_list = list(self.run_commands.items())
+                    # self.args_list = (self.ui, self.__receive_status, 800, 100, self.run_commands_set_ClearTarget,
+                    #                   self.run_commands_set_Syrm, self.run_commands_set_INF,
+                    #                   self.run_commands_set_GetResponse_INF)
+                    # self.send_run_commands(*self.args_list)
+                    # self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
                 elif setups_dict_quick_mode['Run Mode'] == 'WD':
-                    self.args_list = (self.ui, self.__receive_status, 800, 100, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_Syrm, self.run_commands_set_WD,
-                                           self.run_commands_set_GetResponse_WD)
-                    self.send_run_commands(*self.args_list)
-                    self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+                    self.run_WD.update(self.run_commands_set_ClearTarget_INF)
+                    self.run_WD.update(self.run_commands_set_Syrm)
+                    self.run_WD.update(self.run_commands_set_WD)
+                    self.run_WD.update(self.run_commands_set_GetResponse_WD_status)
+
+                    self.run_commands = self.run_WD
+                    self.run_commands_list = list(self.run_commands.items())
+                    # self.args_list = (self.ui, self.__receive_status, 800, 100, self.run_commands_set_ClearTarget,
+                    #                   self.run_commands_set_Syrm, self.run_commands_set_WD,
+                    #                   self.run_commands_set_GetResponse_WD)
+                    # self.send_run_commands(*self.args_list)
+                    # # self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
                 elif setups_dict_quick_mode['Run Mode'] == 'INF/ WD':
-                    self.args_list = (self.ui, self.__receive_status, 800, 100, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_Syrm, self.run_commands_set_INF,
-                                           self.run_commands_set_GetResponse_INF, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_WD, self.run_commands_set_GetResponse_WD)
-                    self.send_run_commands(*self.args_list)
-                    self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+                    self.run_INF_WD.update(self.run_commands_set_ClearTarget_INF)
+                    self.run_INF_WD.update(self.run_commands_set_Syrm)
+                    self.run_INF_WD.update(self.run_commands_set_INF)
+                    self.run_INF_WD.update(self.run_commands_set_GetResponse_INF_status)
+
+                    self.run_INF_WD.update(self.run_commands_set_ClearTarget_WD)
+                    self.run_INF_WD.update(self.run_commands_set_Syrm)
+                    self.run_INF_WD.update(self.run_commands_set_WD)
+                    self.run_INF_WD.update(self.run_commands_set_GetResponse_WD_status)
+
+                    self.run_commands = self.run_INF_WD
+                    self.run_commands_list = list(self.run_commands.items())
+                    # self.args_list = (self.ui, self.__receive_status, 800, 100, self.run_commands_set_ClearTarget,
+                    #                   self.run_commands_set_Syrm, self.run_commands_set_INF,
+                    #                   self.run_commands_set_GetResponse_INF, self.run_commands_set_ClearTarget,
+                    #                   self.run_commands_set_WD, self.run_commands_set_GetResponse_WD)
+                    # self.send_run_commands(*self.args_list)
+                    # self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
                 elif setups_dict_quick_mode['Run Mode'] == 'WD/ INF':
-                    self.args_list = (self.ui, self.__receive_status, 800, 100, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_Syrm, self.run_commands_set_WD,
-                                           self.run_commands_set_GetResponse_WD, self.run_commands_set_ClearTarget,
-                                           self.run_commands_set_INF, self.run_commands_set_GetResponse_INF)
-                    self.send_run_commands(*self.args_list)
-                    self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+                    self.run_WD_INF.update(self.run_commands_set_ClearTarget_WD)
+                    self.run_WD_INF.update(self.run_commands_set_Syrm)
+                    self.run_WD_INF.update(self.run_commands_set_WD)
+                    self.run_WD_INF.update(self.run_commands_set_GetResponse_WD_status)
+
+                    self.run_WD_INF.update(self.run_commands_set_ClearTarget_INF)
+                    self.run_WD_INF.update(self.run_commands_set_Syrm)
+                    self.run_WD_INF.update(self.run_commands_set_INF)
+                    self.run_WD_INF.update(self.run_commands_set_GetResponse_INF_status)
+
+                    self.run_commands = self.run_WD_INF
+                    self.run_commands_list = list(self.run_commands.items())
+                    # self.args_list = (self.ui, self.__receive_status, 800, 100, self.run_commands_set_ClearTarget,
+                    #                   self.run_commands_set_Syrm, self.run_commands_set_WD,
+                    #                   self.run_commands_set_GetResponse_WD, self.run_commands_set_ClearTarget,
+                    #                   self.run_commands_set_INF, self.run_commands_set_GetResponse_INF)
+                    # self.send_run_commands(*self.args_list)
+                    # self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
                 else:
                     pass
 
         self.mutex.unlock()
 
-    def send_run_commands(self, ui, status_str, time_run, time_response, *run_dict):
+    def send_run_commands(self):
+        # app = InteractionWithPort(ser=self.check_serial_thread.ser, receive_status=self.__receive_status, run_commands=self.run_commands_list, parent=sys.argv)
+        # app.send_run_commands()
+        if self.count_outer < len(self.run_commands_list):
+            if isinstance(list(self.run_commands_list[self.count_outer])[1], dict):
+                value_to_list = list(self.run_commands_list[self.count_outer])
+                dict_to_list = list(value_to_list[1].values())
+                if self.count_outer < len(self.run_commands_list):  # 控制外层循环
+                    key = dict_to_list[0]
+                    value = dict_to_list[1]
+                    current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+                    self.ui.commands_sent.append(f"{current_time} >>{key}:")
+                    self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
+                    # print(f"{dict_to_list[self.count_inner][0]} - {dict_to_list[self.count_inner][1]}")
+                    self.timer_run.singleShot(1000, self.send_run_commands)
+
+                    # self.count_inner = 0
+                    self.count_outer += 1
+                else:
+                    self.timer_run.stop()
+            elif isinstance(list(self.run_commands_list[self.count_outer])[1], list):
+                value_to_list = list(self.run_commands_list[self.count_outer])
+                if self.count_outer < len(self.run_commands_list):
+                    if self.count_inner < len(value_to_list[1]):
+                        key = list(self.run_commands_list[self.count_outer])[0]
+                        value = list(self.run_commands_list[self.count_outer])[1][self.count_inner]
+                        current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+                        self.ui.commands_sent.append(f"{current_time} >>{key}:")
+                        self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
+                        self.timer_run.singleShot(1000, self.send_run_commands)
+                        self.count_inner += 1
+                    else:
+                        self.count_inner = 0
+                        self.count_outer += 1
+                        self.send_run_commands()
+                else:
+                    self.timer_run.stop()
+            elif isinstance(list(self.run_commands_list[self.count_outer])[1], str):
+                value_to_list = list(self.run_commands_list[self.count_outer])
+                if self.count_outer < len(self.run_commands_list):
+                    key = value_to_list[0]
+                    value = value_to_list[1]
+                    current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+                    self.ui.commands_sent.append(f"{current_time} >>{key}:")
+                    self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
+                    # print(f"{value_to_list[0]} - {value_to_list[1]}")
+                    self.timer_run.singleShot(5000, self.send_run_commands)
+                    # self.count_inner += 1
+                    self.count_outer += 1
+                    # print('count_outer', self.count_outer)
+                    self.send_run_commands()
+                else:
+                    self.count_inner = 0
+                    self.count_outer += 1
+                    self.timer_run.stop()
+            elif isinstance(list(self.run_commands_list[self.count_outer])[1], bytes):
+                value_to_list = list(self.run_commands_list[self.count_outer])
+                # current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+                # self.ui.commands_sent.append(f"{current_time} >>{value_to_list[0]}:")
+                if self.count_outer < len(self.run_commands_list):
+                    if self.count_inner < 10:
+                        self.check_serial_thread.ser.write(value_to_list[1])
+                        self.timer_run.singleShot(50, self.send_run_commands)
+                        self.count_inner += 1
+                    else:
+                        self.count_inner = 0
+                        self.count_outer += 1
+                        # print('count_outer', self.count_outer)
+                        self.send_run_commands()
+                else:
+                    self.timer_run.stop()
+        else:
+            self.timer_run.stop()
+            self.count_outer = 0
+            self.count_inner = 0
+            self.run_commands_list = []
+            self.run_commands = {}
+
+    def send_run_commands_old(self, ui, status_str, time_run, time_response, *run_dict):
+        # self.current_run_dict = run_dict
+        # self.current_run_index = 0
+        # self.send_next_command(self.current_run_index)
+
+        # def send_next_command(self, current_run_index):
+
         self.timer_run.start()
         current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
         for dict_run in run_dict:
@@ -1417,38 +1570,36 @@ class ReadSendPort(QtCore.QThread):
                     for key, value in dict_run.items():
                         ui.commands_sent.append(f"{current_time} >>{key}:")
                         # print(f"{current_time} >>{value}:")
-                        self.check_serial_thread.ser.write(value.encode(SendDataToPort.encode_type))
-                        # QtCore.QCoreApplication.instance().processEvents()
-                        # time.sleep(time_run)
+                        self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
                         # 用QTimer 代替原来的time.sleep()
-                        self.timer_run.singleShot(time_run, QtCore.QCoreApplication.processEvents)
+                        # print(time_run)
+                        # self.timer_run.singleShot(time_run, QtCore.QCoreApplication.processEvents)
+                        self.msleep(time_run)
+                        # time.sleep(time_run)
                         logger_debug_console.debug(status_str)
                 else:
                     for value in dict_run.values():
                         ui.commands_sent.append(f"{current_time}{value['prompt']}")
                         # print(f"{current_time}{value['prompt']}")
-                        self.check_serial_thread.ser.write(value['command'].encode(SendDataToPort.encode_type))
+                        self.check_serial_thread.ser.write(value['command'].encode(ReadSendPort.encode_type))
                         # QtCore.QCoreApplication.instance().processEvents()
                         # time.sleep(time_run)
-                        self.timer_run.singleShot(time_run, QtCore.QCoreApplication.processEvents)
+                        # self.timer_run.singleShot(time_run, QtCore.QCoreApplication.processEvents)
+                        self.msleep(time_run)
+                        # time.sleep(time_run)
                         # 运行到commands_set_INF/WD的'irun/wrun'时，响应会变为：'>'或者'<' || 'INF running', 'WD running'
                         logger_debug_console.debug(status_str)
             elif status_str in ('INF running', 'WD running'):  # 每0.1s向pump发送获取四个参数的命令
-                if isinstance(list(dict_run.values())[0], str):
-                    while True:
-                        commands = ''.join(dict_run.values())
-                        # print('commands', commands)
-                        logger_debug_console.info(f"commands: {commands}")
-                        self.check_serial_thread.ser.write(commands.encode(SendDataToPort.encode_type))
-                        # QtCore.QCoreApplication.instance().processEvents()
-                        # time.sleep(time_response)
-                        self.timer_run.singleShot(time_response, QtCore.QCoreApplication.processEvents)
-                        logger_debug_console.debug(status_str)
+                self.check_serial_thread.ser.write(b'@status\r\n')
+                self.msleep(time_response)
+                # time.sleep(time_response)
+                # self.timer_run.singleShot(time_response, QtCore.QCoreApplication.processEvents)
+                logger_debug_console.debug(status_str)
             elif status_str == 'Target reached':
                 logger_debug_console.debug(status_str)
                 continue
             elif status_str == 'STOP':
-                self.timer_run.stop()
+                # self.timer_run.stop()
                 logger_debug_console.debug(status_str)
                 break
 
@@ -1464,12 +1615,85 @@ class ReadSendPort(QtCore.QThread):
             # print(f"{current_time} >>{key}\r\n")
             if isinstance(self.check_serial_thread.ser, serial.Serial):
                 # ui.commands_sent.append(f"{current_time} >>{key}")
-                self.check_serial_thread.ser.write(value.encode(SendDataToPort.encode_type))
+                self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
                 QtCore.QCoreApplication.instance().processEvents()
                 time.sleep(0.1)
             else:
                 pass
 
+
+"""处理由UI生成的运行参数，继承自QtGui.QGuiApplication"""
+class InteractionWithPort(QtGui.QGuiApplication):
+    def __init__(self, ser, receive_status, run_commands, parent):
+        super().__init__(parent)
+        self.ser = ser
+        self.receive_status = receive_status
+        self.run_commands = run_commands
+        self.timer_run = QtCore.QTimer()
+        self.count_inner = 0
+        self.count_outer = 0
+        self.list_dict_items = self.run_commands
+
+        # print(list_dict_items)  # 返回第一个元组的第一个元素：即'a': {'1': 2, '2': 3, '3': 4},的键“a”
+
+    def send_run_commands(self):
+        if self.count_outer < len(self.list_dict_items):
+            if isinstance(list(self.list_dict_items[self.count_outer])[1], dict):
+                value_to_list = list(self.list_dict_items[self.count_outer])
+                dict_to_list = list(value_to_list[1].values())
+                if self.count_outer < len(self.list_dict_items):  # 控制外层循环
+                    print(f"{dict_to_list[0]} - {dict_to_list[1]}")
+                    self.timer_run.singleShot(800, self.send_run_commands)
+                    # print('count_outer', self.count_outer)
+                    self.count_inner = 0
+                    self.count_outer += 1
+                    # self.print_dict_elements()
+                else:
+                    self.timer_run.stop()
+            elif isinstance(list(self.list_dict_items[self.count_outer])[1], list):
+                value_to_list = list(self.list_dict_items[self.count_outer])
+                if self.count_outer < len(self.list_dict_items):
+                    if self.count_inner < len(value_to_list[1]):
+                        print(
+                            f"{list(self.list_dict_items[self.count_outer])[0]} - {list(self.list_dict_items[self.count_outer])[1][self.count_inner]}")
+                        self.timer_run.singleShot(800, self.send_run_commands)
+                        self.count_inner += 1
+                    else:
+                        self.count_inner = 0
+                        self.count_outer += 1
+                        # print('count_outer', self.count_outer)
+                        self.send_run_commands()
+                else:
+                    self.timer_run.stop()
+            elif isinstance(list(self.list_dict_items[self.count_outer])[1], str):
+                value_to_list = list(self.list_dict_items[self.count_outer])
+                if self.count_outer < len(self.list_dict_items):
+                    print(f"{value_to_list[0]} - {value_to_list[1]}")
+                    self.timer_run.singleShot(500, self.send_run_commands)
+                    self.count_outer += 1
+                else:
+                    # print('count_outer', self.count_outer)
+                    self.timer_run.stop()
+                    self.send_run_commands()
+            elif isinstance(list(self.list_dict_items[self.count_outer])[1], bytes):
+                value_to_list = list(self.list_dict_items[self.count_outer])
+                if self.count_outer < len(self.list_dict_items):
+                    if self.count_inner < 10:
+                        print(f"{value_to_list[0]} - {value_to_list[1]}")
+                        self.timer_run.singleShot(100, self.send_run_commands)
+                        self.count_inner += 1
+                    else:
+                        self.count_inner = 0
+                        self.count_outer += 1
+                        # print('count_outer', self.count_outer)
+                        self.send_run_commands()
+                else:
+                    self.timer_run.stop()
+        else:
+            self.timer_run.stop()
+            self.quit()
+            self.count_outer = 0
+            self.count_inner = 0
 
 """Receive params-dict from port setup dialog"""
 
@@ -1868,6 +2092,7 @@ def validate_and_run(ui, read_send_thread, setups_dict_quick_mode):
     Quick_mode_param_run(ui, setups_dict_quick_mode)
     if setups_dict_quick_mode['Flow Parameter'] is not None and setups_dict_quick_mode['Flow Parameter'] != 'None':
         read_send_thread.ser_quick_mode_command_set(ui, setups_dict_quick_mode)
+        read_send_thread.send_run_commands()
     else:
         pass
 
