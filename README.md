@@ -86,12 +86,23 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 
 &#x2726;  Added support for various encoding/decoding options
 
-&#x2726;  Add a feature to validate the recommended force limit to prevent damage to the selected syringe in case of unexpected events
+&#x2726;  Added a feature to display the recommended force level by hovering on selected syringe to prevent damage to it
 
 ![iKSY6Q.png](https://i.328888.xyz/2023/04/30/iKSY6Q.png)
 
 &#x2726;  Add the 'logging' module for easy debugging and recording of program running status
 
+&#x2726;  Added path hints when saving custom methods
+
+![iPVshx.png](https://i.328888.xyz/2023/05/04/iPVshx.png)
+
 ![iKnCyw.png](https://i.328888.xyz/2023/04/29/iKnCyw.png)
 
 &#x2192; Implement real-time dynamic plotting of data
+
+
+
+# Week 5
+
+&#x2611; Merged the serial port reading and writing threads, so that the response identifier can be used as a sign for command sending
+&#x2611; To prevent UI freezing, deprecate the `time.sleep()` method and use `QtCore.QTimer()` instead
