@@ -203,13 +203,13 @@
      <widget class="QFrame" name="frame_2">
       <property name="minimumSize">
        <size>
-        <width>100</width>
+        <width>130</width>
         <height>0</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>150</width>
+        <width>170</width>
         <height>16777215</height>
        </size>
       </property>
@@ -223,16 +223,6 @@
        <property name="verticalSpacing">
         <number>15</number>
        </property>
-       <item row="0" column="0">
-        <widget class="QComboBox" name="ComboBox_port_name">
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>25</height>
-          </size>
-         </property>
-        </widget>
-       </item>
        <item row="1" column="0">
         <widget class="QComboBox" name="ComboBox_baudrate">
          <property name="minimumSize">
@@ -301,6 +291,16 @@
            <string>8</string>
           </property>
          </item>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QComboBox" name="ComboBox_port_name">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>25</height>
+          </size>
+         </property>
         </widget>
        </item>
        <item row="3" column="0">

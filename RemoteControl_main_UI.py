@@ -1086,7 +1086,7 @@ class Ui_MainWindow(object):
         self.fast_forward_btn.setText(_translate("MainWindow", "FF"))
         self.rewinde_btn.setText(_translate("MainWindow", "RW"))
         self.CatalogGroup.setTitle(_translate("MainWindow", "Msc.1"))
-        self.tilt_sensor_cali_button.setText(_translate("MainWindow", "Tilt"))
+        self.tilt_sensor_cali_button.setText(_translate("MainWindow", "Calibr. Tilt"))
         self.catalog_display_button.setText(_translate("MainWindow", "Catalog"))
         self.BackgroundLightGroup.setTitle(_translate("MainWindow", "Msc.2"))
         self.bgLight_Label.setText(_translate("MainWindow", "BG-Light: "))

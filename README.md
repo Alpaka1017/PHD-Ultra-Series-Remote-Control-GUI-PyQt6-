@@ -105,4 +105,5 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 # Week 5
 
 &#x2611; Merged the serial port reading and writing threads, so that the response identifier can be used as a sign for command sending
+
 &#x2611; To prevent UI freezing, deprecate the `time.sleep()` method and use `QtCore.QTimer()` instead

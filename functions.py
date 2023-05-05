@@ -2,13 +2,14 @@
 import datetime
 import os
 import sys
+import threading
 import time
 from decimal import Decimal
 import re
 import functools
 import qdarktheme
 import serial.tools.list_ports
-from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6 import QtCore, QtGui, QtWidgets, QtSerialPort
 from serial.tools.list_ports import comports
 
 import logging.config
@@ -80,13 +81,15 @@ logger_debug_console = logging.getLogger('logger1')  # Console print
 logger_info_console_file = logging.getLogger('logger2')  # Console & file recording
 
 """Class to be called in MainWindow to set up the port connection"""
-
+# Bug to be solved: switch connection from a normally running port to a occupied port
 
 class CheckSerialThread(QtCore.QThread):
     connection_status_changed = QtCore.pyqtSignal(str)
     serial_connected = QtCore.pyqtSignal(bool)
     port_param_dict = {}
     port_param_dict_previous = {}
+    timeout_count = 0
+    max_timeout = 20
 
     def __init__(self, ui=None, parent=None):
         super().__init__(parent)
@@ -103,6 +106,12 @@ class CheckSerialThread(QtCore.QThread):
         self.mutex = QtCore.QMutex()
         self.mutex_sub = QtCore.QMutex()
         self.auto_reconnect_str = None
+        self.flag_auto_reconnect = True
+
+        # self.timer_reconnect = None
+        # self.timer_reconnect = QtCore.QTimer()
+        # self.timer_reconnect.timeout.connect(self.auto_reconnect_from_failure)
+        # self.count = 0
 
     def run(self):
         self.mutex.lock()
@@ -119,7 +128,7 @@ class CheckSerialThread(QtCore.QThread):
                         self.ser = serial.Serial(**self.port_param_dict_func)
                         # Config buffer zone for port read and write, to avoid crashing of program
                         self.ser.set_buffer_size(rx_size=4096, tx_size=4096)
-                        self.start_read_thread()
+                        # self.start_read_thread()
                         self.start_read_send_thread()
                         # self.start_send_thread()
                         self.ser.flushInput()
@@ -135,19 +144,35 @@ class CheckSerialThread(QtCore.QThread):
                     except serial.SerialException as e:
                         self.connection_status_changed.emit(
                             f"Connection to port {self.port_param_dict_func['port']} failed, check the port usage. {str(e)}")
-                        # Try to connect again if the port is released within 10 seconds
-                        self.auto_reconnect_from_failure(e, self.port_param_dict_func)
+                        # Try to open again if the port is released within 10 seconds
+                        self.connected = False
                         self.serial_connected.emit(False)
 
+                        # self.timer_reconnect = QtCore.QTimer()
+                        # self.timer_reconnect.timeout.connect(self.auto_reconnect_from_failure)
+
+                        # self.timer_reconnect.moveToThread(self)
+                        # self.timer_reconnect.timeout.connect(self.auto_reconnect_from_failure)
+                        # self.timer_reconnect.start(1000)
+                        # self.exec()
+                        # QtCore.QThread.exec(self)
+
+                        # timer_reconnect_thread.start()
+                        # self.timer_resume_start(e)
+                        # self.timer_reconnect.start(1000)
+                        # self.pause_thread()
+                        # print('self.isRunning()', self.isRunning())
+                        self.auto_reconnect_from_failure(e, self.port_param_dict_func)
+                        # self.auto_reconnect_from_failure()
                 elif self.port_param_dict_func['port'] == '':
                     self.connection_status_changed.emit('Fatal Error!')
                     self.serial_connected.emit(False)
-                time.sleep(0.5)
+                # time.sleep(0.5)
         finally:
             self.mutex.unlock()
 
     def set_port_params(self, dict_port):
-        if CheckSerialThread.port_param_dict != dict_port:
+        if CheckSerialThread.port_param_dict != dict_port:   # 从更新参数后恢复
             self.resume_thread()
             self._pause_thread = False
             self.auto_reconnect = True
@@ -156,6 +181,11 @@ class CheckSerialThread(QtCore.QThread):
             self.start(auto_reconnect=True, _pause_thread=False)
 
         if self._pause_thread and not self.auto_reconnect:  # 从stop恢复
+            self.resume_thread()
+            CheckSerialThread.port_param_dict = dict_port
+            self.start(auto_reconnect=True, _pause_thread=False)
+
+        elif not self._pause_thread and self.auto_reconnect:  # 从重连超时恢复
             self.resume_thread()
             CheckSerialThread.port_param_dict = dict_port
             self.start(auto_reconnect=True, _pause_thread=False)
@@ -173,40 +203,30 @@ class CheckSerialThread(QtCore.QThread):
             if self.connected and self.ser is not None and self.ser.is_open:
                 self.connection_status_changed.emit(f"Disconnected from port {self.ser.port}.")
                 self.ser.close()
-                self.stop_read_thread()
-                self.stop_send_thread()
                 self.stop_read_send_thread()
                 self.ser = None
                 self.connected = False
                 self.serial_connected.emit(False)
                 # 自动重连接√，线程休眠x : 由方法调用
                 if auto_reconnect and not _pause_thread:
-                    # pass
                     self.auto_reconnect = True
                     self._pause_thread = False
-                    # print('自动3333dict from current: ', CheckSerialThread.port_param_dict)
-                    # print('自动3333dict from previous: ', CheckSerialThread.port_param_dict_previous)
-                    # self.resume_thread()
-                    # self.resume_thread()
                 # 自动重连x，线程休眠√ : 由按钮断开
                 elif not auto_reconnect and _pause_thread:
                     # pass
+                    # CheckSerialThread.timeout_count = CheckSerialThread.max_timeout
+                    # print(CheckSerialThread.timeout_count)
                     self.auto_reconnect = False
                     self._pause_thread = True
                     self.serial_connected.emit(False)
-                    # print('手动4444dict from current: ', CheckSerialThread.port_param_dict)
-                    # print('手动4444dict from previous: ', CheckSerialThread.port_param_dict_previous)
                     CheckSerialThread.port_param_dict = {}
                     CheckSerialThread.port_param_dict_previous = {}
-                    # print('手动暂停 -> ', self.auto_reconnect, self._pause_thread)
-                    # self.pause_thread()
-                    # self._pause_thread()
             else:
-                pass
+                # self.ser is None时：通过stop按钮停止失败自动重连
+                CheckSerialThread.timeout_count = CheckSerialThread.max_timeout
 
         except Exception as e:
             logger_info_console_file.info(str(e))
-            # print("Failed to disconnect from port:", str(e))
             self.connection_status_changed.emit("Failed to disconnect from port: " + str(e))
             self.connected = False
             self.ser = None
@@ -220,18 +240,88 @@ class CheckSerialThread(QtCore.QThread):
         self._pause_thread = False
         self.wait_condition.wakeAll()
 
+    def timer_resume_start(self, error_port):
+        # print('timer_resume_start called!')
+        if error_port:
+            # print(error_port)
+            # self.timer_reconnect.timeout.disconnect()
+            # self.timer_reconnect.timeout.connect(self.auto_reconnect_from_failure)
+            # self.timer_reconnect.start(1000)
+            # print(self.timer_reconnect.timerId())
+            pass
+
+    # def auto_reconnect_from_failure(self):
+    #     # Using QTimer to substitute time.sleep(), deprecated due to compatibility problem of QTimer in QThread
+    #     print('auto_reconnect_from_failure called!')
+    #     dict_port = CheckSerialThread.port_param_dict
+    #     print(self.count)
+    #     if self.count < 10:
+    #         if self.ser is None and not self.connected:
+    #             self.connection_status_changed.emit(
+    #                 f"Try to reconnect port {self.port_param_dict_func['port']}, timeout : {int(10 - self.count)}s.")
+    #             try:
+    #                 self.ser = serial.Serial(**dict_port)
+    #             except Exception as e:
+    #                 logger_info_console_file.info(f"1111111 {str(e)}")
+    #             finally:
+    #                 self.count += 1
+    #                 # self.timer_reconnect.start(500)
+    #                 self.timer_reconnect.singleShot(500, self.auto_reconnect_from_failure)
+    #                 print(self.count)
+    #         else:
+    #             self.connected = True
+    #             self.ser.set_buffer_size(rx_size=4096, tx_size=4096)
+    #             self.start_read_send_thread()
+    #             self.ser.flushInput()
+    #             self.ser.flushOutput()
+    #             self.connection_status_changed.emit(f"Successfully reconnected to port {self.ser.port}.")
+    #             self.serial_connected.emit(True)
+    #             CheckSerialThread.port_param_dict = {}
+    #             return
+    #     else:
+    #         self.timer_reconnect.stop()
+    #         self.count = 0
+    #         self.connection_status_changed.emit(f"Reconnection to port {dict_port['port']} failed, please check "
+    #                                             f"the port usage.")
+    #         self.serial_connected.emit(False)
+    #         self.ser = None
+    #         self._pause_thread = True
+    #         self.auto_reconnect = False
+    #                 # break
+    #             # except Exception as e:
+    #                 # count = 0
+    #                 # print(count)
+    #                 #
+    #             # print(self.count)
+    #             # # finally:
+    #             # self.count += 1
+    #
+    #             # time.sleep(0.5)
+    #         # continue
+    #             # self.auto_reconnect_from_failure(failure_str=failure_str, dict_port=dict_port)
+    #         # else:
+    #         #     self.count = 0
+    #         #     self.connection_status_changed.emit(f"Reconnection to port {dict_port['port']} failed, please check "
+    #         #                                         f"the port usage.")
+    #         #     self.serial_connected.emit(False)
+    #         #     self.ser = None
+    #         #     self._pause_thread = False
+    #         #     self.auto_reconnect = True
+    #
     def auto_reconnect_from_failure(self, failure_str, dict_port):
-        if isinstance(failure_str, serial.SerialException):
-            count = 0
-            while not self.ser and count < 20:
+        # 通过已连接的串口向被占用串口切换的时候，要停止当前的线程，否则会造成time.sleep()抢占线程资源，导致无法自动连接
+        self._pause_thread = True
+        self.auto_reconnect = False
+        if failure_str:
+            self.mutex_sub.lock()
+            CheckSerialThread.timeout_count = 0
+            while (self.ser is None or not self.connected) and CheckSerialThread.timeout_count < CheckSerialThread.max_timeout:
                 self.connection_status_changed.emit(
-                    f"Connection to port {self.port_param_dict_func['port']} failed, timeout of reconnection : {int(10 - count * 0.5)}s.")
+                    f"Try to reconnect port {self.port_param_dict_func['port']}, timeout : {int(CheckSerialThread.max_timeout/2 - CheckSerialThread.timeout_count * 0.5)}s.")
                 try:
                     self.ser = serial.Serial(**dict_port)
                     self.ser.set_buffer_size(rx_size=4096, tx_size=4096)
                     self.connected = True
-                    self.start_read_thread()
-                    self.start_send_thread()
                     self.start_read_send_thread()
                     self.ser.flushInput()
                     self.ser.flushOutput()
@@ -240,15 +330,20 @@ class CheckSerialThread(QtCore.QThread):
                     CheckSerialThread.port_param_dict = {}
                     break
                 except Exception as e:
-                    logger_info_console_file.info(str(e))
-                count += 1
-                time.sleep(0.5)
+                    logger_info_console_file.info(f"{str(e)}")
+                    CheckSerialThread.timeout_count += 1
+                    time.sleep(0.5)
+            else:
+                CheckSerialThread.timeout_count = 0
                 self.connection_status_changed.emit(f"Reconnection to port {dict_port['port']} failed, please check "
                                                     f"the port usage.")
                 self.serial_connected.emit(False)
                 self.ser = None
-                self._pause_thread = True
-                self.auto_reconnect = False
+                self.connected = False
+                self._pause_thread = False
+                self.auto_reconnect = True
+
+            self.mutex_sub.unlock()
 
     # @staticmethod
     def get_ser(self):
@@ -287,7 +382,9 @@ class CheckSerialThread(QtCore.QThread):
 
     def stop_read_send_thread(self):
         if self.read_send_thread:
-            self.read_send_thread.terminate()
+            # self.read_send_thread.terminate()
+            self.read_send_thread.stop()
+            self.read_send_thread.wait()
 
     # Check port usage: deprecated
     @staticmethod
@@ -941,6 +1038,8 @@ class ReadSendPort(QtCore.QThread):
     decode_type = 'utf-8'
     encode_type = 'utf-8'
 
+    __receive_status = None
+
     def __init__(self, check_serial_thread=None, ser=None, ui_main=None, parent=None):
         super().__init__(parent)
         self.mutex = QtCore.QMutex()
@@ -951,6 +1050,8 @@ class ReadSendPort(QtCore.QThread):
         self.__response = None
         self.__receive_status = None
         self.force_level = None
+
+        self.running = True
 
         self.run_commands_set_ButtonClear = {}
         self.run_commands_set = {}
@@ -996,7 +1097,7 @@ class ReadSendPort(QtCore.QThread):
             ReadSendPort.decode_style = 'CR&LF'
         logger_debug_console.info(
             f"set_line_feed_style called! Current decoding format: {ReadSendPort.decode_style}")
-        logger_debug_console.info(f"当前结尾标识符: {ReadSendPort.__line_feed_type}")
+        logger_debug_console.info(f"Current ending identifier: {ReadSendPort.__line_feed_type}")
         return ReadSendPort.__line_feed_type, ReadSendPort.decode_style
 
     @staticmethod
@@ -1018,7 +1119,7 @@ class ReadSendPort(QtCore.QThread):
             pass
             # self.start_send_thread()
 
-        while self.ser:
+        while self.ser and self.running:
             self.mutex.lock()
             # print('Read Send running: ', self.isRunning())
             current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
@@ -1036,36 +1137,39 @@ class ReadSendPort(QtCore.QThread):
                 response_dec = self.decode_according_to_identifier(decode_style=ReadSendPort.decode_style,
                                                                    response=response)
                 if response_dec.endswith(':'):
-                    self.__receive_status = 'Continue'
-                    print('self.receive_status_instance: ', self.__receive_status)
+                    ReadSendPort.__receive_status = "Continue"
+                    self.__receive_status = "Continue"
+                    print('Current running status: ', ReadSendPort.__receive_status)
                     self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
                     # print(f"{current_time} >>\n{response_dec}\n")
                     self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                     QtCore.QCoreApplication.instance().processEvents()
                 elif response_dec.endswith('>'):
-                    self.__receive_status = 'INF running'
-                    print('self.receive_status_instance: ', self.__receive_status)
+                    ReadSendPort.__receive_status = "INF running"
+                    self.__receive_status = "INF running"
+                    print('Current running status: ', ReadSendPort.__receive_status)
                     self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
                     self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                     QtCore.QCoreApplication.instance().processEvents()
                 elif response_dec.endswith('<'):
-                    self.__receive_status = 'WD running'
-                    print('self.receive_status_instance: ', self.__receive_status)
+                    ReadSendPort.__receive_status = "WD running"
+                    self.__receive_status = "WD running"
+                    print('Current running status: ', ReadSendPort.__receive_status)
                     self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
                     self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                     QtCore.QCoreApplication.instance().processEvents()
                 elif response_dec.endswith('*'):
                     if response_dec[-2:] == 'T*':
-                        # self.receive_status.emit('Target reached')
+                        ReadSendPort.__receive_status = "Target reached"
                         self.__receive_status = "Target reached"
-                        print('self.receive_status_instance: ', self.__receive_status)
+                        print('Current running status: ', ReadSendPort.__receive_status)
                         self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
                         self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                         QtCore.QCoreApplication.instance().processEvents()
                     else:
-                        # self.receive_status.emit('STOP')
+                        ReadSendPort.__receive_status = "STOP"
                         self.__receive_status = "STOP"
-                        print('self.receive_status_instance: ', self.__receive_status)
+                        print('Current running status: ', ReadSendPort.__receive_status)
                         self.ui.Response_from_pump.append(f"{current_time} >>\n{response_dec}\n")
                         self.ui.Response_from_pump.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                         QtCore.QCoreApplication.instance().processEvents()
@@ -1093,12 +1197,17 @@ class ReadSendPort(QtCore.QThread):
                         if line.endswith(ReadSendPort.__line_feed_type):  # default: no end identifier
                             break
             except Exception as e:
-                logger_info_console_file.info(e)
+                # print(e.__class__)
+                if not isinstance(e, AttributeError):
+                    logger_info_console_file.info(e)
         # print('self.response multi-line: ', self.response)
         if self.__response and self.__response != b'':
             pass
             # logger_debug_console.debug(f'Response from read function, multi-lines: {self.__response}')
         return self.__response
+
+    def stop(self):
+        self.running = False
 
     @staticmethod
     def set_decode_format(ui, decode_sender):
@@ -1109,15 +1218,8 @@ class ReadSendPort(QtCore.QThread):
         return ReadSendPort.decode_type
 
     def ser_command_catalog(self):
-        # print('ser_command_catalog called!')
-        # print('From send thread: ', self.ser)
-        # print(self.check_serial_thread.ser, type(self.check_serial_thread.ser))
-        # print(self.check_serial_thread, self.read_data_from_port)
-        # self.status_str = self.read_data_from_port.receive_status()
-        # print('self.check_serial_thread.ser', self.check_serial_thread.ser)
-        # print('self.ser', self.ser)
         self.mutex_sub.lock()
-        self.running_flag = False
+        # self.running_flag = False
         if isinstance(self.check_serial_thread.ser, serial.Serial):
             # self.start()
             self.check_serial_thread.ser.write('@cat\r\n'.encode(ReadSendPort.encode_type))
@@ -1162,14 +1264,14 @@ class ReadSendPort(QtCore.QThread):
                     ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
                 except Exception as e:
                     logger_info_console_file.warning(e)
-                    # 如果数据未能成功写入，并且超过了缓冲区最大限制，则重置buffer
+                    # If data are failed to write in, and exceed the maximum buffer size, then reset the buffer
                     if len(self.check_serial_thread.ser.out_waiting) > 4096:
                         self.check_serial_thread.ser.reset_output_buffer()
                         ui.commands_sent.append(f"{current_time} >>\r\nBuffer overflow, clearing buffer...")
                     self.check_serial_thread.ser.write(str_to_send.encode(ReadSendPort.encode_type))
                     ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
                     ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
-                # 将输入唯一保存在下拉列表中
+                # Unique enter will be stored in ComboBox-Widgets
                 if ui.lineEdit_send_toPump.currentText() not in [ui.lineEdit_send_toPump.itemText(i) for i in
                                                                  range(ui.lineEdit_send_toPump.count())]:
                     ui.lineEdit_send_toPump.addItem(ui.lineEdit_send_toPump.currentText())
@@ -1477,76 +1579,96 @@ class ReadSendPort(QtCore.QThread):
         self.mutex.unlock()
 
     def send_run_commands(self):
-        # app = InteractionWithPort(ser=self.check_serial_thread.ser, receive_status=self.__receive_status, run_commands=self.run_commands_list, parent=sys.argv)
-        # app.send_run_commands()
+        # print(self.count_outer, len(self.run_commands_list))
+        # print(self.run_commands_list)
         if self.count_outer < len(self.run_commands_list):
-            if isinstance(list(self.run_commands_list[self.count_outer])[1], dict):
-                value_to_list = list(self.run_commands_list[self.count_outer])
-                dict_to_list = list(value_to_list[1].values())
-                if self.count_outer < len(self.run_commands_list):  # 控制外层循环
-                    key = dict_to_list[0]
-                    value = dict_to_list[1]
-                    current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-                    self.ui.commands_sent.append(f"{current_time} >>{key}:")
-                    self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
-                    # print(f"{dict_to_list[self.count_inner][0]} - {dict_to_list[self.count_inner][1]}")
-                    self.timer_run.singleShot(1000, self.send_run_commands)
-
-                    # self.count_inner = 0
-                    self.count_outer += 1
-                else:
-                    self.timer_run.stop()
-            elif isinstance(list(self.run_commands_list[self.count_outer])[1], list):
-                value_to_list = list(self.run_commands_list[self.count_outer])
-                if self.count_outer < len(self.run_commands_list):
-                    if self.count_inner < len(value_to_list[1]):
-                        key = list(self.run_commands_list[self.count_outer])[0]
-                        value = list(self.run_commands_list[self.count_outer])[1][self.count_inner]
+            # print(ReadSendPort.__receive_status)
+            if ReadSendPort.__receive_status in (None, 'Continue', 'Target reached'):
+                if isinstance(list(self.run_commands_list[self.count_outer])[1], dict):
+                    value_to_list = list(self.run_commands_list[self.count_outer])
+                    dict_to_list = list(value_to_list[1].values())
+                    if self.count_outer < len(self.run_commands_list):  # 控制外层循环
+                        key = dict_to_list[0]
+                        value = dict_to_list[1]
                         current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-                        self.ui.commands_sent.append(f"{current_time} >>{key}:")
+                        self.ui.commands_sent.append(f"{current_time}{key}\r\n")
                         self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
                         self.timer_run.singleShot(1000, self.send_run_commands)
-                        self.count_inner += 1
-                    else:
-                        self.count_inner = 0
+
                         self.count_outer += 1
-                        self.send_run_commands()
-                else:
-                    self.timer_run.stop()
-            elif isinstance(list(self.run_commands_list[self.count_outer])[1], str):
-                value_to_list = list(self.run_commands_list[self.count_outer])
-                if self.count_outer < len(self.run_commands_list):
-                    key = value_to_list[0]
-                    value = value_to_list[1]
-                    current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-                    self.ui.commands_sent.append(f"{current_time} >>{key}:")
-                    self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
-                    # print(f"{value_to_list[0]} - {value_to_list[1]}")
-                    self.timer_run.singleShot(5000, self.send_run_commands)
-                    # self.count_inner += 1
-                    self.count_outer += 1
-                    # print('count_outer', self.count_outer)
-                    self.send_run_commands()
-                else:
-                    self.count_inner = 0
-                    self.count_outer += 1
-                    self.timer_run.stop()
-            elif isinstance(list(self.run_commands_list[self.count_outer])[1], bytes):
-                value_to_list = list(self.run_commands_list[self.count_outer])
-                # current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-                # self.ui.commands_sent.append(f"{current_time} >>{value_to_list[0]}:")
-                if self.count_outer < len(self.run_commands_list):
-                    if self.count_inner < 10:
-                        self.check_serial_thread.ser.write(value_to_list[1])
-                        self.timer_run.singleShot(50, self.send_run_commands)
-                        self.count_inner += 1
                     else:
-                        self.count_inner = 0
+                        self.timer_run.stop()
+                elif isinstance(list(self.run_commands_list[self.count_outer])[1], list):
+                    value_to_list = list(self.run_commands_list[self.count_outer])
+                    if self.count_outer < len(self.run_commands_list):
+                        if self.count_inner < len(value_to_list[1]):
+                            key = list(self.run_commands_list[self.count_outer])[0]
+                            value = list(self.run_commands_list[self.count_outer])[1][self.count_inner]
+                            current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+                            self.ui.commands_sent.append(f"{current_time} >>{key}")
+                            self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
+                            self.timer_run.singleShot(1000, self.send_run_commands)
+                            self.count_inner += 1
+                        else:
+                            self.count_inner = 0
+                            self.count_outer += 1
+                            self.send_run_commands()
+                    else:
+                        self.timer_run.stop()
+                elif isinstance(list(self.run_commands_list[self.count_outer])[1], str):
+                    value_to_list = list(self.run_commands_list[self.count_outer])
+                    if self.count_outer < len(self.run_commands_list):
+                        key = value_to_list[0]
+                        value = value_to_list[1]
+                        current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+                        self.ui.commands_sent.append(f"{current_time} >>{key}\r\n")
+                        self.check_serial_thread.ser.write(value.encode(ReadSendPort.encode_type))
+                        self.timer_run.singleShot(1000, self.send_run_commands)
                         self.count_outer += 1
                         # print('count_outer', self.count_outer)
                         self.send_run_commands()
-                else:
-                    self.timer_run.stop()
+                    else:
+                        self.timer_run.stop()
+                elif isinstance(list(self.run_commands_list[self.count_outer])[1], bytes):
+                    if self.count_outer < len(self.run_commands_list):
+                        self.count_outer += 1
+                        self.send_run_commands()
+                    else:
+                        self.timer_run.stop()
+            elif ReadSendPort.__receive_status in ("INF running", "WD running"):
+                # elif isinstance(list(self.run_commands_list[self.count_outer])[1], bytes):
+                #     value_to_list = list(self.run_commands_list[self.count_outer])
+                #     # current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+                #     # self.ui.commands_sent.append(f"{current_time} >>{value_to_list[0]}:")
+                #     if self.count_outer < len(self.run_commands_list):
+                #         print(self.__receive_status)
+                #         if self.__receive_status in ('INF running', 'WD running'):
+                #             self.check_serial_thread.ser.write(value_to_list[1])
+                #             self.timer_run.singleShot(100, self.send_run_commands)
+                #             self.count_inner += 1
+                #         else:
+                #             self.count_inner = 0
+                #             self.count_outer += 1
+                #             # print('count_outer', self.count_outer)
+                #             self.send_run_commands()
+                #     else:
+                #         self.timer_run.stop()
+
+            # elif self.__receive_status in ('INF running', 'WD running'):
+                print('读取到响应：正在运行')
+                self.check_serial_thread.ser.write(b"@status\r\n")
+                self.timer_run.singleShot(100, self.send_run_commands)
+                # self.send_run_commands()
+
+            elif self.__receive_status == 'Target reached':
+                self.count_outer += 1
+                self.send_run_commands()
+            elif self.__receive_status == 'STOP':
+                self.timer_run.stop()
+                # self.count_outer = 0
+                # self.count_inner = 0
+                # self.run_commands_list = []
+                # self.run_commands = {}
         else:
             self.timer_run.stop()
             self.count_outer = 0
@@ -1560,7 +1682,6 @@ class ReadSendPort(QtCore.QThread):
         # self.send_next_command(self.current_run_index)
 
         # def send_next_command(self, current_run_index):
-
         self.timer_run.start()
         current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
         for dict_run in run_dict:
@@ -1608,9 +1729,9 @@ class ReadSendPort(QtCore.QThread):
                                            "Clear infused volume": "@civolume\r\n"}
         self.run_commands_set_Clear_WD = {"Clear withdrawn time": "@cwtime\r\n",
                                           "Clear withdrawn volume": "@cwvolume\r\n"}
-        self.run_commands_set_ButtonClear = {"Clear target t:": "@cttime\r\n",
-                                             "Clear target V:": "@ctvolume\r\n"}
-        current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
+        self.run_commands_set_ButtonClear = {"Clear target t:": "@ctime\r\n",
+                                             "Clear target V:": "@cvolume\r\n"}
+        # current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
         for key, value in self.run_commands_set_ButtonClear.items():
             # print(f"{current_time} >>{key}\r\n")
             if isinstance(self.check_serial_thread.ser, serial.Serial):
@@ -1620,6 +1741,8 @@ class ReadSendPort(QtCore.QThread):
                 time.sleep(0.1)
             else:
                 pass
+
+    # def graphics_display_
 
 
 """处理由UI生成的运行参数，继承自QtGui.QGuiApplication"""
@@ -1724,12 +1847,12 @@ def update_connection_status(ui, status: str):
     if "Successfully" in status:
         ui.status_label.setStyleSheet('QLabel {color:green; font: 57 9pt "Open Sans Medium";}')
         # ui.statusBar().setStyleSheet("color:green")
-    elif "failed" and "Reconnection" in status:
+    elif "Reconnection to port" and "failed" in status:
         # ui.statusBar().setStyleSheet("color:red")
         ui.status_label.setStyleSheet('QLabel {color:red; font: 57 9pt "Open Sans Medium";}')
     elif 'Fatal Error!' in status:
         QtWidgets.QMessageBox.critical(ui, 'Port Error!', 'No port specified!')
-    elif "Disconnected" in status:
+    elif "Disconnected from port" in status:
         # ui.statusBar().setStyleSheet("color: grey")
         ui.status_label.setStyleSheet('QLabel {color:grey; font: 57 9pt "Open Sans Medium";}')
     else:
@@ -2115,7 +2238,7 @@ def show_port_setup_dialog(child_ui_port):
 # for port_child_ui: auto-detection and list the available serial ports
 def detect_ports(combo_box):
     combo_box.clear()
-    ports = [port.device for port in comports()]
+    ports = [f"{port[0]}: {port[1]}" for port in comports()]
     combo_box.addItems(ports)
 
 

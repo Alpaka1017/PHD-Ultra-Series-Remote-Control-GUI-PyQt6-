@@ -70,7 +70,7 @@ class Ui_Dialog_PortSetup(object):
         self.horizontalLayout.addWidget(self.frame)
         self.frame_2 = QtWidgets.QFrame(parent=self.groupBox)
         self.frame_2.setMinimumSize(QtCore.QSize(100, 0))
-        self.frame_2.setMaximumSize(QtCore.QSize(150, 16777215))
+        self.frame_2.setMaximumSize(QtCore.QSize(170, 16777215))
         self.frame_2.setFrameShape(QtWidgets.QFrame.Shape.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Shadow.Raised)
         self.frame_2.setObjectName("frame_2")

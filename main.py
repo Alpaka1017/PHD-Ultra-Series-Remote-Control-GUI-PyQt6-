@@ -336,7 +336,7 @@ class PortSetupChildWindow(QtWidgets.QDialog, Ui_Dialog_PortSetup):
         self.port_param_dict = {}
         self.parity_list = ['N', 'E', 'O', 'M', 'S']
 
-        self.baudrate_current = None,
+        self.baudrate_current = None
         # 只允许用户输入整型数值
         self.validator = QtGui.QIntValidator(self)
         self.line_timeout.setValidator(self.validator)
@@ -360,7 +360,7 @@ class PortSetupChildWindow(QtWidgets.QDialog, Ui_Dialog_PortSetup):
         # is None会返回一个value=''的键值对，如果这里为 !=''的话，就会删掉这个键值对
         if self.ComboBox_port_name.currentText() is not None:
             if self.ComboBox_port_name.currentText() != '':
-                self.port_param_dict['port'] = self.ComboBox_port_name.currentText()
+                self.port_param_dict['port'] = self.ComboBox_port_name.currentText().split(':')[0]
             else:
                 self.port_param_dict['port'] = ''
                 QtWidgets.QMessageBox.information(self, 'Invalid setup', 'Please check the available ports status.')
