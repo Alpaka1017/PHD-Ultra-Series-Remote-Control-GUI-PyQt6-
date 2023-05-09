@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>251</width>
-    <height>301</height>
+    <width>279</width>
+    <height>315</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,162 +17,200 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>265</y>
-     <width>191</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QGroupBox" name="groupBox">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>231</width>
-     <height>251</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QGroupBox {
+  <layout class="QGridLayout" name="gridLayout_4">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
+      <widget class="QFrame" name="frame">
+       <property name="minimumSize">
+        <size>
+         <width>190</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::StyledPanel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBox">
+          <property name="minimumSize">
+           <size>
+            <width>180</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QGroupBox {
 	
 	font: 57 9pt &quot;Open Sans Medium&quot;;
 }</string>
-   </property>
-   <property name="title">
-    <string>Steps</string>
-   </property>
-   <widget class="QListWidget" name="listWidget">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>24</y>
-      <width>211</width>
-      <height>217</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">QListWidget::item {
+          </property>
+          <property name="title">
+           <string>Steps</string>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="0">
+            <widget class="QListWidget" name="listWidget">
+             <property name="minimumSize">
+              <size>
+               <width>170</width>
+               <height>220</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QListWidget::item {
     margin-top: 5px;
 }
 </string>
-    </property>
-    <item>
-     <property name="text">
-      <string>Constant rate</string>
-     </property>
-     <property name="font">
-      <font>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="icon">
-      <iconset resource="image/Resource_StepsDefine_image.qrc">
-       <normaloff>:/icon_/const_icon.png</normaloff>:/icon_/const_icon.png</iconset>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Ramp rate</string>
-     </property>
-     <property name="font">
-      <font>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="icon">
-      <iconset resource="image/Resource_StepsDefine_image.qrc">
-       <normaloff>:/icon_/ramp_icon.png</normaloff>:/icon_/ramp_icon.png</iconset>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Stepped rate</string>
-     </property>
-     <property name="font">
-      <font>
-       <weight>50</weight>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="icon">
-      <iconset resource="image/Resource_StepsDefine_image.qrc">
-       <normaloff>:/icon_/stepped_icon.png</normaloff>:/icon_/stepped_icon.png</iconset>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Pulse flow</string>
-     </property>
-     <property name="icon">
-      <iconset resource="image/Resource_StepsDefine_image.qrc">
-       <normaloff>:/icon_/pulse_icon.png</normaloff>:/icon_/pulse_icon.png</iconset>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Bolus delivery</string>
-     </property>
-     <property name="icon">
-      <iconset resource="image/Resource_StepsDefine_image.qrc">
-       <normaloff>:/icon_/bolus_icon.png</normaloff>:/icon_/bolus_icon.png</iconset>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Concentration delivery</string>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>9</pointsize>
-       <weight>50</weight>
-       <bold>false</bold>
-       <strikeout>false</strikeout>
-       <stylestrategy>PreferDefault</stylestrategy>
-       <kerning>true</kerning>
-      </font>
-     </property>
-     <property name="icon">
-      <iconset resource="image/Resource_StepsDefine_image.qrc">
-       <normaloff>:/icon_/concentration_icon.png</normaloff>:/icon_/concentration_icon.png</iconset>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Gradient</string>
-     </property>
-     <property name="icon">
-      <iconset resource="image/Resource_StepsDefine_image.qrc">
-       <normaloff>:/icon_/gradient_icon.png</normaloff>:/icon_/gradient_icon.png</iconset>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>Autofill</string>
-     </property>
-     <property name="font">
-      <font>
-       <underline>false</underline>
-      </font>
-     </property>
-     <property name="icon">
-      <iconset resource="image/Resource_StepsDefine_image.qrc">
-       <normaloff>:/icon_/autofill_icon.png</normaloff>:/icon_/autofill_icon.png</iconset>
-     </property>
-    </item>
-   </widget>
-  </widget>
+             </property>
+             <item>
+              <property name="text">
+               <string>Constant rate</string>
+              </property>
+              <property name="font">
+               <font>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="icon">
+               <iconset resource="image/Resource_StepsDefine_image.qrc">
+                <normaloff>:/icon_/const_icon.png</normaloff>:/icon_/const_icon.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Ramp rate</string>
+              </property>
+              <property name="font">
+               <font>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="icon">
+               <iconset resource="image/Resource_StepsDefine_image.qrc">
+                <normaloff>:/icon_/ramp_icon.png</normaloff>:/icon_/ramp_icon.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Stepped rate</string>
+              </property>
+              <property name="font">
+               <font>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
+              </property>
+              <property name="icon">
+               <iconset resource="image/Resource_StepsDefine_image.qrc">
+                <normaloff>:/icon_/stepped_icon.png</normaloff>:/icon_/stepped_icon.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Pulse flow</string>
+              </property>
+              <property name="icon">
+               <iconset resource="image/Resource_StepsDefine_image.qrc">
+                <normaloff>:/icon_/pulse_icon.png</normaloff>:/icon_/pulse_icon.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Bolus delivery</string>
+              </property>
+              <property name="icon">
+               <iconset resource="image/Resource_StepsDefine_image.qrc">
+                <normaloff>:/icon_/bolus_icon.png</normaloff>:/icon_/bolus_icon.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Concentration delivery</string>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
+                <strikeout>false</strikeout>
+                <stylestrategy>PreferDefault</stylestrategy>
+                <kerning>true</kerning>
+               </font>
+              </property>
+              <property name="icon">
+               <iconset resource="image/Resource_StepsDefine_image.qrc">
+                <normaloff>:/icon_/concentration_icon.png</normaloff>:/icon_/concentration_icon.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Gradient</string>
+              </property>
+              <property name="icon">
+               <iconset resource="image/Resource_StepsDefine_image.qrc">
+                <normaloff>:/icon_/gradient_icon.png</normaloff>:/icon_/gradient_icon.png</iconset>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Autofill</string>
+              </property>
+              <property name="font">
+               <font>
+                <underline>false</underline>
+               </font>
+              </property>
+              <property name="icon">
+               <iconset resource="image/Resource_StepsDefine_image.qrc">
+                <normaloff>:/icon_/autofill_icon.png</normaloff>:/icon_/autofill_icon.png</iconset>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QDialogButtonBox" name="buttonBox">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="standardButtons">
+           <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
  <resources>
   <include location="image/Resource_StepsDefine_image.qrc"/>

@@ -11,7 +11,7 @@
     <x>0</x>
     <y>0</y>
     <width>885</width>
-    <height>841</height>
+    <height>839</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -238,6 +238,12 @@ QStatusBar QLabel {
              <height>0</height>
             </size>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>150</height>
+            </size>
+           </property>
            <property name="styleSheet">
             <string notr="true"/>
            </property>
@@ -273,7 +279,7 @@ QStatusBar QLabel {
                <item>
                 <widget class="QPushButton" name="port_button_stop">
                  <property name="text">
-                  <string>Stop</string>
+                  <string>Close</string>
                  </property>
                 </widget>
                </item>
@@ -610,7 +616,7 @@ QStatusBar QLabel {
            <property name="maximumSize">
             <size>
              <width>1000</width>
-             <height>280</height>
+             <height>400</height>
             </size>
            </property>
            <property name="sizeIncrement">
@@ -629,25 +635,19 @@ QStatusBar QLabel {
             <string>Flow Rate Diagram</string>
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>9</number>
+            </property>
+            <property name="bottomMargin">
+             <number>9</number>
+            </property>
             <item>
-             <widget class="QGraphicsView" name="graphicsView">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+             <widget class="QFrame" name="frame_graphical_display">
+              <property name="frameShape">
+               <enum>QFrame::StyledPanel</enum>
               </property>
-              <property name="cursor" stdset="0">
-               <cursorShape>CrossCursor</cursorShape>
-              </property>
-              <property name="mouseTracking">
-               <bool>true</bool>
-              </property>
-              <property name="toolTip">
-               <string/>
-              </property>
-              <property name="toolTipDuration">
-               <number>-1</number>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
               </property>
              </widget>
             </item>
@@ -655,13 +655,13 @@ QStatusBar QLabel {
              <widget class="QFrame" name="GraphicButtonGroup">
               <property name="minimumSize">
                <size>
-                <width>150</width>
+                <width>100</width>
                 <height>0</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>150</width>
+                <width>100</width>
                 <height>16777215</height>
                </size>
               </property>
@@ -673,10 +673,10 @@ QStatusBar QLabel {
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_5">
                <property name="leftMargin">
-                <number>25</number>
+                <number>9</number>
                </property>
                <property name="rightMargin">
-                <number>25</number>
+                <number>9</number>
                </property>
                <item>
                 <widget class="QPushButton" name="Pause_button">
@@ -698,7 +698,7 @@ QStatusBar QLabel {
                <item>
                 <widget class="QPushButton" name="Reset_button">
                  <property name="text">
-                  <string>Clear</string>
+                  <string>Reset</string>
                  </property>
                 </widget>
                </item>
@@ -720,7 +720,13 @@ QStatusBar QLabel {
            <property name="minimumSize">
             <size>
              <width>575</width>
-             <height>310</height>
+             <height>150</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>270</height>
             </size>
            </property>
            <property name="styleSheet">
@@ -759,7 +765,7 @@ QStatusBar QLabel {
               <property name="maximumSize">
                <size>
                 <width>500</width>
-                <height>16777215</height>
+                <height>300</height>
                </size>
               </property>
               <property name="sizeIncrement">
@@ -810,7 +816,7 @@ QStatusBar QLabel {
                  <property name="minimumSize">
                   <size>
                    <width>260</width>
-                   <height>100</height>
+                   <height>70</height>
                   </size>
                  </property>
                  <property name="maximumSize">
@@ -868,7 +874,7 @@ QStatusBar QLabel {
               <property name="maximumSize">
                <size>
                 <width>500</width>
-                <height>16777215</height>
+                <height>300</height>
                </size>
               </property>
               <property name="sizeIncrement">
@@ -1367,7 +1373,7 @@ p, li { white-space: pre-wrap; }
                <enum>QTabWidget::Rounded</enum>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>1</number>
               </property>
               <property name="elideMode">
                <enum>Qt::ElideNone</enum>
@@ -1379,7 +1385,7 @@ p, li { white-space: pre-wrap; }
                <widget class="QFrame" name="frame_10">
                 <property name="geometry">
                  <rect>
-                  <x>210</x>
+                  <x>208</x>
                   <y>25</y>
                   <width>25</width>
                   <height>30</height>
@@ -1975,7 +1981,7 @@ p, li { white-space: pre-wrap; }
                <widget class="QFrame" name="frame_4">
                 <property name="geometry">
                  <rect>
-                  <x>210</x>
+                  <x>208</x>
                   <y>25</y>
                   <width>25</width>
                   <height>30</height>
@@ -2390,10 +2396,10 @@ p, li { white-space: pre-wrap; }
            </property>
            <layout class="QGridLayout" name="gridLayout_10">
             <property name="topMargin">
-             <number>20</number>
+             <number>9</number>
             </property>
             <property name="bottomMargin">
-             <number>20</number>
+             <number>9</number>
             </property>
             <property name="verticalSpacing">
              <number>11</number>
@@ -2403,13 +2409,13 @@ p, li { white-space: pre-wrap; }
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>100</height>
+                <height>120</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
                 <width>50</width>
-                <height>140</height>
+                <height>300</height>
                </size>
               </property>
               <property name="contextMenuPolicy">
@@ -2426,16 +2432,16 @@ p, li { white-space: pre-wrap; }
                 <number>0</number>
                </property>
                <property name="topMargin">
-                <number>0</number>
+                <number>3</number>
                </property>
                <property name="rightMargin">
                 <number>0</number>
                </property>
                <property name="bottomMargin">
-                <number>0</number>
+                <number>3</number>
                </property>
                <property name="verticalSpacing">
-                <number>1</number>
+                <number>6</number>
                </property>
                <item row="0" column="0">
                 <widget class="QPushButton" name="userDefined_Add">
@@ -2560,13 +2566,13 @@ p, li { white-space: pre-wrap; }
                 <number>0</number>
                </property>
                <property name="topMargin">
-                <number>0</number>
+                <number>3</number>
                </property>
                <property name="rightMargin">
                 <number>0</number>
                </property>
                <property name="bottomMargin">
-                <number>0</number>
+                <number>3</number>
                </property>
                <property name="horizontalSpacing">
                 <number>6</number>

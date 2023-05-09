@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 ########################################################################################################################
 ########################## Developer: Xueyong Lu @ Institut für Verfahrens- und Umwelttechnik ##########################
 ##########################         Professur für Transportprozesse an Grenzflächen            ##########################
@@ -6,12 +7,12 @@
 ########################################################################################################################
 import sys
 
-import qdarktheme
 from PyQt6 import QtCore, QtGui, QtWidgets
 import logging.config
 from settings import settings_log
 
 import functions
+from functions import GraphicalMplCanvas
 
 from RemoteControl_main_UI import Ui_MainWindow
 from PortSetup_child_UI import Ui_Dialog_PortSetup
@@ -40,6 +41,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.style_sheet = style_sheet.read()
         app_instance = QtWidgets.QApplication.instance()
 
+        """初始化canvas画布"""
+        self.mpl_canvas = GraphicalMplCanvas(parent=self)
+        self.layout_canvas = QtWidgets.QGridLayout(self.ui_main.frame_graphical_display)
+        self.layout_canvas.addWidget(self.mpl_canvas)
+
         """几个输入部分的格式验证器"""
         self.double_validator = QtGui.QDoubleValidator()
         self.double_validator.setBottom(0)
@@ -67,13 +73,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """更改主题"""
         self.ui_main.actionLight.triggered.connect(
-            lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.sender(),
+            lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.mpl_canvas, self.sender(),
                                                       app=app_instance, style_sheet=None))
         self.ui_main.actionDark.triggered.connect(
-            lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.sender(),
+            lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.mpl_canvas, self.sender(),
                                                       app=app_instance, style_sheet=None))
         self.ui_main.actionDefaultTheme.triggered.connect(
-            lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.sender(),
+            lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.mpl_canvas, self.sender(),
                                                       app=app_instance,
                                                       style_sheet=self.style_sheet))
         # 设置global layout与窗口边界的距离
@@ -83,6 +89,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # FF和RW按钮
         self.timer_fast_move = QtCore.QTimer()
         self.timer_rewind = QtCore.QTimer()
+
+        # 主窗口获取串口线程数据的刷新Timer
+        self.timer_ui_update = QtCore.QTimer()
+
+        #
 
         """upper/ lower按钮图标"""
         icon_upper = QtGui.QIcon()
@@ -106,7 +117,10 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.read_data_from_port = functions.ReadDataFromPort(self)
         # self.send_data_to_port = functions.SendDataToPort(self)
         self.read_send_thread = functions.ReadSendPort(check_serial_thread=self.check_serial_thread,
-                                                       ui_main=self.ui_main)
+                                                       ui_main=self.ui_main, parent=self)
+
+        # self.read_send_thread.progress_bar_str.connect(
+        #     lambda progress_str: functions.progress_display(self, progress_str))
         # self.read_data_from_port.receive_status.connect(lambda: functions.return_receive_status)
         # self.read_data_from_port.receive_status.connect(self.read_data_from_port.print_receive_status)
         # self.read_data_from_port.return_receive_status
@@ -114,24 +128,58 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.read_data_from_port.receive_status.connect(lambda: functions.return_receive_status(self.send_data_to_port))
         # send实例中，self.read_data_from_port作为参数只向其传递了emit()发送的响应标识
         """初始化状态栏，用于串口检测"""
-        self.status_label = QtWidgets.QLabel('  Waiting serial port to be connected.')
-        self.status_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
-        self.status_label.setStyleSheet('color: grey')
+        self.ui_main.status_label = QtWidgets.QLabel()
+        self.ui_main.status_label.setText('  Waiting for the serial port to open.')
+        self.ui_main.status_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        self.ui_main.status_label.setStyleSheet('color: grey')
 
         self.spacer_status_label = QtWidgets.QWidget()
         self.spacer_status_label.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding,
                                                QtWidgets.QSizePolicy.Policy.Minimum)
         # self.ui_main.statusbar.addWidget(self.spacer_status_label)
-        self.ui_main.statusbar.addWidget(self.status_label)
+        self.ui_main.statusbar.addWidget(self.ui_main.status_label, 0)
         # self.timer = QtCore.QTimer(self)
         # self.timer.timeout.connect(lambda status: functions.update_connection_status(self, status))
-        self.check_serial_thread.connection_status_changed.connect(
-            lambda status: functions.update_connection_status(self, status))
+        self.check_serial_thread.CONNECTION_STATUS_CHANGED.connect(
+            lambda status: functions.update_connection_status(self.ui_main, status))
 
         # 断开串口按钮
         self.ui_main.port_button_stop.clicked.connect(
             lambda: functions.disconnect_from_port_call(self.check_serial_thread, auto_reconnect=False,
                                                         _pause_thread=True))
+
+        """状态栏显示当前运行进度"""
+        self.ui_main.statusbar.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
+        self.ui_main.statusbar.setStyleSheet("QStatusBar::item { border: none; }")
+
+        self.ui_main.running_mode = QtWidgets.QLabel()
+        self.ui_main.running_mode.setStyleSheet("QLabel { background-color : none; color : grey; qproperty-alignment: 'AlignCenter'; padding: 0px; margin: 0px; }")
+        self.ui_main.statusbar.addPermanentWidget(self.ui_main.running_mode, 1)
+
+        self.ui_main.progress_bar_running = QtWidgets.QProgressBar()
+        self.ui_main.statusbar.addPermanentWidget(self.ui_main.progress_bar_running, 2)
+        self.ui_main.progress_bar_running.setStyleSheet("QProgressBar { text-align: center; }")
+        self.ui_main.progress_bar_running.setMinimum(0)
+        self.ui_main.progress_bar_running.setMaximum(100)
+        self.ui_main.progress_bar_running.setValue(0)
+
+        self.ui_main.status_label.setMinimumWidth(530)
+        self.ui_main.status_label.setMaximumWidth(530)
+        self.ui_main.running_mode.setMinimumWidth(70)
+        self.ui_main.running_mode.setMaximumWidth(70)
+        self.ui_main.progress_bar_running.setMinimumWidth(210)
+        self.ui_main.progress_bar_running.setMaximumWidth(210)
+
+        self.timer_ui_update.timeout.connect(lambda: functions.display_progress_on_statusBar(self.ui_main, self.read_send_thread.MAIN_WINDOW_LABEL, self.read_send_thread.MAIN_WINDOW_PROGRESS))
+        self.timer_ui_update.timeout.connect(lambda: self.mpl_canvas.update_graph(self.read_send_thread.FLOW_RATE, self.read_send_thread.FLOW_RATE_UNIT, self.read_send_thread.ELAPSED_TIME, self.read_send_thread.TRANSPORTED_VOLUME, self.read_send_thread.RUNNING_MODE, self.read_send_thread.COUNT_OUTER, self.read_send_thread.TARGET_STR))
+        self.timer_ui_update.start(50)
+        #
+        # self.read_send_thread.progress_bar_str.connect(lambda progress_str_target: functions.progress_display(
+        # self.ui_main, progress_str_target), QtCore.Qt.ConnectionType.QueuedConnection)
+
+        # self.read_send_thread.progress_bar_str.connect(lambda progress_bar_str: self.progress_display(
+        # progress_bar_str)) self.is_connected = self.read_send_thread.progress_bar_str.connect(lambda progress_str:
+        # functions.progress_display(self.ui_main, progress_str))
 
         """实例化子窗口"""
         self.ui_child_steps_dialog = StepsDialogChildWindow(self)  # 自定义steps列表子窗口
@@ -174,7 +222,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.syr_param_enter.textChanged.connect(
             lambda: functions.update_combox_syr_enabled(self.ui_main, self.setups_dict_quick_mode))
 
-        """Quick Mode参数输入部分，配置一键输入最大/最小值，并限制范围"""
+        """Quick Mode参数输入部分"""
+        # 配置一键输入最大/最小值，并限制范围
         self.ui_main.flow_lower_button_1.clicked.connect(
             lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
         self.ui_main.flow_lower_button_2.clicked.connect(
@@ -183,6 +232,11 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
         self.ui_main.flow_upper_button_2.clicked.connect(
             lambda: functions.set_max_min_flow_rate(self.ui_main, self.sender()))
+        # 如果选择的Target为'h:m:s'，则为输入框配置InputMask
+        self.ui_main.comboBox_unit_target_1.activated.connect(
+            lambda: functions.set_input_mask(self.ui_main, self.sender()))
+        self.ui_main.comboBox_unit_target_2.activated.connect(
+            lambda: functions.set_input_mask(self.ui_main, self.sender()))
 
         """自定义Method部分"""
         # 连接用户自定义userDefined_Add按钮和槽函数:Add
@@ -200,7 +254,9 @@ class MainWindow(QtWidgets.QMainWindow):
                                                    del_btn=self.ui_main.userDefined_Del))
 
         # 指定steps参数和OK按钮
-        # self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(lambda item_selected: functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method, self.setups_dict_custom, item=item_selected))
+        # self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(lambda item_selected:
+        # functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method, self.setups_dict_custom,
+        # item=item_selected))
         self.ui_main.listWidget_userDefined_method.itemDoubleClicked.connect(
             lambda item_selected: functions.edit_item_parameter(self.ui_main.listWidget_userDefined_method,
                                                                 self.ui_child_step_guide, self.setups_dict_custom,
@@ -223,8 +279,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # 设置串口配置Dialog
         self.ui_main.port_button.clicked.connect(lambda: functions.show_port_setup_dialog(self.ui_child_port_setup))
 
-        # 获取快速模式的参数并运行Run_button_quick
-        # self.ui_main.Run_button_quick.clicked.connect(lambda: functions.Quick_mode_param_run(self.ui_main, self.setups_dict_quick_mode))
+        # 获取快速模式的参数并运行
+        # Run_button_quick self.ui_main.Run_button_quick.clicked.connect(lambda:
+        # functions.Quick_mode_param_run(self.ui_main, self.setups_dict_quick_mode))
 
         """Msc.项"""
         # 设定或者显示当前泵的地址
@@ -246,30 +303,33 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda: self.read_send_thread.ser_force_limit(self.ui_main))
         self.ui_main.forceLimit_Slider.valueChanged.connect(
             lambda: self.read_send_thread.ser_force_label_show(self.ui_main))
-        #
-        # # FF和RW
-        self.timer_fast_move.timeout.connect(self.read_send_thread.fast_forward_btn)
-        self.ui_main.fast_forward_btn.pressed.connect(lambda: functions.fast_btn_timer_start(self.timer_fast_move))
-        self.ui_main.fast_forward_btn.released.connect(lambda: functions.fast_btn_timer_stop(self.timer_fast_move))
-        self.ui_main.fast_forward_btn.released.connect(self.read_send_thread.release_to_stop)
 
-        self.timer_rewind.timeout.connect(self.read_send_thread.rewind_btn)
-        self.ui_main.rewinde_btn.pressed.connect(lambda: functions.rwd_btn_timer_start(self.timer_rewind))
-        self.ui_main.rewinde_btn.released.connect(lambda: functions.rwd_btn_timer_stop(self.timer_rewind))
-        self.ui_main.rewinde_btn.released.connect(self.read_send_thread.release_to_stop)
+        # FF和RW：操作逻辑更新
+        self.ui_main.fast_forward_btn.clicked.connect(lambda: self.read_send_thread.fast_forward_button(self.ui_main))
+        self.ui_main.rewinde_btn.clicked.connect(lambda: self.read_send_thread.fast_rewind_button(self.ui_main))
+
+        # self.timer_fast_move.timeout.connect(self.read_send_thread.fast_forward_btn)
+        # self.ui_main.fast_forward_btn.pressed.connect(lambda: functions.fast_btn_timer_start(self.timer_fast_move))
+        # self.ui_main.fast_forward_btn.released.connect(lambda: functions.fast_btn_timer_stop(self.timer_fast_move))
+        # self.ui_main.fast_forward_btn.released.connect(self.read_send_thread.release_to_stop)
         #
-        # # 其他手动输入指令
+        # self.timer_rewind.timeout.connect(self.read_send_thread.rewind_btn)
+        # self.ui_main.rewinde_btn.pressed.connect(lambda: functions.rwd_btn_timer_start(self.timer_rewind))
+        # self.ui_main.rewinde_btn.released.connect(lambda: functions.rwd_btn_timer_stop(self.timer_rewind))
+        # self.ui_main.rewinde_btn.released.connect(self.read_send_thread.release_to_stop)
+
+        #
+        # 其他手动输入指令
         self.ui_main.data_sent_send_button.clicked.connect(
             lambda: self.read_send_thread.send_command_manual(self.ui_main))
-        # # 与回车键绑定
+        # 与回车键绑定
         shortcut_return = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Return),
                                           self.ui_main.lineEdit_send_toPump)
         shortcut_return.activated.connect(lambda: self.ui_main.data_sent_send_button.click())
 
         """运行部分"""
-        # self.timer_run = QtCore.QTimer()
         self.ui_main.Run_button_quick.clicked.connect(
-            lambda: functions.validate_and_run(self.ui_main, self.read_send_thread, self.setups_dict_quick_mode))
+            lambda: functions.validate_and_run(self.ui_main, self.read_send_thread, self.setups_dict_quick_mode, self.mpl_canvas))
 
         """选择结束位换行标识"""
         # 换行标识
@@ -283,21 +343,43 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda: self.read_send_thread.set_line_feed_style(self.ui_main, self.sender()))
 
         # 编码/解码方式
-        # self.ui_main.actionASCII.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
-        # self.ui_main.actionUTF_8.triggered.connect(lambda: self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
+        # self.ui_main.actionASCII.triggered.connect(lambda: self.send_data_to_port.set_encode_format(
+        # self.ui_main, self.sender()))
+        # self.ui_main.actionUTF_8.triggered.connect(lambda:
+        # self.send_data_to_port.set_encode_format(self.ui_main, self.sender()))
         self.ui_main.actionASCII.triggered.connect(
             lambda: self.read_send_thread.set_decode_format(self.ui_main, self.sender()))
         self.ui_main.actionUTF_8.triggered.connect(
             lambda: self.read_send_thread.set_decode_format(self.ui_main, self.sender()))
 
-        """绘图部分"""
+        """绘图区功能"""
+        # 重置数据发送/接收区，和绘图区
         self.ui_main.Reset_button.clicked.connect(
-            lambda: functions.clear_graph_text(self.ui_main, self.read_send_thread))
+            lambda: functions.clear_graph_text(self.ui_main, self.read_send_thread, self.mpl_canvas))
+        # 停止泵
+        self.ui_main.Stop_button.clicked.connect(self.read_send_thread.stop_pump_button)
+        # 导出数据
+        self.ui_main.Export_button.clicked.connect(self.mpl_canvas.export_data)
 
     @QtCore.pyqtSlot(str)
     def return_receive_status(self, receive_status):
         print('return_receive_status called')
         print(receive_status)
+
+    @QtCore.pyqtSlot(str)
+    def progress_display(self, ui, str_progress: str):
+        print('@QtCore.pyqtSlot(str, int)', str_progress)
+        sequence_mode = str_progress.split(':')[0].strip()
+        progress_percent = str_progress.split(':')[1].strip()
+        print(f"From progress_display function：{sequence_mode}: {progress_percent} [%]")
+        ui.running_mode.setText(str(sequence_mode))
+        ui.progress_bar_running.setValue(int(progress_percent))
+    # def update_components(self, ui, label_str, value_str):
+    #     if label_str and value_str:
+    #         ui.running_mode.setText(str(label_str))
+    #         ui.progress_bar_running.setValue(int(value_str))
+    #     else:
+    #         pass
 
 
 class StepsDialogChildWindow(QtWidgets.QDialog, Ui_Dialog):
@@ -380,7 +462,10 @@ class PortSetupChildWindow(QtWidgets.QDialog, Ui_Dialog_PortSetup):
             self.port_param_dict['parity'] = self.parity_list[self.ComboBox_parity.currentIndex()]
 
         if self.ComboBox_stop_bits.currentText() is not None:
-            self.port_param_dict['stopbits'] = int(self.ComboBox_stop_bits.currentText())
+            if self.ComboBox_stop_bits.currentText() == '1.5':
+                self.port_param_dict['stopbits'] = float(self.ComboBox_stop_bits.currentText())
+            else:
+                self.port_param_dict['stopbits'] = int(self.ComboBox_stop_bits.currentText())
 
         if self.ComboBox_flow_type.currentText() is not None:
             if self.ComboBox_flow_type.currentText() == 'None':
@@ -425,11 +510,10 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     # app = QtGui.QGuiApplication(sys.argv)
     window = MainWindow()
-    window.setWindowTitle('PHD Series syringe pump remote control v0.0.1')
+    window.setWindowTitle('PHD MA1 70-3xxx Series Syringe Pump v0.0.1')
     # 设置窗口Icon
     icon = QtGui.QPixmap('./image/Logo_TU_Dresden_small.svg')
     icon_h_32 = icon.scaledToHeight(32, QtCore.Qt.TransformationMode.SmoothTransformation)
-    # app.setStyleSheet("QFrame { border: none; }")
     window.setWindowIcon(QtGui.QIcon(icon_h_32))
     window.show()
     sys.exit(app.exec())
