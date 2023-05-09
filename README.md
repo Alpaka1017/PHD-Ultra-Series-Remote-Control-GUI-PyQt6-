@@ -107,3 +107,25 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 &#x2611; Merged the serial port reading and writing threads, so that the response identifier can be used as a sign for command sending
 
 &#x2611; To prevent UI freezing, deprecate the `time.sleep()` method and use `QtCore.QTimer()` instead
+
+&#x2726;  Added a feature of progress bar on status bar, which dynamically shows the current flow progress in percent
+
+<p align="center">
+  <img src="https://i.328888.xyz/2023/05/10/iQ1d1V.png">
+</p>
+
+&#x2726;  Implemented the functionality to graphically display the current flow rate and transported volume according to different running modes
+
+​	***Powered by: `matplotlib.backends.backend_qt5agg`***
+
+<p align="center">   <img src="https://i.328888.xyz/2023/05/10/iQ150d.png"> </p>
+
+&#x2726;  Added image interactivity and export features (thanks to matplotlib) 
+
+&#x2726;  Added image data export (*.txt)
+
+
+
+## Complete UI showcase
+
+<p align="center">   <img src="https://i.328888.xyz/2023/05/10/iQ193w.png" alt="iQ193w.png" border="0" /> </p>
