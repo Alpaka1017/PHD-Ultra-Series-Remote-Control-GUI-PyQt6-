@@ -15,17 +15,14 @@ import math
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 from matplotlib.figure import Figure
-from matplotlib.path import Path
-import matplotlib.patches as patches
-import matplotlib.lines as mlines
-from matplotlib.collections import LineCollection
-import numpy as np
 import matplotlib.font_manager as font_manager
 
 import logging.config
 from settings import settings_log
 
 import json
+import global_hotkeys as hotkey
+import Resource_img_icon
 
 icon_dict = {
     "const_icon.png": "Constant",
@@ -89,6 +86,9 @@ import_dict_rename = {
 logging.config.dictConfig(settings_log.LOGGING_DIC)
 logger_debug_console = logging.getLogger('logger1')  # Console print
 logger_info_console_file = logging.getLogger('logger2')  # Console & file recording
+
+# Set global warning filter for pyqtSignal, it still works though
+# warnings.filterwarnings("ignore", category=UserWarning, message="Cannot find reference 'connect' in 'pyqtSignal | pyqtSignal'")
 
 """Class to be called in MainWindow to set up the port connection"""
 
@@ -2400,6 +2400,86 @@ class GraphicalMplCanvas(FigureCanvas):
             pass
 
 
+"""Hide main window and set tray icon"""
+class MySysTrayWidget(QtWidgets.QWidget):
+    hotkey_hide_window = QtCore.pyqtSignal(bool)
+
+    def __init__(self, ui=None, app=None, window=None):
+        super().__init__()
+
+        # 私有变量
+        self.__ui = ui
+        self.__app = app
+        self.__window = window
+        # self.__ui.setupUi(self.__window)
+
+        # 配置系统托盘
+        self.__trayicon = QtWidgets.QSystemTrayIcon(self)
+        self.__trayicon.setIcon(QtGui.QIcon(':window_icon_/Logo_TU_Dresden_small.svg'))
+        self.__trayicon.setToolTip('Hotkey\nCtrl+Alt+M')
+
+        # 创建托盘的右键菜单
+        self.__traymenu = QtWidgets.QMenu()
+        self.__trayaction = []
+        self.addTrayMenuAction('Show', self.show_userinterface)
+        self.addTrayMenuAction('Exit', self.quit)
+
+        # Config menu and show tray icon
+        self.__trayicon.setContextMenu(self.__traymenu)  # Set tpMenu as the right-click menu of the tray
+        self.__trayicon.show()  # show tray icon
+
+        self.hotkey_bindings = [
+            [["control", "alt", "m"], None, self.wakeHotkey],
+        ]
+
+        hotkey.register_hotkeys(self.hotkey_bindings)
+        hotkey.start_checking_hotkeys()
+
+        # 连接信号
+        self.hotkey_hide_window.connect(self.onHotkey)
+
+        # Wake main window through double-click on tray
+        self.__trayicon.activated.connect(self.trayIconActivated)
+
+        # 默认隐藏界面
+        # self.hide_userinterface()
+
+    def __del__(self):
+        pass
+
+    def addTrayMenuAction(self, text='empty', callback=None):
+        a = QtGui.QAction(text, self)
+        a.triggered.connect(callback)
+        self.__traymenu.addAction(a)
+        self.__trayaction.append(a)
+
+    def trayIconActivated(self, reason):
+        if reason == QtWidgets.QSystemTrayIcon.ActivationReason.DoubleClick:
+            self.show_userinterface()
+            # 双击触发的事件处理程序
+            # print("Tray icon double clicked")
+
+    def quit(self):
+        # 真正的退出
+        self.__app.exit()
+
+    def show_userinterface(self):
+        self.__window.show()
+
+    def hide_userinterface(self):
+        self.__window.hide()
+
+    def wakeHotkey(self):
+        self.hotkey_hide_window.emit(self.__window.isVisible())
+
+    @QtCore.pyqtSlot(bool)
+    def onHotkey(self, visible):
+        # print('here', visible)
+        if visible:
+            self.hide_userinterface()
+        else:
+            self.show_userinterface()
+
 """Receive params-dict from port setup dialog"""
 
 
@@ -2998,10 +3078,12 @@ def edit_item_parameter(list_widget, ui_step_guide, setups_dict_custom, item):
         default_value = setups_dict_custom.get("{}_{}".format(item_text, str(current_index)), '')
         ui_step_guide.lineEdit.setText(default_value if default_value is not None else '')
     # 初始化参数输入窗口，以及配置默认输入格式提示和对应的示例图
-    path = os.path.join(os.getcwd(), 'image')
+    # path = os.path.join(os.getcwd(), 'image')
     for label_path_key, label_path_value in label_path_StepGuide_dict.items():
         if label_path_key in item_text:
-            ui_step_guide.pixmap = QtGui.QPixmap(os.path.join(path, label_path_value[1]))
+            # ui_step_guide.pixmap = QtGui.QPixmap(os.path.join(path, label_path_value[1]))
+            img_resource_step_guide = ':guide_/' + label_path_value[1]
+            ui_step_guide.pixmap = QtGui.QPixmap(img_resource_step_guide)
             ui_step_guide.image_label.setPixmap(ui_step_guide.pixmap)
             ui_step_guide.image_label.setScaledContents(True)
             ui_step_guide.layout.addWidget(ui_step_guide.image_label)
@@ -3141,7 +3223,7 @@ def export_user_defined_methods(ui, setups_dict_custom):
                 msgBox.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
                 msgBox.setWindowTitle('Information')
                 msgBox.setText("Custom method has been successfully exported.")
-                icon_msgBox = QtGui.QPixmap("./image/green_tick.png").scaled(32, 32,
+                icon_msgBox = QtGui.QPixmap(":green_tick_/green_tick.png").scaled(32, 32,
                                                                              QtCore.Qt.AspectRatioMode.KeepAspectRatio,
                                                                              QtCore.Qt.TransformationMode.SmoothTransformation)
                 msgBox.setIconPixmap(icon_msgBox)

@@ -12,6 +12,9 @@ import logging.config
 from settings import settings_log
 
 import functions
+import global_hotkeys as hotkey
+import Resource_img_icon
+
 from functions import GraphicalMplCanvas
 
 from RemoteControl_main_UI import Ui_MainWindow
@@ -22,13 +25,12 @@ from UserDefinedSteps_child_UI import Ui_Dialog
 # Configuration logging functionality
 logging.config.dictConfig(settings_log.LOGGING_DIC)
 logger_debug_console = logging.getLogger('logger1')  # Console print
-
-
 # logger_info_console_file = logging.getLogger('logger2')   # Console & file recording
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+
         # 实例化UI类
         self.serial_port = None
         self.setups_dict_custom = {}
@@ -39,7 +41,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.setupUi(self)
         with open("./qss/origin_style.qss") as style_sheet:
             self.style_sheet = style_sheet.read()
-        app_instance = QtWidgets.QApplication.instance()
+        self.app_instance = QtWidgets.QApplication.instance()
 
         """初始化canvas画布"""
         self.mpl_canvas = GraphicalMplCanvas(parent=self)
@@ -76,13 +78,13 @@ class MainWindow(QtWidgets.QMainWindow):
         """更改主题"""
         self.ui_main.actionLight.triggered.connect(
             lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.mpl_canvas, self.sender(),
-                                                      app=app_instance, style_sheet=None))
+                                                      app=self.app_instance, style_sheet=None))
         self.ui_main.actionDark.triggered.connect(
             lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.mpl_canvas, self.sender(),
-                                                      app=app_instance, style_sheet=None))
+                                                      app=self.app_instance, style_sheet=None))
         self.ui_main.actionDefaultTheme.triggered.connect(
             lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.mpl_canvas, self.sender(),
-                                                      app=app_instance,
+                                                      app=self.app_instance,
                                                       style_sheet=self.style_sheet))
         # 设置global layout与窗口边界的距离
         self.ui_main.main_layout.setContentsMargins(0, 0, 0, 0)
@@ -99,7 +101,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         """upper/ lower按钮图标"""
         icon_upper = QtGui.QIcon()
-        icon_upper.addPixmap(QtGui.QPixmap("./image/upper_limit_icon.png"), QtGui.QIcon.Mode.Active,
+        icon_upper.addPixmap(QtGui.QPixmap(":upper_lower_icon_/upper_limit_icon.png"), QtGui.QIcon.Mode.Active,
                              QtGui.QIcon.State.On)
         self.ui_main.flow_upper_button_1.setIcon(icon_upper)
         self.ui_main.flow_upper_button_1.setIconSize(QtCore.QSize(12, 20))
@@ -107,7 +109,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.flow_upper_button_2.setIconSize(QtCore.QSize(12, 20))
 
         icon_lower = QtGui.QIcon()
-        icon_lower.addPixmap(QtGui.QPixmap("./image/lower_limit_icon.png"), QtGui.QIcon.Mode.Active,
+        icon_lower.addPixmap(QtGui.QPixmap(":upper_lower_icon_/lower_limit_icon.png"), QtGui.QIcon.Mode.Active,
                              QtGui.QIcon.State.On)
         self.ui_main.flow_lower_button_1.setIcon(icon_lower)
         self.ui_main.flow_lower_button_1.setIconSize(QtCore.QSize(12, 20))
@@ -129,6 +131,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # self.read_data_from_port.receive_status.connect(lambda: functions.return_receive_status(self.send_data_to_port))
         # send实例中，self.read_data_from_port作为参数只向其传递了emit()发送的响应标识
+
+        """Global hotkey to stop the pump"""
+        self.hotkey_stop_pump = [
+            [["control", "g"], None, self.read_send_thread.stop_pump_button],
+        ]
+        # 注册并检测热键
+        hotkey.register_hotkeys(self.hotkey_stop_pump)
+        hotkey.start_checking_hotkeys()
+
         """初始化状态栏，用于串口检测"""
         self.ui_main.status_label = QtWidgets.QLabel()
         self.ui_main.status_label.setText('  Waiting for the serial port to open.')
@@ -354,6 +365,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.actionUTF_8.triggered.connect(
             lambda: self.read_send_thread.set_decode_format(self.ui_main, self.sender()))
 
+        """快捷键"""
+        # short_cut_stop = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key.Key_Control + QtCore.Qt.Key.Key_H), self)
+        # short_cut_stop.activated.connect(self.read_send_thread.stop_pump_button)
+
         """绘图区功能"""
         # 重置数据发送/接收区，和绘图区
         self.ui_main.Reset_button.clicked.connect(
@@ -362,6 +377,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.Stop_button.clicked.connect(self.read_send_thread.stop_pump_button)
         # 导出数据
         self.ui_main.Export_button.clicked.connect(self.mpl_canvas.export_data)
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        a0.ignore()
+        self.hide()
 
     @QtCore.pyqtSlot(str)
     def return_receive_status(self, receive_status):
@@ -514,8 +533,13 @@ if __name__ == "__main__":
     window = MainWindow()
     window.setWindowTitle('PHD MA1 70-3xxx Series Syringe Pump v0.0.1')
     # 设置窗口Icon
-    icon = QtGui.QPixmap('./image/Logo_TU_Dresden_small.svg')
+    icon = QtGui.QPixmap(':window_icon_/Logo_TU_Dresden_small.svg')
     icon_h_32 = icon.scaledToHeight(32, QtCore.Qt.TransformationMode.SmoothTransformation)
     window.setWindowIcon(QtGui.QIcon(icon_h_32))
+
     window.show()
+
+    """创建系统托盘图标"""
+    tray_icon = functions.MySysTrayWidget(ui=window.ui_main, app=app, window=window)
+
     sys.exit(app.exec())

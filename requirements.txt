@@ -5,9 +5,15 @@ packaging==23.1
 pip-autoremove==0.10.0
 platformdirs==3.2.0
 pyparsing==3.0.9
-PyQt6==6.5.0
+PyQt6==6.4.2
+PyQt6-Qt6==6.4.3
+PyQt6-sip==13.4.1
 PyQt6-Fluent-Widgets==0.6.9
 PyQt6-Frameless-Window==0.1.0
-serial
+qt-material==2.14
+pyqtdarktheme==2.1.0
+pyserial== 3.5
+serial==0.0.97
 virtualenv==20.21.0
 zipp==3.15.0
+global-hotkeys==0.0.4

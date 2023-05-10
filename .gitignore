@@ -1,0 +1,6 @@
+venvPyQt6/
+__pycache__/
+font/
+image/
+.msc/
+UserDefinedMethods/
