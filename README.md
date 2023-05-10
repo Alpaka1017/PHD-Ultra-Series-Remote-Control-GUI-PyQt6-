@@ -128,4 +128,4 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 
 ## Complete UI showcase
 
-<p align="center">   <img src="https://i.328888.xyz/2023/05/10/iQ193w.png" alt="iQ193w.png" border="0" /> </p>
+<p align="center">   <img src="https://i.328888.xyz/2023/05/10/iQQkUX.png" alt="iQQkUX.png" border="0" /> </p>

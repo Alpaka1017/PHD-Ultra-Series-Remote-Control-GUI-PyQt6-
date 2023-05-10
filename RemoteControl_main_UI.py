@@ -1004,7 +1004,7 @@ class Ui_MainWindow(object):
         self.actionYellow_L.setCheckable(True)
         self.actionYellow_L.setObjectName("actionYellow_L")
         self.actionReset = QtGui.QAction(parent=MainWindow)
-        self.actionReset.setCheckable(True)
+        self.actionReset.setCheckable(False)
         self.actionReset.setObjectName("actionReset")
         self.actionASCII = QtGui.QAction(parent=MainWindow)
         self.actionASCII.setCheckable(True)

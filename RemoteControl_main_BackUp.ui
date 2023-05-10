@@ -11,7 +11,7 @@
     <x>0</x>
     <y>0</y>
     <width>885</width>
-    <height>839</height>
+    <height>814</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -1188,8 +1188,20 @@ p, li { white-space: pre-wrap; }
             </item>
             <item row="0" column="0">
              <widget class="QRadioButton" name="radioButton_1">
+              <property name="enabled">
+               <bool>true</bool>
+              </property>
               <property name="text">
                <string>Infusion Only</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>false</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
               </property>
              </widget>
             </item>

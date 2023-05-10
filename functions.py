@@ -15,6 +15,11 @@ import math
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 from matplotlib.figure import Figure
+from matplotlib.path import Path
+import matplotlib.patches as patches
+import matplotlib.lines as mlines
+from matplotlib.collections import LineCollection
+import numpy as np
 import matplotlib.font_manager as font_manager
 
 import logging.config
@@ -1076,7 +1081,7 @@ class ReadSendPort(QtCore.QThread):
 
     # progress_percent = 0
 
-    # progress_bar_str = QtCore.pyqtSignal(str)
+    progress_bar_str = QtCore.pyqtSignal(str)
 
     MAIN_WINDOW_LABEL = ''
     MAIN_WINDOW_PROGRESS = 0
@@ -1087,6 +1092,7 @@ class ReadSendPort(QtCore.QThread):
     TRANSPORTED_VOLUME = 0
     RUNNING_MODE = ''
     TARGET_STR = ''
+    LEN_RUN_COMMAND = 0
 
     def __init__(self, check_serial_thread=None, ser=None, ui_main=None, parent=None):
         super().__init__(parent)
@@ -1126,8 +1132,8 @@ class ReadSendPort(QtCore.QThread):
         self.run_commands = {}
         self.run_commands_list = []
 
-        self.COUNT_OUTER = 0
-        self.count_inner = 0
+        # self.COUNT_OUTER = 0
+        # self.count_inner = 0
         self.timer_run = QtCore.QTimer()
         # self.running_flag = True
 
@@ -1199,10 +1205,11 @@ class ReadSendPort(QtCore.QThread):
                     # ReadSendPort.ELAPSED_TIME = elapsed_time
                     # ReadSendPort.TRANSPORTED_VOLUME = transported_volume
                     # ReadSendPort.RUNNING_MODE = current_status[0]
-                    print(
-                        f"flow_rate: {flow_rate}, elapsed_time: {elapsed_time}, transported_volume: {transported_volume}, current_status: {current_status}, running_mode: {running_mode}")
 
-                    if len(ReadSendPort.run_commands_dict) < 11:  # INF或者WD
+                    # print(f"flow_rate: {flow_rate}, elapsed_time: {elapsed_time}, transported_volume: {transported_volume}, current_status: {current_status}, running_mode: {running_mode}")
+
+                    ReadSendPort.LEN_RUN_COMMAND = len(ReadSendPort.run_commands_dict)
+                    if ReadSendPort.LEN_RUN_COMMAND < 11:  # INF或者WD
                         target_dict = list(ReadSendPort.run_commands_dict.values())[6]
                         target_str = target_dict['command'].strip()
                         sequence_mode = list(ReadSendPort.run_commands_dict.keys())[6]
@@ -1253,7 +1260,8 @@ class ReadSendPort(QtCore.QThread):
 
                         # self.parent.running_mode.setText(sequence_mode)
                         # self.parent.progress_bar_running.setValue(math.ceil(ReadSendPort.progress_percent * 100))
-                        print(f"sequence_mode => {sequence_mode}: {math.ceil(ReadSendPort.progress_percent * 100)} [%]")
+
+                        # print(f"sequence_mode => {sequence_mode}: {math.ceil(ReadSendPort.progress_percent * 100)} [%]")
 
                         # self.emit_progress(sequence_mode, math.ceil(ReadSendPort.progress_percent * 100))
                         # self.emit_progress(f"{sequence_mode}:{math.ceil(ReadSendPort.progress_percent * 100)}")
@@ -1264,7 +1272,7 @@ class ReadSendPort(QtCore.QThread):
                         ReadSendPort.FLOW_RATE_UNIT = flow_rate_unit
                         ReadSendPort.ELAPSED_TIME = elapsed_time
                         ReadSendPort.TRANSPORTED_VOLUME = transported_volume
-                        ReadSendPort.RUNNING_MODE = current_status[0]
+                        ReadSendPort.RUNNING_MODE = current_status
                         ReadSendPort.TARGET_STR = target_str.split(' ')[2]
 
                         # self.ui.running_mode.setText(sequence_mode)
@@ -1325,9 +1333,12 @@ class ReadSendPort(QtCore.QThread):
                                     if 97 < ReadSendPort.progress_percent < 99:
                                         ReadSendPort.progress_percent += 1
                             # self.parent.running_mode.setText(sequence_list[0])
+
                             # self.parent.progress_bar_running.setValue(math.ceil(ReadSendPort.progress_percent * 100))
-                            print(f"{sequence_list[0]}: {math.ceil(ReadSendPort.progress_percent * 100)} [%]")
-                            logger_debug_console.debug(ReadSendPort.progress_percent)
+                            # print(f"{sequence_list[0]}: {math.ceil(ReadSendPort.progress_percent * 100)} [%]")
+
+                            # logger_debug_console.debug(ReadSendPort.progress_percent)
+
                             # self.emit_progress(sequence_list[0], math.ceil(ReadSendPort.progress_percent * 100))
                             # self.emit_progress(f"{sequence_list[0]}:{math.ceil(ReadSendPort.progress_percent * 100)}")
                             ReadSendPort.MAIN_WINDOW_LABEL = sequence_list[0]
@@ -1337,7 +1348,7 @@ class ReadSendPort(QtCore.QThread):
                             ReadSendPort.FLOW_RATE_UNIT = flow_rate_unit_1
                             ReadSendPort.ELAPSED_TIME = elapsed_time
                             ReadSendPort.TRANSPORTED_VOLUME = transported_volume
-                            ReadSendPort.RUNNING_MODE = current_status[0]
+                            ReadSendPort.RUNNING_MODE = current_status
                             ReadSendPort.TARGET_STR = target_str_1.split(' ')[2]
 
                             # self.ui.running_mode.setText(sequence_list[0])
@@ -1381,17 +1392,18 @@ class ReadSendPort(QtCore.QThread):
                                         ReadSendPort.progress_percent += 1
                             # self.parent.running_mode.setText(sequence_list[1])
                             # self.parent.progress_bar_running.setValue(math.ceil(ReadSendPort.progress_percent * 100))
-                            print(f"{sequence_list[1]}: {math.ceil(ReadSendPort.progress_percent * 100)} [%]")
+
+                            # print(f"{sequence_list[1]}: {math.ceil(ReadSendPort.progress_percent * 100)} [%]")
                             ReadSendPort.MAIN_WINDOW_LABEL = sequence_list[1]
                             ReadSendPort.MAIN_WINDOW_PROGRESS = math.ceil(ReadSendPort.progress_percent * 100)
                             # self.emit_progress(f"{sequence_list[1]}:{math.ceil(ReadSendPort.progress_percent * 100)}")
-                            logger_debug_console.debug(ReadSendPort.progress_percent)
+                            # logger_debug_console.debug(ReadSendPort.progress_percent)
 
                             ReadSendPort.FLOW_RATE = flow_rate
                             ReadSendPort.FLOW_RATE_UNIT = flow_rate_unit_2
                             ReadSendPort.ELAPSED_TIME = elapsed_time
                             ReadSendPort.TRANSPORTED_VOLUME = transported_volume
-                            ReadSendPort.RUNNING_MODE = current_status[0]
+                            ReadSendPort.RUNNING_MODE = current_status
                             ReadSendPort.TARGET_STR = target_str_2.split(' ')[2]
 
                             # self.ui.running_mode.setText(sequence_list[1])
@@ -1484,6 +1496,8 @@ class ReadSendPort(QtCore.QThread):
         else:
             pass
 
+    # Deprecated
+    @staticmethod
     def emit_progress(self, progress_str: str):
         # print('emit_progress called.')
         print(f'{progress_str} [%], from emit_progress')
@@ -1829,11 +1843,7 @@ class ReadSendPort(QtCore.QThread):
 
                     self.run_commands = self.run_INF
                     self.run_commands_list = list(self.run_commands.items())
-                    # self.args_list = (self.ui, self.__RECEIVE_STATUS, 800, 100, self.run_commands_set_ClearTarget,
-                    #                   self.run_commands_set_Syrm, self.run_commands_set_INF,
-                    #                   self.run_commands_set_GetResponse_INF)
-                    # self.send_run_commands(*self.args_list)
-                    # self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+
                 elif setups_dict_quick_mode['Run Mode'] == 'WD':
                     self.run_WD.update(self.run_commands_set_ClearTarget_INF)
                     self.run_WD.update(self.run_commands_set_Syrm)
@@ -1842,11 +1852,7 @@ class ReadSendPort(QtCore.QThread):
 
                     self.run_commands = self.run_WD
                     self.run_commands_list = list(self.run_commands.items())
-                    # self.args_list = (self.ui, self.__RECEIVE_STATUS, 800, 100, self.run_commands_set_ClearTarget,
-                    #                   self.run_commands_set_Syrm, self.run_commands_set_WD,
-                    #                   self.run_commands_set_GetResponse_WD)
-                    # self.send_run_commands(*self.args_list)
-                    # # self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+
                 elif setups_dict_quick_mode['Run Mode'] == 'INF/ WD':
                     self.run_INF_WD.update(self.run_commands_set_ClearTarget_INF)
                     self.run_INF_WD.update(self.run_commands_set_Syrm)
@@ -1860,12 +1866,7 @@ class ReadSendPort(QtCore.QThread):
 
                     self.run_commands = self.run_INF_WD
                     self.run_commands_list = list(self.run_commands.items())
-                    # self.args_list = (self.ui, self.__RECEIVE_STATUS, 800, 100, self.run_commands_set_ClearTarget,
-                    #                   self.run_commands_set_Syrm, self.run_commands_set_INF,
-                    #                   self.run_commands_set_GetResponse_INF, self.run_commands_set_ClearTarget,
-                    #                   self.run_commands_set_WD, self.run_commands_set_GetResponse_WD)
-                    # self.send_run_commands(*self.args_list)
-                    # self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+
                 elif setups_dict_quick_mode['Run Mode'] == 'WD/ INF':
                     self.run_WD_INF.update(self.run_commands_set_ClearTarget_WD)
                     self.run_WD_INF.update(self.run_commands_set_Syrm)
@@ -1879,12 +1880,7 @@ class ReadSendPort(QtCore.QThread):
 
                     self.run_commands = self.run_WD_INF
                     self.run_commands_list = list(self.run_commands.items())
-                    # self.args_list = (self.ui, self.__RECEIVE_STATUS, 800, 100, self.run_commands_set_ClearTarget,
-                    #                   self.run_commands_set_Syrm, self.run_commands_set_WD,
-                    #                   self.run_commands_set_GetResponse_WD, self.run_commands_set_ClearTarget,
-                    #                   self.run_commands_set_INF, self.run_commands_set_GetResponse_INF)
-                    # self.send_run_commands(*self.args_list)
-                    # self.timer_run.timeout.connect(functools.partial(self.send_run_commands, *self.args_list))
+
                 else:
                     pass
             ReadSendPort.run_commands_dict = self.run_commands
@@ -1960,41 +1956,26 @@ class ReadSendPort(QtCore.QThread):
                         self.timer_run.stop()
 
             elif ReadSendPort.__RECEIVE_STATUS in ("INF running", "WD running", 'Target reached'):
-                # print(ReadSendPort.__RECEIVE_STATUS)
-                # print(ReadSendPort.COUNT_OUTER, len(self.run_commands_list))
-                # elif isinstance(list(self.run_commands_list[ReadSendPort.COUNT_OUTER])[1], bytes):
-                #     value_to_list = list(self.run_commands_list[ReadSendPort.COUNT_OUTER])
-                #     # current_time = QtCore.QDateTime.currentDateTime().toString("[hh:mm:ss]")
-                #     # self.ui.commands_sent.append(f"{current_time} >>{value_to_list[0]}:")
-                #     if ReadSendPort.COUNT_OUTER < len(self.run_commands_list):
-                #         print(self.__RECEIVE_STATUS)
-                #         if self.__RECEIVE_STATUS in ('INF running', 'WD running'):
-                #             self.check_serial_thread.ser.write(value_to_list[1])
-                #             self.timer_run.singleShot(100, self.send_run_commands)
-                #             self.count_inner += 1
-                #         else:
-                #             self.count_inner = 0
-                #             ReadSendPort.COUNT_OUTER += 1
-                #             # print('COUNT_OUTER', ReadSendPort.COUNT_OUTER)
-                #             self.send_run_commands()
-                #     else:
-                #         self.timer_run.stop()
-
-                # elif self.__RECEIVE_STATUS in ('INF running', 'WD running'):
-                # print('读取到响应：正在运行')
                 if ReadSendPort.COUNT_OUTER < len(self.run_commands_list):
                     if self.check_serial_thread.ser:
                         if ReadSendPort.__RECEIVE_STATUS != 'Target reached':
                             self.check_serial_thread.ser.write(b"@status\r\n")
-                            self.timer_run.singleShot(50, self.send_run_commands)
+                            self.timer_run.singleShot(80, self.send_run_commands)
                         else:
-                            # 当响应为'T*'时，必须清除当前的状态（注入/ 抽出时间），以此进入第二部分命令的运行，否则会卡在这里
-                            self.check_serial_thread.ser.write(b"@ctime\r\n@cvolume\r\n")
-                            # ReadSendPort.COUNT_OUTER += 1
-                            self.timer_run.singleShot(500, self.send_run_commands)
+                            # print(ReadSendPort.COUNT_OUTER)
+                            # print(ReadSendPort.RUNNING_MODE[0])
+                            if ReadSendPort.RUNNING_MODE:
+                                if ReadSendPort.COUNT_OUTER <= 8 and (ReadSendPort.RUNNING_MODE[0] == 'i' or ReadSendPort.RUNNING_MODE[0] == 'I'):
+                                    # 当响应为'T*'时，必须清除当前的状态（注入/ 抽出时间），以此进入第二部分命令的运行，否则会卡在此处
+                                    self.check_serial_thread.ser.write(b"@citime\r\n")
+                                    self.check_serial_thread.ser.write(b"@civolume\r\n")
+                                elif ReadSendPort.COUNT_OUTER <= 8 and (ReadSendPort.RUNNING_MODE[0] == 'w' or ReadSendPort.RUNNING_MODE[0] == 'W'):
+                                    self.check_serial_thread.ser.write(b"@cwtime\r\n")
+                                    self.check_serial_thread.ser.write(b"@cwvolume\r\n")
+                                # ReadSendPort.COUNT_OUTER += 1
+                                self.timer_run.singleShot(300, self.send_run_commands)
                 else:
                     self.timer_run.stop()
-                # self.send_run_commands()
 
             # elif self.__RECEIVE_STATUS == 'Target reached':
             #     print('第一部分运行结束')
@@ -2004,9 +1985,20 @@ class ReadSendPort(QtCore.QThread):
             #         # self.send_run_commands()
             #     else:
             #         self.timer_run.stop()
-            # self.timer_run.singleShot(1000, self.send_run_commands)
-            # ReadSendPort.COUNT_OUTER += 1
-            # self.send_run_commands()
+            #
+            # elif ReadSendPort.__RECEIVE_STATUS in ("INF running", "WD running"):
+            #     if ReadSendPort.COUNT_OUTER < len(self.run_commands_list):
+            #         if self.check_serial_thread.ser:
+            #             self.check_serial_thread.ser.write(b"@status\r\n")
+            #             self.timer_run.singleShot(80, self.send_run_commands)
+            #             # else:
+            #             #     # 当响应为'T*'时，必须清除当前的状态（注入/ 抽出时间），以此进入第二部分命令的运行，否则会卡在此处
+            #             #     self.check_serial_thread.ser.write(b"@ctime\r\n")
+            #             #     self.check_serial_thread.ser.write(b"@cvolume\r\n")
+            #             #     # ReadSendPort.COUNT_OUTER += 1
+            #             #     self.timer_run.singleShot(300, self.send_run_commands)
+            #     else:
+            #         self.timer_run.stop()
 
             elif self.__RECEIVE_STATUS == 'STOP':
                 self.timer_run.stop()
@@ -2017,7 +2009,7 @@ class ReadSendPort(QtCore.QThread):
         else:
             self.timer_run.stop()
             ReadSendPort.COUNT_OUTER = 0
-            self.count_inner = 0
+            # self.count_inner = 0
             self.run_commands_list = []
             self.run_commands = {}
 
@@ -2080,8 +2072,10 @@ class ReadSendPort(QtCore.QThread):
         ReadSendPort.COUNT_OUTER = 0
         ReadSendPort.MAIN_WINDOW_LABEL = ''
         ReadSendPort.MAIN_WINDOW_PROGRESS = 0
+
         ui.running_mode.setText(str(ReadSendPort.MAIN_WINDOW_LABEL))
         ui.progress_bar_running.setValue(int(ReadSendPort.MAIN_WINDOW_PROGRESS))
+
         for key, value in self.run_commands_set_ButtonClear.items():
             if isinstance(self.check_serial_thread.ser, serial.Serial):
                 # ui.commands_sent.append(f"{current_time} >>{key}")
@@ -2129,6 +2123,12 @@ class GraphicalMplCanvas(FigureCanvas):
     DRAW_POINTS_FLOW_RATE = []
     DRAW_POINTS_TRANS_VOLUME = []
     DRAW_POINTS_ELAPSED_TIME = []
+    max_flow_volume = float(0)
+    min_flow_volume = float(0)
+    current_volume_inf_wd = 0
+    current_volume_wd_inf = 0
+    max_time_len = 0
+    temp_volume = []
 
     def __init__(self, parent=None, width=5, height=4, dpi=100, alpha=0):
 
@@ -2150,17 +2150,12 @@ class GraphicalMplCanvas(FigureCanvas):
         self.font_path = None
         self.title_font = None
 
-        self.max_flow_volume = float('-inf')
-        self.min_flow_volume = float('inf')
+        self.max_flow_volume = float(0)
+        self.min_flow_volume = float(0)
 
         # 创建工具条
         self.tool_bar = NavigationToolbar2QT(self, parent)
         parent.addToolBar(self.tool_bar)
-
-        # x = [1, 2, 3, 4, 5]
-        # y = [2, 4, 6, 8, 10]
-        # self.ax.plot(x, y, 'o--', label='Example')  # 绘制红色散点图和虚线连接线
-        # self.ax.legend(loc='upper right')
 
         # 调用初始化画布的函数
         self.initialize_graph()
@@ -2177,7 +2172,7 @@ class GraphicalMplCanvas(FigureCanvas):
         self.fig.set_facecolor('white')
         self.ax.set_title(' ', fontproperties=self.title_font)
         self.ax.set_xlabel('Time [s]', fontproperties=self.font_prop)
-        self.ax.set_ylabel(r'Flow rate [$10^{-12}$ ml/s]', fontproperties=self.font_prop)
+        self.ax.set_ylabel(r'Flow rate [ml/s]', fontproperties=self.font_prop)
         self.fig.tight_layout()
         self.ax.grid(True)
 
@@ -2199,56 +2194,183 @@ class GraphicalMplCanvas(FigureCanvas):
         GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME = []
         GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE = []
 
+        GraphicalMplCanvas.max_flow_volume = float(0)
+        GraphicalMplCanvas.min_flow_volume = float(0)
+        GraphicalMplCanvas.current_volume_inf_wd = 0
+        GraphicalMplCanvas.current_volume_wd_inf = 0
+        GraphicalMplCanvas.max_time_len = 0
+        GraphicalMplCanvas.temp_volume = []
+
         self.fig.canvas.draw()
 
     def update_graph(self, flow_rate, flow_rate_unit, elapsed_time, transported_volume, running_mode, count_outer,
-                     target_str):
-        if running_mode == 'i' or running_mode == 'I':
-            flow_rate = float(flow_rate) * 1e-12
-            elapsed_time = float(elapsed_time) * 1e-3
-            transported_volume = float(transported_volume) * 1e-12
+                     target_str, len_run_commands):
+        if running_mode:
+            if running_mode[0] == 'i' or running_mode[0] == 'I':
+                flow_rate = float(flow_rate) * 1e-12
+                elapsed_time = float(elapsed_time) * 1e-3
+                transported_volume = float(transported_volume) * 1e-12
+            else:
+                flow_rate = - float(flow_rate) * 1e-12
+                elapsed_time = float(elapsed_time) * 1e-3
+                transported_volume = - float(transported_volume) * 1e-12
         else:
-            flow_rate = - float(flow_rate) * 1e-12
-            elapsed_time = float(elapsed_time) * 1e-3
-            transported_volume = - float(transported_volume) * 1e-12
+            pass
 
         if flow_rate and (
-                transported_volume not in GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME or elapsed_time not in GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME):
-            print(len(GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME))
-            print(len(GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME))
-            print(len(GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE))
+                transported_volume not in GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME and elapsed_time not in GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME):
 
-            if len(GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME) > 0 and len(
-                    GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME) > 0 and len(
-                    GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE) > 0:
-                prev_elapsed_time = GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME[-1]
-                prev_flow_rate = GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]
-                prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
+            if len_run_commands < 11:  # INF或者WD
 
-                self.ax.plot([prev_elapsed_time, elapsed_time], [prev_flow_rate, flow_rate], 'b-',
-                             label='Flow rate')
-                self.ax.plot([prev_elapsed_time, elapsed_time], [prev_trans_volume, transported_volume], 'g-',
-                             label='Transported volume')
+                if len(GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME) > 0 and len(
+                        GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME) > 0 and len(
+                        GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE) > 0:
 
-            # 更新图例
-            if not self.flow_rate_legend_added:
-                self.ax.plot([], [], 'b-', label='Flow rate')
-                # self.ax.plot([], [], 'g-', label='Transported volume')
-                self.flow_rate_legend_added = True
-                # self.transported_volume_legend_added = True
-                self.legend = self.ax.legend(loc='upper right', fontsize=9)
+                    prev_elapsed_time = GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME[-1]
+                    prev_flow_rate = GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]
+                    prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
 
-            if not self.transported_volume_legend_added:
-                # self.ax.plot([], [], 'b-', label='Flow rate')
-                self.ax.plot([], [], 'g-', label='Transported volume')
-                # self.flow_rate_legend_added = True
-                self.transported_volume_legend_added = True
+                    self.ax.plot([prev_elapsed_time, elapsed_time], [prev_flow_rate, flow_rate], 'b-')
+                    self.ax.plot([prev_elapsed_time, elapsed_time], [prev_trans_volume, transported_volume], 'g-')
 
-                self.legend = self.ax.legend(loc='upper right', fontsize=9)
+                    # 更新图例
+                    if not self.flow_rate_legend_added:
+                        self.ax.plot([], [], 'b-', label=r'Flow rate [ml/s]')
+                        # self.ax.plot([], [], 'g-', label='Transported volume')
+                        self.flow_rate_legend_added = True
+                        # self.transported_volume_legend_added = True
+                        self.legend = self.ax.legend(loc='upper right', fontsize=9)
 
-            GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME.append(transported_volume)
-            GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME.append(elapsed_time)
-            GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE.append(flow_rate)
+                    if not self.transported_volume_legend_added:
+                        # self.ax.plot([], [], 'b-', label='Flow rate')
+                        self.ax.plot([], [], 'g-', label=r'Transported volume [ml]')
+                        # self.flow_rate_legend_added = True
+                        self.transported_volume_legend_added = True
+
+                        self.legend = self.ax.legend(loc='upper right', fontsize=9)
+
+                GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME.append(transported_volume)
+                GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME.append(elapsed_time)
+                GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE.append(flow_rate)
+
+            else:  # INF/WD或者WD/INF
+
+                if count_outer < 11 and flow_rate > 0:  # INF/WD: 求INF阶段的最大值，用最大值加上count_outer > 9的最小值得到绘图点
+                    # print(f"max vol: {GraphicalMplCanvas.max_flow_volume: .2f}, max time: {GraphicalMplCanvas.max_time_len: .2f}")
+
+                    if len(GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME) > 0 and len(
+                            GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME) > 0 and len(
+                            GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE) > 0:
+
+                        GraphicalMplCanvas.max_flow_volume = max(GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME)
+                        GraphicalMplCanvas.max_time_len = max(GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME)
+
+                        prev_elapsed_time = GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME[-1]
+                        prev_flow_rate = GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]
+                        prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
+
+                        self.ax.plot([prev_elapsed_time, elapsed_time], [prev_flow_rate, flow_rate], 'b-')
+                        self.ax.plot([prev_elapsed_time, elapsed_time], [prev_trans_volume, transported_volume], 'g-')
+
+                        # 更新图例
+                        if not self.flow_rate_legend_added:
+                            self.ax.plot([], [], 'b-', label=r'Flow rate [ml/s]')
+                            self.flow_rate_legend_added = True
+                            self.legend = self.ax.legend(loc='upper right', fontsize=9)
+
+                        if not self.transported_volume_legend_added:
+                            self.ax.plot([], [], 'g-', label=r'Transported volume [ml]')
+                            self.transported_volume_legend_added = True
+                            self.legend = self.ax.legend(loc='upper right', fontsize=9)
+
+                    GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME.append(transported_volume)
+                    GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME.append(elapsed_time)
+                    GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE.append(flow_rate)
+                    # print(GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME)
+                    # pass
+                elif count_outer >= 11 and flow_rate < 0:
+                    GraphicalMplCanvas.temp_volume.append(transported_volume)
+
+                    # GraphicalMplCanvas.min_flow_volume = min(GraphicalMplCanvas.temp_volume)
+                    GraphicalMplCanvas.min_flow_volume = GraphicalMplCanvas.temp_volume[-1]
+                    GraphicalMplCanvas.current_volume_inf_wd = GraphicalMplCanvas.max_flow_volume + GraphicalMplCanvas.min_flow_volume
+                    # print(GraphicalMplCanvas.current_volume_inf_wd)
+
+                    prev_elapsed_time = GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME[-1]
+                    prev_flow_rate = GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]
+                    prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
+                    # print(elapsed_time + GraphicalMplCanvas.max_time_len)
+                    if prev_elapsed_time < elapsed_time + GraphicalMplCanvas.max_time_len:
+                        self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len], [prev_flow_rate, flow_rate], 'b-')
+                        self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len], [prev_trans_volume, GraphicalMplCanvas.current_volume_inf_wd], 'g-')
+                        # print(prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len)
+
+                    self.flow_rate_legend_added = True
+                    self.transported_volume_legend_added = True
+
+                    if prev_elapsed_time < elapsed_time + GraphicalMplCanvas.max_time_len:
+                        GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME.append(GraphicalMplCanvas.current_volume_inf_wd)
+                        GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME.append(elapsed_time + GraphicalMplCanvas.max_time_len)
+                        GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE.append(flow_rate)
+                    # print(f"Elapsed time:{GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME[-1]: .2f}\r\nFlow rate: {GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]: .2f}\r\nVolume: {GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]: .2f}")
+
+                elif count_outer < 11 and flow_rate < 0:  # WD/INF: 求WD阶段的最小值，用最大值加上count_outer > 9的最大值得到绘图点
+
+                    if len(GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME) > 0 and len(
+                            GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME) > 0 and len(
+                            GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE) > 0:
+
+                        GraphicalMplCanvas.min_flow_volume = min(GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME)
+                        GraphicalMplCanvas.max_time_len = max(GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME)
+
+                        prev_elapsed_time = GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME[-1]
+                        prev_flow_rate = GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]
+                        prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
+
+                        self.ax.plot([prev_elapsed_time, elapsed_time], [prev_flow_rate, flow_rate], 'b-')
+                        self.ax.plot([prev_elapsed_time, elapsed_time], [prev_trans_volume, transported_volume],
+                                     'g-')
+
+                        # 更新图例
+                        if not self.flow_rate_legend_added:
+                            self.ax.plot([], [], 'b-', label=r'Flow rate [ml/s]')
+                            self.flow_rate_legend_added = True
+                            self.legend = self.ax.legend(loc='upper right', fontsize=9)
+
+                        if not self.transported_volume_legend_added:
+                            self.ax.plot([], [], 'g-', label=r'Transported volume [ml]')
+                            self.transported_volume_legend_added = True
+
+                            self.legend = self.ax.legend(loc='upper right', fontsize=9)
+
+                    GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME.append(transported_volume)
+                    GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME.append(elapsed_time)
+                    GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE.append(flow_rate)
+                    # pass
+                elif count_outer >= 11 and flow_rate > 0:
+                    GraphicalMplCanvas.temp_volume.append(transported_volume)
+
+                    GraphicalMplCanvas.max_flow_volume = max(GraphicalMplCanvas.temp_volume)
+                    GraphicalMplCanvas.current_volume_wd_inf = GraphicalMplCanvas.max_flow_volume + GraphicalMplCanvas.min_flow_volume
+
+                    prev_elapsed_time = GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME[-1]
+                    prev_flow_rate = GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]
+                    prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
+
+                    if prev_elapsed_time < elapsed_time + GraphicalMplCanvas.max_time_len:
+                        self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len],
+                                     [prev_flow_rate, flow_rate], 'b-')
+                        self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len],
+                                     [prev_trans_volume, GraphicalMplCanvas.current_volume_wd_inf], 'g-')
+
+                    self.flow_rate_legend_added = True
+                    self.transported_volume_legend_added = True
+                    if prev_elapsed_time < elapsed_time + GraphicalMplCanvas.max_time_len:
+                        GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME.append(GraphicalMplCanvas.current_volume_wd_inf)
+                        GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME.append(elapsed_time + GraphicalMplCanvas.max_time_len)
+                        GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE.append(flow_rate)
+
+                    # pass
 
             self.fig.canvas.draw()
 
@@ -2375,16 +2497,16 @@ def on_button_clicked(button, tab, ui, setups_dict_quick_mode):
         tab.setTabEnabled(1, False)
         setups_dict_quick_mode['Run Mode'] = 'WD'
     elif button.property('value') == 'INF/ WD':
-        tab.setTabText(0, tabs_name[0])
         tab.setTabText(1, tabs_name[1])
-        tab.setTabEnabled(0, True)
+        tab.setTabText(0, tabs_name[0])
         tab.setTabEnabled(1, True)
+        tab.setTabEnabled(0, True)
         setups_dict_quick_mode['Run Mode'] = 'INF/ WD'
     elif button.property('value') == 'WD/ INF':
-        tab.setTabText(0, tabs_name[1])
         tab.setTabText(1, tabs_name[0])
-        tab.setTabEnabled(0, True)
+        tab.setTabText(0, tabs_name[1])
         tab.setTabEnabled(1, True)
+        tab.setTabEnabled(0, True)
         setups_dict_quick_mode['Run Mode'] = 'WD/ INF'
     else:
         tab.setTabText(0, tabs_name[2])
@@ -2681,8 +2803,11 @@ def Quick_mode_param_run(ui, setups_dict_quick_mode):
 def validate_and_run(ui, read_send_thread, setups_dict_quick_mode, mpl_canvas):
     Quick_mode_param_run(ui, setups_dict_quick_mode)
     if setups_dict_quick_mode['Flow Parameter'] is not None and setups_dict_quick_mode['Flow Parameter'] != 'None':
-        read_send_thread.initialize_class_var()
-        mpl_canvas.initialize_graph()
+        clear_graph_text(ui, read_send_thread, mpl_canvas)
+        # read_send_thread.initialize_class_var()
+        # mpl_canvas.initialize_graph()
+        # ui.running_mode.setText('')
+        # ui.progress_bar_running.setValue(0)
         read_send_thread.ser_quick_mode_command_set(ui, setups_dict_quick_mode)
         read_send_thread.send_run_commands()
     else:
@@ -3052,6 +3177,17 @@ def rwd_btn_timer_start(timer):
 
 def rwd_btn_timer_stop(timer):
     timer.stop()
+
+
+"""Reset all configurations"""
+
+
+def reset_all_config(ui):
+    ui.radioButton_1.setChecked(False)
+    ui.radioButton_2.setChecked(False)
+    ui.radioButton_3.setChecked(False)
+    ui.radioButton_4.setChecked(False)
+    ui.radioButton_5.setChecked(False)
 
 
 """Enable switching theme from toolbar -> theme"""

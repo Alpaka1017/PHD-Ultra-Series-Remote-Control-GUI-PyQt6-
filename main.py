@@ -71,6 +71,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.themGroup.addAction(self.ui_main.actionDark)
         self.themGroup.addAction(self.ui_main.actionDefaultTheme)
 
+        self.ui_main.actionReset.triggered.connect(lambda: functions.reset_all_config(self.ui_main))
+
         """更改主题"""
         self.ui_main.actionLight.triggered.connect(
             lambda: functions.switch_theme_qdarktheme(self.ui_main, self.ui_child_steps_dialog, self.mpl_canvas, self.sender(),
@@ -171,8 +173,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui_main.progress_bar_running.setMaximumWidth(210)
 
         self.timer_ui_update.timeout.connect(lambda: functions.display_progress_on_statusBar(self.ui_main, self.read_send_thread.MAIN_WINDOW_LABEL, self.read_send_thread.MAIN_WINDOW_PROGRESS))
-        self.timer_ui_update.timeout.connect(lambda: self.mpl_canvas.update_graph(self.read_send_thread.FLOW_RATE, self.read_send_thread.FLOW_RATE_UNIT, self.read_send_thread.ELAPSED_TIME, self.read_send_thread.TRANSPORTED_VOLUME, self.read_send_thread.RUNNING_MODE, self.read_send_thread.COUNT_OUTER, self.read_send_thread.TARGET_STR))
-        self.timer_ui_update.start(50)
+        self.timer_ui_update.timeout.connect(lambda: self.mpl_canvas.update_graph(self.read_send_thread.FLOW_RATE, self.read_send_thread.FLOW_RATE_UNIT, self.read_send_thread.ELAPSED_TIME, self.read_send_thread.TRANSPORTED_VOLUME, self.read_send_thread.RUNNING_MODE, self.read_send_thread.COUNT_OUTER, self.read_send_thread.TARGET_STR, self.read_send_thread.LEN_RUN_COMMAND))
+        self.timer_ui_update.start(80)
         #
         # self.read_send_thread.progress_bar_str.connect(lambda progress_str_target: functions.progress_display(
         # self.ui_main, progress_str_target), QtCore.Qt.ConnectionType.QueuedConnection)
