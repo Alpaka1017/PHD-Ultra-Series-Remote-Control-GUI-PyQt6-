@@ -2985,7 +2985,6 @@ p, li { white-space: pre-wrap; }
  </widget>
  <resources>
   <include location="image/Resource_StepsDefine_image.qrc"/>
-  <include location="image/button_limit_icon.qrc"/>
  </resources>
  <connections>
   <connection>

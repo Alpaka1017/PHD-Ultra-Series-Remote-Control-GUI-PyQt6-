@@ -7,7 +7,7 @@
 
 
 from PyQt6 import QtCore, QtGui, QtWidgets
-import Resource_img_icon
+import resources_rc
 
 
 class Ui_Dialog(object):

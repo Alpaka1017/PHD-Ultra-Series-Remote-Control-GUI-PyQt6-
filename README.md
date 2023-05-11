@@ -96,8 +96,6 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 
 ![iPVshx.png](https://i.328888.xyz/2023/05/04/iPVshx.png)
 
-![iKnCyw.png](https://i.328888.xyz/2023/04/29/iKnCyw.png)
-
 &#x2192; Implement real-time dynamic plotting of data
 
 
@@ -129,3 +127,18 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 ## Complete UI showcase
 
 <p align="center">   <img src="https://i.328888.xyz/2023/05/10/iQQkUX.png" alt="iQQkUX.png" border="0" /> </p>
+
+# Week 6
+
+&#x2611; Fixed all known bugs and implement the goals of the first stage
+
+* Port read and commands send according to different running status
+* En-/Decoding methods: `utf-8`, `ascii`
+* Diverse line ending identifiers: `No line feed`, `CR`, `LF`, `CR&LF`
+* Post-processing of returned data: dynamic display, progress bar
+* Tooltip for default force limit under consideration of safety
+* Theme switch -> as well as adapting and the styling of the plot area
+* Registration of resource data
+* etc.
+
+<img src="https://i.328888.xyz/2023/05/11/iq6ppE.png" alt="iq6ppE.png" border="0" />

@@ -11,10 +11,12 @@ import serial.tools.list_ports
 from PyQt6 import QtCore, QtGui, QtWidgets
 from serial.tools.list_ports import comports
 import math
+import numpy as np
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT
 from matplotlib.figure import Figure
+from matplotlib.collections import LineCollection
 import matplotlib.font_manager as font_manager
 
 import logging.config
@@ -22,7 +24,7 @@ from settings import settings_log
 
 import json
 import global_hotkeys as hotkey
-import Resource_img_icon
+import resources_rc
 
 icon_dict = {
     "const_icon.png": "Constant",
@@ -86,6 +88,7 @@ import_dict_rename = {
 logging.config.dictConfig(settings_log.LOGGING_DIC)
 logger_debug_console = logging.getLogger('logger1')  # Console print
 logger_info_console_file = logging.getLogger('logger2')  # Console & file recording
+logger_info_file = logging.getLogger('logger3')
 
 # Set global warning filter for pyqtSignal, it still works though
 # warnings.filterwarnings("ignore", category=UserWarning, message="Cannot find reference 'connect' in 'pyqtSignal | pyqtSignal'")
@@ -241,7 +244,8 @@ class CheckSerialThread(QtCore.QThread):
                 CheckSerialThread.TIMEOUT_COUNT = CheckSerialThread.MAX_TIMEOUT
 
         except Exception as e:
-            logger_info_console_file.info(str(e))
+            # logger_info_console_file.info(str(e))
+            logger_info_file.info(e)
             self.CONNECTION_STATUS_CHANGED.emit(f"Failed to close port {self.ser.port}: " + str(e))
             self.connected = False
             self.ser = None
@@ -348,7 +352,8 @@ class CheckSerialThread(QtCore.QThread):
                     CheckSerialThread.PORT_PARAM_DICT = {}
                     break
                 except Exception as e:
-                    logger_info_console_file.info(f"{str(e)}")
+                    # logger_info_console_file.info(f"{str(e)}")
+                    logger_info_file.info(f"{str(e)}")
                     CheckSerialThread.TIMEOUT_COUNT += 1
                     time.sleep(0.5)
             else:
@@ -408,7 +413,7 @@ class CheckSerialThread(QtCore.QThread):
     @staticmethod
     def port_is_in_use(port: str) -> bool:
         for info in serial.tools.list_ports.comports():
-            logger_debug_console.info(info.device)
+            # logger_debug_console.info(info.device)
             if info.device == port:
                 return True
         return False
@@ -1162,9 +1167,9 @@ class ReadSendPort(QtCore.QThread):
         elif sender_check == ui.action_CR_LF:
             ReadSendPort.__LINE_FEED_TYPE = (b':\r\n', b'<\r\n', b'>\r\n', b'*\r\n', b'T*\r\n')
             ReadSendPort.DECODE_STYLE = 'CR&LF'
-        logger_debug_console.info(
-            f"set_line_feed_style called! Current decoding format: {ReadSendPort.DECODE_STYLE}")
-        logger_debug_console.info(f"Current ending identifier: {ReadSendPort.__LINE_FEED_TYPE}")
+        # logger_debug_console.info(
+        #     f"set_line_feed_style called! Current decoding format: {ReadSendPort.DECODE_STYLE}")
+        # logger_debug_console.info(f"Current ending identifier: {ReadSendPort.__LINE_FEED_TYPE}")
         return ReadSendPort.__LINE_FEED_TYPE, ReadSendPort.DECODE_STYLE
 
     @staticmethod
@@ -1472,7 +1477,8 @@ class ReadSendPort(QtCore.QThread):
                             break
             except Exception as e:
                 if not isinstance(e, AttributeError):
-                    logger_info_console_file.info(e)
+                    # logger_info_console_file.info(e)
+                    logger_info_file.info(e)
         # print('self.response multi-line: ', self.response)
         if self.__response and self.__response != b'':
             pass
@@ -1500,7 +1506,7 @@ class ReadSendPort(QtCore.QThread):
     @staticmethod
     def emit_progress(self, progress_str: str):
         # print('emit_progress called.')
-        print(f'{progress_str} [%], from emit_progress')
+        # print(f'{progress_str} [%], from emit_progress')
         self.progress_bar_str.emit(progress_str)
 
     def stop(self):
@@ -1563,9 +1569,11 @@ class ReadSendPort(QtCore.QThread):
                     # ui.commands_sent.insertHtml(f"<b>{current_time} >></b>\r\n{str_to_send}")
                     ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
                 except Exception as e:
-                    logger_info_console_file.warning(e)
+                    # logger_info_console_file.warning(e)
+                    logger_info_file.warning(e)
                     # If data are failed to write in, and exceed the maximum buffer size, then reset the buffer
                     if len(self.check_serial_thread.ser.out_waiting) > 4096:
+                        logger_info_file.info('Data in buffer zone exceeded 4096 bytes, it will be cleaned.')
                         self.check_serial_thread.ser.reset_output_buffer()
                         ui.commands_sent.append(f"{current_time} >>\r\nBuffer overflow, clearing buffer...")
                     self.check_serial_thread.ser.write(str_to_send.encode(ReadSendPort.ENCODE_TYPE))
@@ -2034,7 +2042,7 @@ class ReadSendPort(QtCore.QThread):
                         # self.timer_run.singleShot(time_run, QtCore.QCoreApplication.processEvents)
                         self.msleep(time_run)
                         # time.sleep(time_run)
-                        logger_debug_console.debug(status_str)
+                        # logger_debug_console.debug(status_str)
                 else:
                     for value in dict_run.values():
                         ui.commands_sent.append(f"{current_time}{value['prompt']}")
@@ -2046,19 +2054,19 @@ class ReadSendPort(QtCore.QThread):
                         self.msleep(time_run)
                         # time.sleep(time_run)
                         # 运行到commands_set_INF/WD的'irun/wrun'时，响应会变为：'>'或者'<' || 'INF running', 'WD running'
-                        logger_debug_console.debug(status_str)
+                        # logger_debug_console.debug(status_str)
             elif status_str in ('INF running', 'WD running'):  # 每0.1s向pump发送获取四个参数的命令
                 self.check_serial_thread.ser.write(b'@status\r\n')
                 self.msleep(time_response)
                 # time.sleep(time_response)
                 # self.timer_run.singleShot(time_response, QtCore.QCoreApplication.processEvents)
-                logger_debug_console.debug(status_str)
+                # logger_debug_console.debug(status_str)
             elif status_str == 'Target reached':
-                logger_debug_console.debug(status_str)
+                # logger_debug_console.debug(status_str)
                 continue
             elif status_str == 'STOP':
                 # self.timer_run.stop()
-                logger_debug_console.debug(status_str)
+                # logger_debug_console.debug(status_str)
                 break
 
     def clear_from_button(self, ui):
@@ -2103,10 +2111,10 @@ class ReadSendPort(QtCore.QThread):
 # Deprecated
 # @QtCore.pyqtSlot(dict)
 def progress_display(ui, progress_str: str):
-    logger_debug_console.debug(f'@QtCore.pyqtSlot(str): {progress_str}')
+    # logger_debug_console.debug(f'@QtCore.pyqtSlot(str): {progress_str}')
     sequence_mode = progress_str.split(':')[0].strip()
     progress_percent = progress_str.split(':')[1].strip()
-    logger_debug_console.debug(f"From function progress_display：{sequence_mode}: {progress_percent} [%]")
+    # logger_debug_console.debug(f"From function progress_display：{sequence_mode}: {progress_percent} [%]")
     ui.running_mode.setText(str(sequence_mode))
     ui.progress_bar_running.setValue(int(progress_percent))
 
@@ -2132,8 +2140,20 @@ class GraphicalMplCanvas(FigureCanvas):
 
     def __init__(self, parent=None, width=5, height=4, dpi=100, alpha=0):
 
+        # self.segment = None
+        self.segments_flow_rate = []
+        self.segments_trans_volume = []
+        self.max_time_lim = 0
+        self.y_lim_upper = 0
+        self.y_lim_lower = 0
+        self.temp_x_array = np.empty(0)
+        self.temp_y_array = np.empty(0)
+
         self.fig = Figure(figsize=(width, height), dpi=dpi)
         self.ax = self.fig.add_subplot(111)
+
+        self.lc_flow_rate = None
+        self.lc_trans_volume = None
 
         # self.legend = self.ax.legend(loc='upper right', fontsize=9)
         self.flow_rate_legend_added = False
@@ -2158,23 +2178,59 @@ class GraphicalMplCanvas(FigureCanvas):
         parent.addToolBar(self.tool_bar)
 
         # 调用初始化画布的函数
-        self.initialize_graph()
+        self.initialize_graph(axis_label_color='black')
 
-    def initialize_graph(self):
+    def initialize_graph(self, axis_label_color):
         self.fig.tight_layout()
         self.ax.cla()
         # Set font
-        self.font_path = './font/OpenSans-Medium.ttf'
-        self.tick_font_prop = font_manager.FontProperties(fname=self.font_path, size=8)  # tick font size
+        # self.font_path = './font/OpenSans-Medium.ttf'
+
+        # # 从资源文件.qrc里加载字体资源
+        font_resource = QtCore.QResource(":font_/OpenSans-Medium.ttf")
+        font_data = font_resource.data()
+        # 创建临时文件并保存字体数据
+        temp_font_file = QtCore.QTemporaryFile()
+        temp_font_file.open()
+        temp_font_file.write(font_data)
+        temp_font_file.close()
+
+        # 获取临时字体文件路径
+        self.font_path = temp_font_file.fileName()
+
+        self.tick_font_prop = font_manager.FontProperties(fname=self.font_path, size=9)  # tick font size
         self.font_prop = font_manager.FontProperties(fname=self.font_path, size=9)
         self.title_font = font_manager.FontProperties(fname=self.font_path, size=10)
 
-        self.fig.set_facecolor('white')
+        # self.fig.set_facecolor('white')
+        # 画布颜色
+        # self.fig.set_facecolor((32/255, 33/255, 36/255))
+        # # self.fig.set_edgecolor((32/255, 33/255, 36/255))
+        # # 绘图区颜色
+        # self.ax.set_facecolor((57/255, 58/255, 62/255))
+        # # 坐标轴刻度颜色
+        # self.ax.tick_params(axis='both', colors='white')
+        # # 坐标轴标签颜色
+        self.ax.set_xlabel('', color=axis_label_color)
+        self.ax.set_ylabel('', color=axis_label_color)
+        # # 坐标轴颜色
+        # self.ax.spines['bottom'].set_color('white')
+        # self.ax.spines['left'].set_color('white')
+        # # 标题颜色
+        # self.ax.set_title('', color='white')
+
         self.ax.set_title(' ', fontproperties=self.title_font)
         self.ax.set_xlabel('Time [s]', fontproperties=self.font_prop)
         self.ax.set_ylabel(r'Flow rate [ml/s]', fontproperties=self.font_prop)
         self.fig.tight_layout()
         self.ax.grid(True)
+
+
+        # 其他绘图操作...
+        # ...
+
+        # 显示图形
+        # self.ax.show()
 
         # legend initialization
         # self.legend = self.ax.legend(loc='upper right', fontsize=9)
@@ -2200,6 +2256,22 @@ class GraphicalMplCanvas(FigureCanvas):
         GraphicalMplCanvas.current_volume_wd_inf = 0
         GraphicalMplCanvas.max_time_len = 0
         GraphicalMplCanvas.temp_volume = []
+
+        self.segments_flow_rate = []
+        self.segments_trans_volume = []
+        self.max_time_lim = 0
+        self.y_lim_upper = 0
+        self.y_lim_lower = 0
+        self.temp_x_array = np.empty(0)
+        self.temp_y_array = np.empty(0)
+        self.lc_flow_rate = LineCollection([], colors='blue')  # 设置线段颜色为蓝色
+        self.lc_trans_volume = LineCollection([], color='green')
+
+        # 将 LineCollection 添加到坐标轴
+        self.ax.add_collection(self.lc_flow_rate)
+        self.ax.add_collection(self.lc_trans_volume)
+
+        # self.canvas = FigureCanvas(self.fig)
 
         self.fig.canvas.draw()
 
@@ -2230,8 +2302,25 @@ class GraphicalMplCanvas(FigureCanvas):
                     prev_flow_rate = GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]
                     prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
 
-                    self.ax.plot([prev_elapsed_time, elapsed_time], [prev_flow_rate, flow_rate], 'b-')
-                    self.ax.plot([prev_elapsed_time, elapsed_time], [prev_trans_volume, transported_volume], 'g-')
+                    self.temp_x_array = np.append(self.temp_x_array, prev_elapsed_time)
+                    self.temp_y_array = np.append(self.temp_y_array, prev_flow_rate)
+                    self.temp_y_array = np.append(self.temp_y_array, prev_trans_volume)
+
+                    self.max_time_len = np.max(self.temp_x_array, axis=0)
+                    self.y_lim_lower, self.y_lim_upper = np.min(self.temp_y_array, axis=0), np.max(self.temp_y_array, axis=0)
+
+                    segment_flow_rate = [(prev_elapsed_time, prev_flow_rate), (elapsed_time, flow_rate)]
+                    self.segments_flow_rate.append(segment_flow_rate)
+                    connected_segments_flow_rate = np.concatenate(self.segments_flow_rate)
+                    self.lc_flow_rate.set_segments([connected_segments_flow_rate])
+
+                    segment_trans_volume = [(prev_elapsed_time, prev_trans_volume), (elapsed_time, transported_volume)]
+                    self.segments_trans_volume.append(segment_trans_volume)
+                    connected_segments_trans_volume = np.concatenate(self.segments_trans_volume)
+                    self.lc_trans_volume.set_segments([connected_segments_trans_volume])
+
+                    self.ax.set_xlim(0, self.max_time_len * 1.1)
+                    self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.2)
 
                     # 更新图例
                     if not self.flow_rate_legend_added:
@@ -2269,8 +2358,30 @@ class GraphicalMplCanvas(FigureCanvas):
                         prev_flow_rate = GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]
                         prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
 
-                        self.ax.plot([prev_elapsed_time, elapsed_time], [prev_flow_rate, flow_rate], 'b-')
-                        self.ax.plot([prev_elapsed_time, elapsed_time], [prev_trans_volume, transported_volume], 'g-')
+                        # self.ax.plot([prev_elapsed_time, elapsed_time], [prev_flow_rate, flow_rate], 'b-')
+                        # self.ax.plot([prev_elapsed_time, elapsed_time], [prev_trans_volume, transported_volume], 'g-')
+
+                        self.temp_x_array = np.append(self.temp_x_array, prev_elapsed_time)
+                        self.temp_y_array = np.append(self.temp_y_array, prev_flow_rate)
+                        self.temp_y_array = np.append(self.temp_y_array, prev_trans_volume)
+
+                        self.max_time_len = np.max(self.temp_x_array, axis=0)
+                        self.y_lim_lower, self.y_lim_upper = np.min(self.temp_y_array, axis=0), np.max(
+                            self.temp_y_array, axis=0)
+
+                        segment_flow_rate = [(prev_elapsed_time, prev_flow_rate), (elapsed_time, flow_rate)]
+                        self.segments_flow_rate.append(segment_flow_rate)
+                        connected_segments_flow_rate = np.concatenate(self.segments_flow_rate)
+                        self.lc_flow_rate.set_segments([connected_segments_flow_rate])
+
+                        segment_trans_volume = [(prev_elapsed_time, prev_trans_volume),
+                                                (elapsed_time, transported_volume)]
+                        self.segments_trans_volume.append(segment_trans_volume)
+                        connected_segments_trans_volume = np.concatenate(self.segments_trans_volume)
+                        self.lc_trans_volume.set_segments([connected_segments_trans_volume])
+
+                        self.ax.set_xlim(0, self.max_time_len * 1.1)
+                        self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.2)
 
                         # 更新图例
                         if not self.flow_rate_legend_added:
@@ -2301,8 +2412,30 @@ class GraphicalMplCanvas(FigureCanvas):
                     prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
                     # print(elapsed_time + GraphicalMplCanvas.max_time_len)
                     if prev_elapsed_time < elapsed_time + GraphicalMplCanvas.max_time_len:
-                        self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len], [prev_flow_rate, flow_rate], 'b-')
-                        self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len], [prev_trans_volume, GraphicalMplCanvas.current_volume_inf_wd], 'g-')
+                        # self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len], [prev_flow_rate, flow_rate], 'b-')
+                        # self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len], [prev_trans_volume, GraphicalMplCanvas.current_volume_inf_wd], 'g-')
+
+                        self.temp_x_array = np.append(self.temp_x_array, prev_elapsed_time + GraphicalMplCanvas.max_time_len)
+                        self.temp_y_array = np.append(self.temp_y_array, prev_flow_rate)
+                        self.temp_y_array = np.append(self.temp_y_array, GraphicalMplCanvas.current_volume_inf_wd)
+
+                        self.max_time_len = np.max(self.temp_x_array, axis=0)
+                        self.y_lim_lower, self.y_lim_upper = np.min(self.temp_y_array, axis=0), np.max(
+                            self.temp_y_array, axis=0)
+
+                        segment_flow_rate = [(prev_elapsed_time, prev_flow_rate), (elapsed_time + GraphicalMplCanvas.max_time_len, flow_rate)]
+                        self.segments_flow_rate.append(segment_flow_rate)
+                        connected_segments_flow_rate = np.concatenate(self.segments_flow_rate)
+                        self.lc_flow_rate.set_segments([connected_segments_flow_rate])
+
+                        segment_trans_volume = [(prev_elapsed_time, prev_trans_volume),
+                                                (elapsed_time + GraphicalMplCanvas.max_time_len, GraphicalMplCanvas.current_volume_inf_wd)]
+                        self.segments_trans_volume.append(segment_trans_volume)
+                        connected_segments_trans_volume = np.concatenate(self.segments_trans_volume)
+                        self.lc_trans_volume.set_segments([connected_segments_trans_volume])
+
+                        self.ax.set_xlim(0, self.max_time_len * 0.7)
+                        self.ax.set_ylim(self.y_lim_lower * 1.2, self.y_lim_upper * 1.2)
                         # print(prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len)
 
                     self.flow_rate_legend_added = True
@@ -2327,9 +2460,31 @@ class GraphicalMplCanvas(FigureCanvas):
                         prev_flow_rate = GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE[-1]
                         prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
 
-                        self.ax.plot([prev_elapsed_time, elapsed_time], [prev_flow_rate, flow_rate], 'b-')
-                        self.ax.plot([prev_elapsed_time, elapsed_time], [prev_trans_volume, transported_volume],
-                                     'g-')
+                        # self.ax.plot([prev_elapsed_time, elapsed_time], [prev_flow_rate, flow_rate], 'b-')
+                        # self.ax.plot([prev_elapsed_time, elapsed_time], [prev_trans_volume, transported_volume],
+                        #              'g-')
+
+                        self.temp_x_array = np.append(self.temp_x_array, prev_elapsed_time)
+                        self.temp_y_array = np.append(self.temp_y_array, prev_flow_rate)
+                        self.temp_y_array = np.append(self.temp_y_array, prev_trans_volume)
+
+                        self.max_time_len = np.max(self.temp_x_array, axis=0)
+                        self.y_lim_lower, self.y_lim_upper = np.min(self.temp_y_array, axis=0), np.max(
+                            self.temp_y_array, axis=0)
+
+                        segment_flow_rate = [(prev_elapsed_time, prev_flow_rate), (elapsed_time, flow_rate)]
+                        self.segments_flow_rate.append(segment_flow_rate)
+                        connected_segments_flow_rate = np.concatenate(self.segments_flow_rate)
+                        self.lc_flow_rate.set_segments([connected_segments_flow_rate])
+
+                        segment_trans_volume = [(prev_elapsed_time, prev_trans_volume),
+                                                (elapsed_time, transported_volume)]
+                        self.segments_trans_volume.append(segment_trans_volume)
+                        connected_segments_trans_volume = np.concatenate(self.segments_trans_volume)
+                        self.lc_trans_volume.set_segments([connected_segments_trans_volume])
+
+                        self.ax.set_xlim(0, self.max_time_len * 1.1)
+                        self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.2)
 
                         # 更新图例
                         if not self.flow_rate_legend_added:
@@ -2358,10 +2513,35 @@ class GraphicalMplCanvas(FigureCanvas):
                     prev_trans_volume = GraphicalMplCanvas.DRAW_POINTS_TRANS_VOLUME[-1]
 
                     if prev_elapsed_time < elapsed_time + GraphicalMplCanvas.max_time_len:
-                        self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len],
-                                     [prev_flow_rate, flow_rate], 'b-')
-                        self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len],
-                                     [prev_trans_volume, GraphicalMplCanvas.current_volume_wd_inf], 'g-')
+                        # self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len],
+                        #              [prev_flow_rate, flow_rate], 'b-')
+                        # self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len],
+                        #              [prev_trans_volume, GraphicalMplCanvas.current_volume_wd_inf], 'g-')
+
+                        self.temp_x_array = np.append(self.temp_x_array,
+                                                      prev_elapsed_time + GraphicalMplCanvas.max_time_len)
+                        self.temp_y_array = np.append(self.temp_y_array, prev_flow_rate)
+                        self.temp_y_array = np.append(self.temp_y_array, GraphicalMplCanvas.current_volume_wd_inf)
+
+                        self.max_time_len = np.max(self.temp_x_array, axis=0)
+                        self.y_lim_lower, self.y_lim_upper = np.min(self.temp_y_array, axis=0), np.max(
+                            self.temp_y_array, axis=0)
+
+                        segment_flow_rate = [(prev_elapsed_time, prev_flow_rate),
+                                             (elapsed_time + GraphicalMplCanvas.max_time_len, flow_rate)]
+                        self.segments_flow_rate.append(segment_flow_rate)
+                        connected_segments_flow_rate = np.concatenate(self.segments_flow_rate)
+                        self.lc_flow_rate.set_segments([connected_segments_flow_rate])
+
+                        segment_trans_volume = [(prev_elapsed_time, prev_trans_volume),
+                                                (elapsed_time + GraphicalMplCanvas.max_time_len,
+                                                 GraphicalMplCanvas.current_volume_wd_inf)]
+                        self.segments_trans_volume.append(segment_trans_volume)
+                        connected_segments_trans_volume = np.concatenate(self.segments_trans_volume)
+                        self.lc_trans_volume.set_segments([connected_segments_trans_volume])
+
+                        self.ax.set_xlim(0, self.max_time_len * 0.7)
+                        self.ax.set_ylim(self.y_lim_lower * 1.2, self.y_lim_upper * 1.2)
 
                     self.flow_rate_legend_added = True
                     self.transported_volume_legend_added = True
@@ -2371,7 +2551,8 @@ class GraphicalMplCanvas(FigureCanvas):
                         GraphicalMplCanvas.DRAW_POINTS_FLOW_RATE.append(flow_rate)
 
                     # pass
-
+            # self.ax.collections.clear()
+            # self.ax.add_collection(self.lc)
             self.fig.canvas.draw()
 
     @staticmethod
@@ -2385,7 +2566,7 @@ class GraphicalMplCanvas(FigureCanvas):
                 # 确保保存路径存在
                 os.makedirs(os.path.dirname(save_path), exist_ok=True)
 
-                header = "Time [s]\tFlow rate [10^-12 ml/s]\tTransported volume [10^-12 ml]\n"
+                header = "Time [s]\tFlow rate [ml/s]\tTransported volume [ml]\n"
                 data = ""
 
                 for i in range(len(GraphicalMplCanvas.DRAW_POINTS_ELAPSED_TIME)):
@@ -2491,7 +2672,7 @@ def receive_dict(check_serial_thread, _param_dict):
 @QtCore.pyqtSlot(str)
 def return_receive_status(receive_status, send_data_to_port):
     # send_data_to_port.return_receive_status(receive_status)
-    print(receive_status)
+    # print(receive_status)
     return receive_status
 
 
@@ -2553,7 +2734,7 @@ def is_number_and_positive(str_passed):
         number = float(str_passed)
         return number >= 0
     except ValueError as value_error:
-        logger_info_console_file.info(value_error)
+        # logger_info_console_file.info(value_error)
         return False
 
 
@@ -2876,7 +3057,8 @@ def Quick_mode_param_run(ui, setups_dict_quick_mode):
         QtWidgets.QMessageBox.information(ui.groupBox_param_enter, 'Input Error.',
                                           'Flow parameters needed for the selected run mode.')
     else:
-        logger_debug_console.info(setups_dict_quick_mode)
+        # logger_debug_console.info(setups_dict_quick_mode)
+
         return setups_dict_quick_mode
 
 
@@ -3136,7 +3318,8 @@ def print_setups_dict_custom(setups_dict_custom):
             counter_dict[prefix] += 1
             new_key = f"{prefix}_{counter_dict[prefix]}"
             new_dict[new_key] = sorted_dict[key]
-    logger_debug_console.info(setups_dict_custom)
+    # logger_debug_console.info(setups_dict_custom)
+    logger_info_file.info(setups_dict_custom)
     return setups_dict_custom
 
 
@@ -3175,7 +3358,8 @@ def import_user_defined_methods(list_widget, setups_dict_custom):
                     #                                   'dictionary type data!')
             except Exception as e:
                 QtWidgets.QMessageBox.information(list_widget, 'Invalid import', str(e))
-                logger_info_console_file.info(e)
+                # logger_info_console_file.info(e)
+                logger_info_file.warning(e)
 
 
 # Update the list shown in MainWindow (QListWidget for methods)
@@ -3231,7 +3415,8 @@ def export_user_defined_methods(ui, setups_dict_custom):
                 msgBox.setDefaultButton(msgBox.StandardButton.Ok)
                 msgBox.exec()
         except Exception as e:
-            logger_info_console_file.info(e)
+            logger_info_file.info(e)
+            # logger_info_console_file.info(e)
 
 
 """Graphical display"""
@@ -3241,7 +3426,10 @@ def clear_graph_text(ui, read_send_thread, mpl_canvas):
     ui.Response_from_pump.setText('')
     ui.commands_sent.setText('')
     read_send_thread.initialize_class_var()
-    mpl_canvas.initialize_graph()
+    if ui.actionDark.isChecked():
+        mpl_canvas.initialize_graph(axis_label_color='white')
+    else:
+        mpl_canvas.initialize_graph(axis_label_color='black')
     read_send_thread.clear_from_button(ui)
 
 
@@ -3289,11 +3477,89 @@ def switch_theme_qdarktheme(ui, ui_step, mpl_canvas, theme_sender, app=None, sty
         ui.menubar.setStyleSheet("color: black")
         app.setStyleSheet(style_sheet)
 
+        mpl_canvas.fig.set_facecolor((235/255, 235/255, 235/255))
+        # 绘图区颜色
+        mpl_canvas.ax.set_facecolor('white')
+        # 坐标轴刻度颜色
+        mpl_canvas.ax.tick_params(axis='both', colors='black')
+        # 坐标轴标签颜色
+        mpl_canvas.ax.set_xlabel('', color='black')
+        mpl_canvas.ax.set_ylabel('', color='black')
+        # 坐标轴颜色
+        mpl_canvas.ax.spines['bottom'].set_color('black')
+        mpl_canvas.ax.spines['left'].set_color('black')
+        # 标题颜色
+        mpl_canvas.ax.set_title('', color='black')
+        # 其他
+        # # 从资源文件.qrc里加载字体资源
+        font_resource = QtCore.QResource(":font_/OpenSans-Medium.ttf")
+        font_data = font_resource.data()
+        # 创建临时文件并保存字体数据
+        temp_font_file = QtCore.QTemporaryFile()
+        temp_font_file.open()
+        temp_font_file.write(font_data)
+        temp_font_file.close()
+
+        # 获取临时字体文件路径
+        mpl_canvas.font_path = temp_font_file.fileName()
+
+        mpl_canvas.tick_font_prop = font_manager.FontProperties(fname=mpl_canvas.font_path, size=9)  # tick font size
+        mpl_canvas.font_prop = font_manager.FontProperties(fname=mpl_canvas.font_path, size=9)
+        mpl_canvas.title_font = font_manager.FontProperties(fname=mpl_canvas.font_path, size=10)
+
+        mpl_canvas.ax.set_title(' ', fontproperties=mpl_canvas.title_font)
+        mpl_canvas.ax.set_xlabel('Time [s]', fontproperties=mpl_canvas.font_prop)
+        mpl_canvas.ax.set_ylabel(r'Flow rate [ml/s]', fontproperties=mpl_canvas.font_prop)
+        mpl_canvas.fig.tight_layout()
+        mpl_canvas.ax.grid(True)
+
+        mpl_canvas.ax.xaxis.set_tick_params(labelsize=8)  # x-axis tick font size
+        mpl_canvas.ax.yaxis.set_tick_params(labelsize=8)  # y-axis tick font size
+
     elif theme_sender == ui.actionDark:
         app.setStyleSheet("")
         ui.menubar.setStyleSheet("")
         ui.listWidget_userDefined_method.setStyleSheet("")
         ui_step.listWidget.setStyleSheet("")
+
+        mpl_canvas.fig.set_facecolor((32/255, 33/255, 36/255))
+        # 绘图区颜色
+        mpl_canvas.ax.set_facecolor((57/255, 58/255, 62/255))
+        # 坐标轴刻度颜色
+        mpl_canvas.ax.tick_params(axis='both', colors='white')
+        # 坐标轴标签颜色
+        mpl_canvas.ax.set_xlabel('', color='white')
+        mpl_canvas.ax.set_ylabel('', color='white')
+        # 坐标轴颜色
+        mpl_canvas.ax.spines['bottom'].set_color('white')
+        mpl_canvas.ax.spines['left'].set_color('white')
+        # 标题颜色
+        mpl_canvas.ax.set_title('', color='white')
+        # 其他
+        # # 从资源文件.qrc里加载字体资源
+        font_resource = QtCore.QResource(":font_/OpenSans-Medium.ttf")
+        font_data = font_resource.data()
+        # 创建临时文件并保存字体数据
+        temp_font_file = QtCore.QTemporaryFile()
+        temp_font_file.open()
+        temp_font_file.write(font_data)
+        temp_font_file.close()
+
+        # 获取临时字体文件路径
+        mpl_canvas.font_path = temp_font_file.fileName()
+
+        mpl_canvas.tick_font_prop = font_manager.FontProperties(fname=mpl_canvas.font_path, size=9)  # tick font size
+        mpl_canvas.font_prop = font_manager.FontProperties(fname=mpl_canvas.font_path, size=9)
+        mpl_canvas.title_font = font_manager.FontProperties(fname=mpl_canvas.font_path, size=10)
+
+        mpl_canvas.ax.set_title(' ', fontproperties=mpl_canvas.title_font)
+        mpl_canvas.ax.set_xlabel('Time [s]', fontproperties=mpl_canvas.font_prop)
+        mpl_canvas.ax.set_ylabel(r'Flow rate [ml/s]', fontproperties=mpl_canvas.font_prop)
+        mpl_canvas.fig.tight_layout()
+        mpl_canvas.ax.grid(True)
+
+        mpl_canvas.ax.xaxis.set_tick_params(labelsize=8)  # x-axis tick font size
+        mpl_canvas.ax.yaxis.set_tick_params(labelsize=8)  # y-axis tick font size
 
         qdarktheme.setup_theme('dark', additional_qss=qss_additional_style_4_qdarktheme)
 
@@ -3302,5 +3568,44 @@ def switch_theme_qdarktheme(ui, ui_step, mpl_canvas, theme_sender, app=None, sty
         ui.menubar.setStyleSheet("")
         ui.listWidget_userDefined_method.setStyleSheet("")
         ui_step.listWidget.setStyleSheet("")
+
+        mpl_canvas.fig.set_facecolor('white')
+        # 绘图区颜色
+        mpl_canvas.ax.set_facecolor('white')
+        # 坐标轴刻度颜色
+        mpl_canvas.ax.tick_params(axis='both', colors='black')
+        # 坐标轴标签颜色
+        mpl_canvas.ax.set_xlabel('', color='black')
+        mpl_canvas.ax.set_ylabel('', color='black')
+        # 坐标轴颜色
+        mpl_canvas.ax.spines['bottom'].set_color('black')
+        mpl_canvas.ax.spines['left'].set_color('black')
+        # 标题颜色
+        mpl_canvas.ax.set_title('', color='black')
+        # 其他
+        # # 从资源文件.qrc里加载字体资源
+        font_resource = QtCore.QResource(":font_/OpenSans-Medium.ttf")
+        font_data = font_resource.data()
+        # 创建临时文件并保存字体数据
+        temp_font_file = QtCore.QTemporaryFile()
+        temp_font_file.open()
+        temp_font_file.write(font_data)
+        temp_font_file.close()
+
+        # 获取临时字体文件路径
+        mpl_canvas.font_path = temp_font_file.fileName()
+
+        mpl_canvas.tick_font_prop = font_manager.FontProperties(fname=mpl_canvas.font_path, size=9)  # tick font size
+        mpl_canvas.font_prop = font_manager.FontProperties(fname=mpl_canvas.font_path, size=9)
+        mpl_canvas.title_font = font_manager.FontProperties(fname=mpl_canvas.font_path, size=10)
+
+        mpl_canvas.ax.set_title(' ', fontproperties=mpl_canvas.title_font)
+        mpl_canvas.ax.set_xlabel('Time [s]', fontproperties=mpl_canvas.font_prop)
+        mpl_canvas.ax.set_ylabel(r'Flow rate [ml/s]', fontproperties=mpl_canvas.font_prop)
+        mpl_canvas.fig.tight_layout()
+        mpl_canvas.ax.grid(True)
+
+        mpl_canvas.ax.xaxis.set_tick_params(labelsize=8)  # x-axis tick font size
+        mpl_canvas.ax.yaxis.set_tick_params(labelsize=8)  # y-axis tick font size
 
         qdarktheme.setup_theme('light', additional_qss=qss_additional_style_4_qdarktheme)

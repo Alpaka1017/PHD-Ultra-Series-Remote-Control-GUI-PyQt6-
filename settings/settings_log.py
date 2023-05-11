@@ -63,6 +63,11 @@ LOGGING_DIC = {
             "level": "INFO",
             "propagate": False
         },
+        "logger3": {
+            "handlers": ["file_debug_handler"],
+            "level": "INFO",
+            "propagate": False
+        },
     }
     
 }

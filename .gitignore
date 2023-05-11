@@ -4,3 +4,6 @@ font/
 image/
 .msc/
 UserDefinedMethods/
+dist/
+build/
+logs/

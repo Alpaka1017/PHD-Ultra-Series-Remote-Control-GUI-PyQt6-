@@ -13,7 +13,7 @@ from settings import settings_log
 
 import functions
 import global_hotkeys as hotkey
-import Resource_img_icon
+import resources_rc
 
 from functions import GraphicalMplCanvas
 
@@ -24,8 +24,8 @@ from UserDefinedSteps_child_UI import Ui_Dialog
 
 # Configuration logging functionality
 logging.config.dictConfig(settings_log.LOGGING_DIC)
-logger_debug_console = logging.getLogger('logger1')  # Console print
-# logger_info_console_file = logging.getLogger('logger2')   # Console & file recording
+# logger_debug_console = logging.getLogger('logger1')  # Console print
+logger_info_console_file = logging.getLogger('logger2')   # Console & file recording
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -39,8 +39,13 @@ class MainWindow(QtWidgets.QMainWindow):
                                        'Flow Parameter': None}
         self.ui_main = Ui_MainWindow()
         self.ui_main.setupUi(self)
-        with open("./qss/origin_style.qss") as style_sheet:
-            self.style_sheet = style_sheet.read()
+        # with open("./qss/origin_style.qss") as style_sheet:
+        #     self.style_sheet = style_sheet.read()
+
+        style_resource = QtCore.QFile(':/qss_/origin_style.qss')
+        if style_resource.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
+            self.style_sheet = style_resource.readAll().data().decode()
+            style_resource.close()
         self.app_instance = QtWidgets.QApplication.instance()
 
         """初始化canvas画布"""
@@ -384,15 +389,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str)
     def return_receive_status(self, receive_status):
-        print('return_receive_status called')
-        print(receive_status)
+        # print('return_receive_status called')
+        # print(receive_status)
+        pass
 
     @QtCore.pyqtSlot(str)
     def progress_display(self, ui, str_progress: str):
-        print('@QtCore.pyqtSlot(str, int)', str_progress)
+        # print('@QtCore.pyqtSlot(str, int)', str_progress)
         sequence_mode = str_progress.split(':')[0].strip()
         progress_percent = str_progress.split(':')[1].strip()
-        print(f"From progress_display function：{sequence_mode}: {progress_percent} [%]")
+        # print(f"From progress_display function：{sequence_mode}: {progress_percent} [%]")
         ui.running_mode.setText(str(sequence_mode))
         ui.progress_bar_running.setValue(int(progress_percent))
     # def update_components(self, ui, label_str, value_str):
@@ -419,7 +425,7 @@ class StepsDialogChildWindow(QtWidgets.QDialog, Ui_Dialog):
         selected_items = self.listWidget.selectedItems()
         if selected_items:
             item = selected_items[0]
-            print(item.text())
+            # (item.text())
             self.selected_items.emit(item.text(), item.icon())
             return item
         else:
