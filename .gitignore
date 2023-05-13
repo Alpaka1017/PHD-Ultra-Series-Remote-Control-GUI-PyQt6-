@@ -8,3 +8,9 @@ dist/
 build/
 logs/
 dist/
+.pylintrc/
+main.spec/
+PHD.spec/
+Release_v1.0.0.zip/
+RemoteControl_main_BackUp.ui/
+test_response.py/
