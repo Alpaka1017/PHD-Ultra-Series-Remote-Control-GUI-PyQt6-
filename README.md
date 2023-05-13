@@ -56,7 +56,7 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 
 ![iSxgXq.png](https://i.328888.xyz/2023/04/24/iSxgXq.png)
 
-&#x2611; Validate the validity of the value entered by the user
+&#x2611; Varifying the value entered by the user
 
 &#x2611; Threads for writing and reading serial ports were added
 
@@ -78,7 +78,7 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 
 &#x2611; Optimized UI layout and size adjustment in response to scaling
 
-&#x2611; Improved theme switching functionality and fixed several bugs
+&#x2611; Improved theme switching feature and fixed several bugs
 
 &#x2611; Optimized font display
 
@@ -86,7 +86,7 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 
 &#x2726;  Added support for various encoding/decoding options
 
-&#x2726;  Added a feature to display the recommended force level by hovering on selected syringe to prevent damage to it
+&#x2726;  Added a feature to display the recommended force level by hovering on selected syringe to prevent from being damaged
 
 ![iKSY6Q.png](https://i.328888.xyz/2023/04/30/iKSY6Q.png)
 
@@ -137,7 +137,7 @@ This project is specifically developed for PHD Ultra 70-3xx series syringe pumps
 * Diverse line ending identifiers: `No line feed`, `CR`, `LF`, `CR&LF`
 * Post-processing of returned data: dynamic display, progress bar
 * Tooltip for default force limit under consideration of safety
-* Theme switch -> as well as adapting and the styling of the plot area
+* Theme switch -> as well as adapting and the styling of the plot area: **Powered by [PyQtDarkTheme](https://github.com/5yutan5/PyQtDarkTheme.git)**
 * Registration of resource data
 * etc.
 
