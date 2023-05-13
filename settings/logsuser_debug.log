@@ -1,0 +1,2 @@
+[12-05-2023] [22:49:05] self.ser is not a serial.Serial object, it's <class 'NoneType'>
+[12-05-2023] [22:49:06] self.ser is not a serial.Serial object, it's <class 'NoneType'>

@@ -154,3 +154,15 @@ QComboBox QAbstractItemView {
 QLineEdit {
 	color: black;
 }
+
+QMenu {
+	background-color: #F0F0F0;
+	border: 1px solid #AAAAAA;
+}
+QMenu::item {
+	padding: 5px 30px 5px 35px;
+}
+QMenu::item:selected {
+	background-color: #90C8F6;
+	color: #0B0A0A;
+}

@@ -1,4 +1,3 @@
-
 # Configuration of logging module
 LOGGING_DIC = {
     "version": 1.0,
@@ -33,6 +32,7 @@ LOGGING_DIC = {
             "level": "INFO",
             "class": "logging.handlers.RotatingFileHandler",  # Save to file, logs rotating
             "filename": "./logs/user_info.log",
+            # "filename": log_file_path_info,
             "maxBytes": 1024*1024*10,                         # Maximum size of logging file: 10MB
             "backupCount": 10,                                # Maximum numbers of log files
             "encoding": "utf-8",
@@ -42,6 +42,7 @@ LOGGING_DIC = {
             "level": "DEBUG",
             "class": "logging.FileHandler",      # Save loggings to file
             "filename": "./logs/user_debug.log",        # Path of log files
+            # "filename": log_file_path_debug,
             "encoding": "utf-8",
             "formatter": "test"
         }
@@ -64,7 +65,7 @@ LOGGING_DIC = {
             "propagate": False
         },
         "logger3": {
-            "handlers": ["file_debug_handler"],
+            "handlers": ["file_info_handler"],
             "level": "INFO",
             "propagate": False
         },

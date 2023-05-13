@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-# noinspection PyTypeChecker
 import datetime
 import os
+import sys
 import time
 
 from decimal import Decimal
@@ -90,6 +90,9 @@ logger_debug_console = logging.getLogger('logger1')  # Console print
 logger_info_console_file = logging.getLogger('logger2')  # Console & file recording
 logger_info_file = logging.getLogger('logger3')
 
+
+# Logging module after packaging as an executable application
+# 获取当前目录下的日志文件路径
 # Set global warning filter for pyqtSignal, it still works though
 # warnings.filterwarnings("ignore", category=UserWarning, message="Cannot find reference 'connect' in 'pyqtSignal | pyqtSignal'")
 
@@ -245,7 +248,7 @@ class CheckSerialThread(QtCore.QThread):
 
         except Exception as e:
             # logger_info_console_file.info(str(e))
-            logger_info_file.info(e)
+            logger_info_console_file.info(e)
             self.CONNECTION_STATUS_CHANGED.emit(f"Failed to close port {self.ser.port}: " + str(e))
             self.connected = False
             self.ser = None
@@ -353,7 +356,7 @@ class CheckSerialThread(QtCore.QThread):
                     break
                 except Exception as e:
                     # logger_info_console_file.info(f"{str(e)}")
-                    logger_info_file.info(f"{str(e)}")
+                    logger_info_console_file.info(f"{str(e)}")
                     CheckSerialThread.TIMEOUT_COUNT += 1
                     time.sleep(0.5)
             else:
@@ -1478,7 +1481,7 @@ class ReadSendPort(QtCore.QThread):
             except Exception as e:
                 if not isinstance(e, AttributeError):
                     # logger_info_console_file.info(e)
-                    logger_info_file.info(e)
+                    logger_info_console_file.info(e)
         # print('self.response multi-line: ', self.response)
         if self.__response and self.__response != b'':
             pass
@@ -1538,7 +1541,7 @@ class ReadSendPort(QtCore.QThread):
         if isinstance(self.check_serial_thread.ser, serial.Serial):
             self.check_serial_thread.ser.write('@tilt\r\n'.encode(ReadSendPort.ENCODE_TYPE))
         else:
-            logger_info_console_file.warning(
+            logger_info_console_file.debug(
                 f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
         self.mutex_sub.unlock()
 
@@ -1570,10 +1573,10 @@ class ReadSendPort(QtCore.QThread):
                     ui.commands_sent.append(f"{current_time} >>\r\n{str_to_send}")
                 except Exception as e:
                     # logger_info_console_file.warning(e)
-                    logger_info_file.warning(e)
+                    logger_info_console_file.info(e)
                     # If data are failed to write in, and exceed the maximum buffer size, then reset the buffer
                     if len(self.check_serial_thread.ser.out_waiting) > 4096:
-                        logger_info_file.info('Data in buffer zone exceeded 4096 bytes, it will be cleaned.')
+                        logger_info_console_file.info('Data in buffer zone exceeded 4096 bytes, it will be cleaned.')
                         self.check_serial_thread.ser.reset_output_buffer()
                         ui.commands_sent.append(f"{current_time} >>\r\nBuffer overflow, clearing buffer...")
                     self.check_serial_thread.ser.write(str_to_send.encode(ReadSendPort.ENCODE_TYPE))
@@ -1601,7 +1604,7 @@ class ReadSendPort(QtCore.QThread):
             # ui.commands_sent.insertHtml(f"<b>{current_time} >></b>\r\n{str_to_send}")
             ui.commands_sent.append(f"{current_time} >>\r\nBackground light set to: {str(value)} %\r\n")
         else:
-            logger_info_console_file.warning(
+            logger_info_console_file.debug(
                 f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
             pass
         self.mutex_sub.unlock()
@@ -1615,7 +1618,7 @@ class ReadSendPort(QtCore.QThread):
             ui.commands_sent.moveCursor(QtGui.QTextCursor.MoveOperation.End)
             ui.commands_sent.append(f"{current_time} >>\r\nForce limit set to: {str(value)} %\r\n")
         else:
-            logger_info_console_file.warning(
+            logger_info_console_file.debug(
                 f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
             pass
         self.mutex_sub.unlock()
@@ -2098,7 +2101,7 @@ class ReadSendPort(QtCore.QThread):
         if isinstance(self.check_serial_thread.ser, serial.Serial):
             self.check_serial_thread.ser.write('@stop\r\n'.encode(ReadSendPort.ENCODE_TYPE))
         else:
-            logger_info_console_file.warning(
+            logger_info_console_file.debug(
                 f"self.ser is not a serial.Serial object, it's {type(self.check_serial_thread.ser)}")
         self.mutex_sub.unlock()
 
@@ -2320,20 +2323,16 @@ class GraphicalMplCanvas(FigureCanvas):
                     self.lc_trans_volume.set_segments([connected_segments_trans_volume])
 
                     self.ax.set_xlim(0, self.max_time_len * 1.1)
-                    self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.2)
+                    self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.35)
 
                     # 更新图例
                     if not self.flow_rate_legend_added:
                         self.ax.plot([], [], 'b-', label=r'Flow rate [ml/s]')
-                        # self.ax.plot([], [], 'g-', label='Transported volume')
                         self.flow_rate_legend_added = True
-                        # self.transported_volume_legend_added = True
                         self.legend = self.ax.legend(loc='upper right', fontsize=9)
 
                     if not self.transported_volume_legend_added:
-                        # self.ax.plot([], [], 'b-', label='Flow rate')
                         self.ax.plot([], [], 'g-', label=r'Transported volume [ml]')
-                        # self.flow_rate_legend_added = True
                         self.transported_volume_legend_added = True
 
                         self.legend = self.ax.legend(loc='upper right', fontsize=9)
@@ -2381,7 +2380,7 @@ class GraphicalMplCanvas(FigureCanvas):
                         self.lc_trans_volume.set_segments([connected_segments_trans_volume])
 
                         self.ax.set_xlim(0, self.max_time_len * 1.1)
-                        self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.2)
+                        self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.35)
 
                         # 更新图例
                         if not self.flow_rate_legend_added:
@@ -2415,11 +2414,12 @@ class GraphicalMplCanvas(FigureCanvas):
                         # self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len], [prev_flow_rate, flow_rate], 'b-')
                         # self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len], [prev_trans_volume, GraphicalMplCanvas.current_volume_inf_wd], 'g-')
 
-                        self.temp_x_array = np.append(self.temp_x_array, prev_elapsed_time + GraphicalMplCanvas.max_time_len)
+                        self.temp_x_array = np.append(self.temp_x_array, prev_elapsed_time)
                         self.temp_y_array = np.append(self.temp_y_array, prev_flow_rate)
                         self.temp_y_array = np.append(self.temp_y_array, GraphicalMplCanvas.current_volume_inf_wd)
 
                         self.max_time_len = np.max(self.temp_x_array, axis=0)
+                        print(self.max_time_len)
                         self.y_lim_lower, self.y_lim_upper = np.min(self.temp_y_array, axis=0), np.max(
                             self.temp_y_array, axis=0)
 
@@ -2434,8 +2434,8 @@ class GraphicalMplCanvas(FigureCanvas):
                         connected_segments_trans_volume = np.concatenate(self.segments_trans_volume)
                         self.lc_trans_volume.set_segments([connected_segments_trans_volume])
 
-                        self.ax.set_xlim(0, self.max_time_len * 0.7)
-                        self.ax.set_ylim(self.y_lim_lower * 1.2, self.y_lim_upper * 1.2)
+                        self.ax.set_xlim(0, self.max_time_len * 1.1)
+                        self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.35)
                         # print(prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len)
 
                     self.flow_rate_legend_added = True
@@ -2484,7 +2484,7 @@ class GraphicalMplCanvas(FigureCanvas):
                         self.lc_trans_volume.set_segments([connected_segments_trans_volume])
 
                         self.ax.set_xlim(0, self.max_time_len * 1.1)
-                        self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.2)
+                        self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.35)
 
                         # 更新图例
                         if not self.flow_rate_legend_added:
@@ -2518,8 +2518,7 @@ class GraphicalMplCanvas(FigureCanvas):
                         # self.ax.plot([prev_elapsed_time, elapsed_time + GraphicalMplCanvas.max_time_len],
                         #              [prev_trans_volume, GraphicalMplCanvas.current_volume_wd_inf], 'g-')
 
-                        self.temp_x_array = np.append(self.temp_x_array,
-                                                      prev_elapsed_time + GraphicalMplCanvas.max_time_len)
+                        self.temp_x_array = np.append(self.temp_x_array,prev_elapsed_time)
                         self.temp_y_array = np.append(self.temp_y_array, prev_flow_rate)
                         self.temp_y_array = np.append(self.temp_y_array, GraphicalMplCanvas.current_volume_wd_inf)
 
@@ -2540,8 +2539,8 @@ class GraphicalMplCanvas(FigureCanvas):
                         connected_segments_trans_volume = np.concatenate(self.segments_trans_volume)
                         self.lc_trans_volume.set_segments([connected_segments_trans_volume])
 
-                        self.ax.set_xlim(0, self.max_time_len * 0.7)
-                        self.ax.set_ylim(self.y_lim_lower * 1.2, self.y_lim_upper * 1.2)
+                        self.ax.set_xlim(0, self.max_time_len * 1.1)
+                        self.ax.set_ylim(self.y_lim_lower * 1.35, self.y_lim_upper * 1.35)
 
                     self.flow_rate_legend_added = True
                     self.transported_volume_legend_added = True
@@ -2594,6 +2593,20 @@ class MySysTrayWidget(QtWidgets.QWidget):
         self.__window = window
         # self.__ui.setupUi(self.__window)
 
+        menu_style = """
+            QMenu {
+                background-color: #F0F0F0;
+                border: 1px solid #AAAAAA;
+            }
+            QMenu::item {
+                padding: 5px 30px 5px 20px;
+            }
+            QMenu::item:selected {
+                background-color: #3366CC;
+                color: #FFFFFF;
+            }
+        """
+
         # 配置系统托盘
         self.__trayicon = QtWidgets.QSystemTrayIcon(self)
         self.__trayicon.setIcon(QtGui.QIcon(':window_icon_/Logo_TU_Dresden_small.svg'))
@@ -2601,6 +2614,7 @@ class MySysTrayWidget(QtWidgets.QWidget):
 
         # 创建托盘的右键菜单
         self.__traymenu = QtWidgets.QMenu()
+        # self.__traymenu.setStyleSheet(menu_style)
         self.__trayaction = []
         self.addTrayMenuAction('Show', self.show_userinterface)
         self.addTrayMenuAction('Exit', self.quit)
@@ -2638,7 +2652,7 @@ class MySysTrayWidget(QtWidgets.QWidget):
         if reason == QtWidgets.QSystemTrayIcon.ActivationReason.DoubleClick:
             self.show_userinterface()
             # 双击触发的事件处理程序
-            # print("Tray icon double clicked")
+            # print("Tray icon double-clicked")
 
     def quit(self):
         # 真正的退出
@@ -2713,7 +2727,15 @@ def update_connection_status(ui, status: str):
 
 
 def Get_syringe_dict():
-    cmds_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'json', 'commands.json'))
+    # cmds_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'json', 'commands.json'))
+    if getattr(sys, 'frozen', False):
+        # 当程序被打包成可执行文件时
+        base_path = os.path.dirname(sys.executable)
+    else:
+        # 当程序在开发环境中运行时
+        base_path = os.path.abspath(os.path.dirname(__file__))
+
+    cmds_path = os.path.join(base_path, 'json', 'commands.json')
     with open(cmds_path, 'r') as cmds:
         commands = json.load(cmds)
 
@@ -3319,7 +3341,7 @@ def print_setups_dict_custom(setups_dict_custom):
             new_key = f"{prefix}_{counter_dict[prefix]}"
             new_dict[new_key] = sorted_dict[key]
     # logger_debug_console.info(setups_dict_custom)
-    logger_info_file.info(setups_dict_custom)
+    logger_info_console_file.info(setups_dict_custom)
     return setups_dict_custom
 
 
@@ -3359,7 +3381,7 @@ def import_user_defined_methods(list_widget, setups_dict_custom):
             except Exception as e:
                 QtWidgets.QMessageBox.information(list_widget, 'Invalid import', str(e))
                 # logger_info_console_file.info(e)
-                logger_info_file.warning(e)
+                # logger_info_console_file.debug(e)
 
 
 # Update the list shown in MainWindow (QListWidget for methods)
@@ -3370,11 +3392,15 @@ def update_list_widget(list_widget, setups_dict_custom):
     # 添加每一个键值对到listWidget中
     for i, (key, value) in enumerate(setups_dict_custom.items()):
         # 根据key选择icon
-        icon_path = os.path.join("image", icon_dict.get("const_icon.png"))
+
+        # icon_path = os.path.join("image", icon_dict.get("const_icon.png"))
+        icon_path = ':/icon_/' + str(list(icon_dict.keys())[0])
         for icon_name, key_str in icon_dict.items():
             if key_str in key:
-                icon_path = os.path.join("image", icon_name)
+                # icon_path = os.path.join("image", icon_name)
+                icon_path = ':/icon_/' + str(icon_name)
                 break
+
         key_list_widget = key.split("_")[0]
         # 在listWidget中添加带icon的item
         item = QtWidgets.QListWidgetItem(QtGui.QIcon(icon_path), f"{i + 1}. {import_dict_rename[key_list_widget]}")
@@ -3385,8 +3411,17 @@ def update_list_widget(list_widget, setups_dict_custom):
 
 
 def export_user_defined_methods(ui, setups_dict_custom):
-    # 获取保存路径
-    save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "UserDefinedMethods")
+    # 获取程序所在目录
+    if getattr(sys, 'frozen', False):
+        # 当程序被打包成可执行文件时
+        base_path = os.path.dirname(sys.executable)
+    else:
+        # 当程序在开发环境中运行时
+        base_path = os.path.abspath(os.path.dirname(__file__))
+
+    # 构建保存路径
+    save_path = os.path.join(base_path, "UserDefinedMethods")
+
     # 如果保存路径不存在，则创建路径
     if not os.path.exists(save_path):
         os.makedirs(save_path)
@@ -3415,7 +3450,7 @@ def export_user_defined_methods(ui, setups_dict_custom):
                 msgBox.setDefaultButton(msgBox.StandardButton.Ok)
                 msgBox.exec()
         except Exception as e:
-            logger_info_file.info(e)
+            logger_info_console_file.info(e)
             # logger_info_console_file.info(e)
 
 

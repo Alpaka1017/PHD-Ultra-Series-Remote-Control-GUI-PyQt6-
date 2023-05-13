@@ -37,16 +37,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setups_dict_quick_mode = {'Run Mode': None,
                                        'Syringe Info': '',
                                        'Flow Parameter': None}
+        # self.window = MainWindow()
         self.ui_main = Ui_MainWindow()
         self.ui_main.setupUi(self)
+        # # Read from directory
         # with open("./qss/origin_style.qss") as style_sheet:
         #     self.style_sheet = style_sheet.read()
 
+        # Load from resource_rc.py
         style_resource = QtCore.QFile(':/qss_/origin_style.qss')
         if style_resource.open(QtCore.QIODevice.OpenModeFlag.ReadOnly):
             self.style_sheet = style_resource.readAll().data().decode()
             style_resource.close()
+
         self.app_instance = QtWidgets.QApplication.instance()
+
+        # self.tray_icon = functions.MySysTrayWidget(ui=self.ui_main, app=self.app_instance, window=window)
 
         """初始化canvas画布"""
         self.mpl_canvas = GraphicalMplCanvas(parent=self)
